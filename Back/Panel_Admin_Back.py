@@ -48,7 +48,7 @@ def crear_tablas():
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS Productos(
         Nombre TEXT,
-        Precio INTEGER,)"""
+        Precio INTEGER)"""
     ) 
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS Usuarios(
