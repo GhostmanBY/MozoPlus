@@ -1,0 +1,92 @@
+{
+    "Mesa 1": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 2": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 3": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 4": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 5": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 6": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 7": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 8": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 9": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    },
+    "Mesa 10": {
+        "Disponible": true,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ]
+    }
+}

@@ -256,8 +256,12 @@ class ValorInput(BaseModel):
     valor: list
 
 
+# Endpoint para ver las mesas
 @app.get("/mesas")
 async def ver_mesas():
+    """
+    Devuelve una lista con las mesas y sus respectivos valores.
+    """
     mesas = []
     # Listar y filtrar los archivos en el directorio 'tmp'
     archivos = sorted(
@@ -284,7 +288,9 @@ async def ver_mesas():
 
 
 def crea_mesas_tmp():
-    """Crea mesas con los valores por defecto"""
+    """
+    Crea mesas con los valores por defecto en el directorio 'tmp'.
+    """
     with open("Docs/mesas.json", "r") as file:
         mesas = json.load(file)
 
@@ -301,6 +307,9 @@ def crea_mesas_tmp():
 
 
 def creas_mesas(cantidad):
+    """
+    Crea mesas con los valores por defecto en el archivo 'Docs/mesas.json'.
+    """
     mesas = {}
     for i in range(1, cantidad + 1):
         mesas[f"Mesa {i}"] = {
@@ -316,6 +325,9 @@ def creas_mesas(cantidad):
 # endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
 @app.put("/mesas/{mesa}")
 async def editar_mesa(mesa: int, input: ValorInput):
+    """
+    Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
+    """
     archivo = f"tmp/Mesa {mesa}.json"  # Consistencia en el nombre del archivo
     try:
         with open(archivo, "r") as file:
@@ -349,6 +361,9 @@ async def editar_mesa(mesa: int, input: ValorInput):
 
 @app.post("/mesas/{mesa}/abrir")
 async def abrir_mesa(mesa: int):
+    """
+    Abre una mesa y actualiza su disponibilidad a False.
+    """
     verifica_directorio("tmp")
     archivo = f"tmp/Mesa {mesa}.json"
 
@@ -384,29 +399,37 @@ async def abrir_mesa(mesa: int):
 
 @app.post("/mesas/{mesa}/cerrar")
 async def cerrar_mesa(mesa: int):
+    """
+    Cierra una mesa y actualiza su disponibilidad a False.
+    """
     archivo = f"tmp/Mesa {mesa}.json"
     try:
+        # Leemos el archivo de la mesa
         with open(archivo, "r") as file:
             contenido = file.read()
+        # Guardamos el contenido en un archivo de texto
         fecha_hoy = datetime.datetime.now().date()
         with open(f"Docs/{fecha_hoy}.txt", "a") as txt:
             txt.write("\n\n" + str(datetime.datetime.now()) + "\n")
             txt.write(contenido)
+        # Actualizamos el estado de la mesa
         mesa_data = {
             "Disponible": False,
             "productos": [],
             "cantidad_comensales": 0,
             "comensales_infantiles": [False, 0],
         }
-
+        # Guardamos los cambios en el archivo
         with open(archivo, "w") as file:
             json.dump(mesa_data, file, indent=4)
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
         )
     except FileNotFoundError:
+        # Si el archivo no existe, devuelve un error 404
         return JSONResponse(content="Mesa no encontrada", status_code=404)
     except Exception as e:
+        # Cualquier otro error, devuelve un error 500
         return JSONResponse(
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
@@ -414,6 +437,9 @@ async def cerrar_mesa(mesa: int):
 
 # MARK: UTILS
 def verifica_directorio(directorio):
+    """
+    Verifica si el directorio existe, si no es asi, lo crea.
+    """
     if not os.path.exists(directorio):
         os.makedirs(directorio)
 
@@ -421,6 +447,7 @@ def verifica_directorio(directorio):
 if __name__ == "__main__":
     import uvicorn
 
+    creas_mesas(10)
     crea_mesas_tmp()
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
