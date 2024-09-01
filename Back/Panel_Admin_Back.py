@@ -251,6 +251,11 @@ class Mesa(BaseModel):
     comensales_infantiles: list
 
 
+class ValorInput(BaseModel):
+    categoria: str
+    valor: list
+
+
 @app.get("/mesas")
 async def ver_mesas():
     mesas = []
@@ -279,7 +284,7 @@ async def ver_mesas():
 
 
 def crea_mesas_tmp():
-    """Crea una mesa con los valores por defecto"""
+    """Crea mesas con los valores por defecto"""
     with open("Docs/mesas.json", "r") as file:
         mesas = json.load(file)
 
@@ -308,32 +313,34 @@ def creas_mesas(cantidad):
             json.dump(mesas, file, indent=4)
 
 
+# endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
 @app.put("/mesas/{mesa}")
-async def editar_mesa(mesa: int, categoria: str, valor: list):
+async def editar_mesa(mesa: int, input: ValorInput):
     archivo = f"tmp/Mesa {mesa}.json"  # Consistencia en el nombre del archivo
     try:
         with open(archivo, "r") as file:
             contenido = json.load(file)
 
-        if categoria not in contenido:
+        if input.categoria not in contenido:
             return JSONResponse(
-                content=f"Categoría {categoria} no existe en la mesa {mesa}",
+                content=f"Categoría {input.categoria} no existe en la mesa {mesa}",
                 status_code=400,
             )
 
         # Verifica que el tipo de datos sea una lista
-        if not isinstance(contenido[categoria], list):
+        if not isinstance(contenido[input.categoria], list):
             return JSONResponse(
-                content=f"La categoría {categoria} no es una lista", status_code=400
+                content=f"La categoría {input.categoria} no es una lista",
+                status_code=400,
             )
 
-        contenido[categoria].extend(valor)
+        contenido[input.categoria].extend(input.valor)
 
         with open(archivo, "w") as file:
             json.dump(contenido, file, indent=4)
 
         return JSONResponse(
-            content=f"Mesa número {mesa} {categoria} actualizada a {valor}",
+            content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}",
             media_type="application/json",
         )
     except Exception as e:
@@ -344,11 +351,30 @@ async def editar_mesa(mesa: int, categoria: str, valor: list):
 async def abrir_mesa(mesa: int):
     verifica_directorio("tmp")
     archivo = f"tmp/Mesa {mesa}.json"
+
+    mesa_data = {
+        "Disponible": False,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [False, 0],
+    }
+
     try:
+        # Si el archivo ya existe, cargamos los datos
+        if os.path.exists(archivo):
+            with open(archivo, "r") as file:
+                mesa_data = json.load(file)
+
+        # Actualizamos el estado de disponibilidad
+        mesa_data["Disponible"] = False
+
+        # Guardamos los cambios en el archivo
         with open(archivo, "w") as file:
-            json.dump({}, file)
+            json.dump(mesa_data, file, indent=4)
+
         return JSONResponse(
-            content=f"Mesa {mesa} abierta", media_type="application/json"
+            content=f"Mesa {mesa} abierta y disponibilidad actualizada a False",
+            media_type="application/json",
         )
     except Exception as e:
         return JSONResponse(
@@ -366,8 +392,15 @@ async def cerrar_mesa(mesa: int):
         with open(f"Docs/{fecha_hoy}.txt", "a") as txt:
             txt.write("\n\n" + str(datetime.datetime.now()) + "\n")
             txt.write(contenido)
+        mesa_data = {
+            "Disponible": False,
+            "productos": [],
+            "cantidad_comensales": 0,
+            "comensales_infantiles": [False, 0],
+        }
 
-        os.remove(archivo)
+        with open(archivo, "w") as file:
+            json.dump(mesa_data, file, indent=4)
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
         )
@@ -388,6 +421,7 @@ def verifica_directorio(directorio):
 if __name__ == "__main__":
     import uvicorn
 
+    crea_mesas_tmp()
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
