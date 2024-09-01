@@ -167,14 +167,15 @@ def crear_tablas():
     # Ejecuta una instruccion
     # Se crean las tabla si no existen (por eso la aclaracion de IF NOT), una vez la tabla creada crea la columna con su tipo de dato
     cursor.execute(
-        """CREATE TABLE IF NOT EXISTS Productos(
+        """CREATE TABLE IF NOT EXISTS Menu(
+        Categoria TEXT,
         Nombre TEXT,
         Precio INTEGER)"""
     )
     cursor.execute(
-        """CREATE TABLE IF NOT EXISTS Usuarios(
-        Mozo TEXT,
-        Codigo TEXT PRIMARY KEY,
+        """CREATE TABLE IF NOT EXISTS Usuario(
+        Nombre TEXT,
+        Codigo TEXT,
         Plaza INTEGER)"""
     )
 
