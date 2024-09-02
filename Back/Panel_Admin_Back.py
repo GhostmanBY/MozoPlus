@@ -12,6 +12,30 @@ def limpiar():
     else:
         os.system("clear")
 
+# MARK: DB
+# Creacion de las tables
+def crear_tablas():
+    conn = sqlite3.connect(ruta_db)  # Se conecta a la base de datos creada
+    cursor = conn.cursor()  # Crea el cursor para ejecutar comandos en la base de datos
+
+    # Ejecuta una instruccion
+    # Se crean las tabla si no existen (por eso la aclaracion de IF NOT), una vez la tabla creada crea la columna con su tipo de dato
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS Menu(
+        Categoria TEXT,
+        Nombre TEXT,
+        Precio INTEGER)"""
+    )
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS Usuario(
+        Nombre TEXT,
+        Codigo TEXT,
+        Plaza INTEGER)"""
+    )
+
+    conn.commit()  # Guarda los cambios hechos a la base de datos
+    conn.close()  # Cierra la coneccion con la base de datos
+
 # MARK: empleados
 # Funcion que genera un codigo con 4 letras y 3 numeros, para la identificacion de los mozos
 def Generar_Codigo():
@@ -41,7 +65,6 @@ def Generar_Codigo():
     codigo = "".join(codigo)
 
     return codigo
-
 
 def Registro_Empleado(name, codigo, Plaza):
     # Se conecta a la base de datos y crea el cursor
@@ -103,31 +126,6 @@ def Eliminar_empleados(name):
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
-# MARK: DB
-
-
-# Creacion de las tables
-def crear_tablas():
-    conn = sqlite3.connect(ruta_db)  # Se conecta a la base de datos creada
-    cursor = conn.cursor()  # Crea el cursor para ejecutar comandos en la base de datos
-
-    # Ejecuta una instruccion
-    # Se crean las tabla si no existen (por eso la aclaracion de IF NOT), una vez la tabla creada crea la columna con su tipo de dato
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS Menu(
-        Categoria TEXT,
-        Nombre TEXT,
-        Precio INTEGER)"""
-    )
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS Usuario(
-        Nombre TEXT,
-        Codigo TEXT,
-        Plaza INTEGER)"""
-    )
-
-    conn.commit()  # Guarda los cambios hechos a la base de datos
-    conn.close()  # Cierra la coneccion con la base de datos
 
 
 # MARK: MENUS
@@ -184,151 +182,3 @@ def Eliminar_Producto(name):
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
-
-
- # Si se ejecuta este archivo desde el mismo se ejecutan todo lo que este por debajo de este if si no, no se hace
-if __name__ == "__main__":
-    crear_tablas()  # Se crean las tablas
-
-    # Menu inicial
-    po = 0
-    while po != 3:  # Ciclo para que se muestre hasta que el usuario quiera salir
-        limpiar()
-        po = int(input("""
-Ingrese la opcion que quiere realizar
-1- Carta
-2- Personal
-3- Salir
-RTA: """))
-
-         # Menu de productos
-        if po == 1:
-            op = 0
-            while (op != 5):  # Ciclo para que se muestre hasta que el usuario quiera salir
-                op = int(input("""
-Ingrese la opcion que quiere realizar:
-1- Cargar producto
-2- Mostrar producto
-3- Modificar producto
-4- Eliminar producto
-5- Volver
-RTA: """))
-               # Acciones del menu Carta
-                if op == 1:
-                    nombre = input("Ingrese el nombre del producto: ")
-                    precio = int(input("Ingrese el precio del producto: "))
-                    Cargar_Producto(nombre, precio)
-
-                    input("Presione enter...")
-                    limpiar()
-
-                elif op == 2:
-                    datos = Mostrar_Productos()
-                    for i in range(0, len(datos)):
-                        for j in range(0, 2):
-                            if j == 0:
-                                print(f"Nombre: {datos[i][j]}")
-                            elif j == 1:
-                                print(f"Precio: {datos[i][j]}")
-                        print("-" * 15)
-
-                    input("Preisone Enter...")
-                    limpiar()
-
-                elif op == 3:
-                    nombre = input("Ingrese el nombre del producto: ")
-                    categoria = input("Ingrese lo que va a modificar si el preico o el stock: ")
-                    valor_nuevo = int(input(f"Ingrese el {categoria} del producto: "))
-                    Modificar_Productos(nombre, categoria.capitalize(), valor_nuevo)
-
-                    input("Presione enter...")
-                    limpiar()
-
-                elif op == 4:
-                    nombre = input("Ingrese el nombre del producto a eliminar: ")
-                    Eliminar_Producto(nombre)
-
-                    input("Presione enter...")
-                    limpiar()
-
-        elif po == 2:
-
-            # Menu de empleados
-            pop = 0
-            while (pop != 6):  # Ciclo para que se muestre hasta que el usuario quiera salir
-                pop = int(input("""
-Ingrese la opciona que quiere realizar:
-1- Registrar nuevo empleado
-2- Mostrar empleados
-3- Modificar empleado
-4- Eliminar empleado
-5- Verificar
-6- Volver
-RTA: """))
-                # Acciones del menu de empleados
-                if pop == 1:
-                    datos = Mostrar_Empleados()
-
-                    name = input("Ingrese el nombre del mozo: ")
-
-                    codigo = Generar_Codigo()
-
-                    Plaza = int(input("Ingrese la plaza a la que va a estar asiganado: "))
-
-                    Registro_Empleado(name, codigo, Plaza)
-
-                    input("Presione enter...")
-                    limpiar()
-                elif pop == 2:
-                    datos = Mostrar_Empleados()
-                    for i in range(0, len(datos)):
-                        for j in range(0, 4):
-                            if j == 0:
-                                print(f"Mozo: {datos[i][j]}")
-                            elif j == 1:
-                                print(f"Codigo: {datos[i][j]}")
-                            elif j == 2:
-                                print(f"Plaza: {datos[i][j]}")
-                        print("-" * 15)
-
-                    input("Preisone Enter...")
-                    limpiar()
-
-                elif pop == 3:
-                    name = input("Ingrese el nombre del mozo: ")
-                    categoria = input("Que quiere cambiar el codigo o la plaza?: ")
-
-                    if categoria.capitalize() == "Codigo":
-                        valor_nuevo = Generar_Codigo()
-                        print("Espere cambiando codigo...")
-
-                        time.sleep(5)
-
-                        input("Cambiado con exito!!(Preisone enter...)")
-                    elif categoria.capitalize() == "Plaza":
-                        valor_nuevo = int(input("Ingrese la nueva plaza: "))
-                        input("Preisone Enter...")
-
-                    Modificar_Empleados(name, categoria, valor_nuevo)
-                    limpiar()
-
-                elif pop == 4:
-                    name = input("Ingrese el nombre del mozo a eliminar: ")
-                    Eliminar_empleados(name)
-
-                    input("Preisone Enter...")
-                    limpiar()
-
-                elif pop == 5:
-                    code = input("Ingrese su codigo: ")
-
-                    resultado = verificar(code)
-                    if resultado == True:
-                        print("Bienvenido")
-                    elif resultado == 2:
-                        print("Usted no esta en el sistema")
-                    else:
-                        print("Su codigo no es correcto")
-
-                    input("Preisone Enter...")
-                    limpiar()
