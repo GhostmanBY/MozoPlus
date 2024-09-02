@@ -223,7 +223,7 @@ def verifica_directorio(directorio):
 if __name__ == "__main__":
     import uvicorn
 
-    """creas_mesas(10)
-    crea_mesas_tmp()"""
+    creas_mesas(10)
+    crea_mesas_tmp()
     uvicorn.run(app, host="127.0.0.1", port=8000)
 

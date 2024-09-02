@@ -1,0 +1,46 @@
+
+
+2024-09-02 12:54:10.987308
+{
+    "Mesa": 1,
+    "Disponible": false,
+    "productos": [
+        "Pizza",
+        "Refresco"
+    ],
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
+    ]
+}
+
+2024-09-02 12:54:21.500204
+{
+    "Mesa": 1,
+    "Disponible": false,
+    "productos": [
+        "Pizza",
+        "Refresco"
+    ],
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
+    ]
+}
+
+2024-09-02 12:54:30.330866
+{
+    "Mesa": 1,
+    "Disponible": false,
+    "productos": [
+        "Pizza",
+        "Refresco"
+    ],
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
+    ]
+}

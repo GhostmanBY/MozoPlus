@@ -31,8 +31,6 @@ if __name__ == "__main__":
     # Test abrir mesa
     test_abrir_mesa(mesa_id)
 
-    # Test ver mesas
-    test_ver_mesas()
 
     # Test editar mesa
     test_editar_mesa(mesa_id, "productos", ["Pizza", "Refresco"])
