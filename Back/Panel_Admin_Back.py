@@ -2,17 +2,15 @@ import os
 import time
 import random
 import sqlite3
-
+from fastapi import FastAPI
 
 ruta_db = os.path.join("DB", "Panel_admin.db")
-
 
 def limpiar():
     if os.name == "nt":
         os.system("cls")
     else:
         os.system("clear")
-
 
 # MARK: empleados
 # Funcion que genera un codigo con 4 letras y 3 numeros, para la identificacion de los mozos
@@ -105,29 +103,31 @@ def Eliminar_empleados(name):
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
-
-def verificar(name, code):
+app = FastAPI()
+@app.post("/verificar/{code}")
+async def verificar(code: str):
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * from Usuarios WHERE Mozo like ?"  # Captura en especifico de la columna mozo el nombre que se le ingresa
-    cursor.execute(instruccion, (name))  # Ejecuta la accion
+    instruccion = "SELECT * from Usuario"  # Captura en especifico de la columna mozo el nombre que se le ingresa
+    cursor.execute(instruccion)  # Ejecuta la accion
 
     datos = (
         cursor.fetchall()
     )  # La variable datos pasa a tener todos los valores que tiene cursos, metiendo en una lista con sub indices
-
+    print(datos)
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
-    if datos != []:  # Comprobacion si tiene datos o no
-        if code == datos[0][1]:
-            return True
+    for filas in datos:        
+        if datos != []:  # Comprobacion si tiene datos o no
+            if code == filas[1]:
+                return f"{code} encontrado"
+            else:
+                return f"{code} no encontrado"
         else:
-            return False
-    else:
-        return 2
+            return "No esta en el sistema"
 
 
 # MARK: DB
@@ -215,6 +215,9 @@ def Eliminar_Producto(name):
 
  # Si se ejecuta este archivo desde el mismo se ejecutan todo lo que este por debajo de este if si no, no se hace
 if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
     crear_tablas()  # Se crean las tablas
 
     # Menu inicial
@@ -347,10 +350,9 @@ RTA: """))
                     limpiar()
 
                 elif pop == 5:
-                    name = input("Ingrese su nombre: ")
                     code = input("Ingrese su codigo: ")
 
-                    resultado = verificar(name, code)
+                    resultado = verificar(code)
                     if resultado == True:
                         print("Bienvenido")
                     elif resultado == 2:
