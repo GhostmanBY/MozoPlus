@@ -2,12 +2,7 @@ import os
 import time
 import random
 import sqlite3
-import json
-import datetime
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-from fastapi.requests import Request
-from pydantic import BaseModel
+
 
 ruta_db = os.path.join("DB", "Panel_admin.db")
 
@@ -23,32 +18,11 @@ def limpiar():
 # Funcion que genera un codigo con 4 letras y 3 numeros, para la identificacion de los mozos
 def Generar_Codigo():
     lista_Letras = [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "S",
-        "T",
-        "R",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
+        "A", "B", "C", "D", "E", "F",
+        "G", "H", "I", "J", "K", "L",
+        "M", "N", "O", "P", "Q", "S", 
+        "T", "R", "U", "V", "W", "X", 
+        "Y", "Z",
     ]
     # Se inicializa codigo para poder iterar los espacios del str
     codigo = list("AOOE505")
@@ -239,384 +213,150 @@ def Eliminar_Producto(name):
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-# MARK: MESAS
-
-
-app = FastAPI()
-
-
-class Mesa(BaseModel):
-    disponible: bool
-    productos: list
-    cantidad_comensales: int
-    comensales_infantiles: list
-
-
-class ValorInput(BaseModel):
-    categoria: str
-    valor: list
-
-
-# Endpoint para ver las mesas
-@app.get("/mesas")
-async def ver_mesas():
-    """
-    Devuelve una lista con las mesas y sus respectivos valores.
-    """
-    mesas = []
-    # Listar y filtrar los archivos en el directorio 'tmp'
-    archivos = sorted(
-        [
-            name
-            for name in os.listdir("tmp")
-            if os.path.isfile(os.path.join("tmp", name))
-        ]
-    )
-
-    # Recorrer los archivos esperados
-    for i in range(len(archivos)):
-        archivo = f"tmp/Mesa {i+1}.json"
-        if os.path.exists(archivo):
-            with open(archivo, "r") as file:
-                datos = json.load(file)
-                mesas.append(
-                    datos
-                )  # Suponiendo que cada archivo contiene un diccionario
-        else:
-            print(f"Archivo {archivo} no encontrado.")
-
-    return mesas
-
-
-def crea_mesas_tmp():
-    """
-    Crea mesas con los valores por defecto en el directorio 'tmp'.
-    """
-    with open("Docs/mesas.json", "r") as file:
-        mesas = json.load(file)
-
-    for mesa in mesas:
-        with open(f"tmp/{mesa}.json", "w") as file:
-            json.dump(mesas[mesa], file, indent=4)
-
-    return {
-        "Disponible": True,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [False, 0],
-    }
-
-
-def creas_mesas(cantidad):
-    """
-    Crea mesas con los valores por defecto en el archivo 'Docs/mesas.json'.
-    """
-    mesas = {}
-    for i in range(1, cantidad + 1):
-        mesas[f"Mesa {i}"] = {
-            "Disponible": True,
-            "productos": [],
-            "cantidad_comensales": 0,
-            "comensales_infantiles": [False, 0],
-        }
-        with open(f"Docs/mesas.json", "w") as file:
-            json.dump(mesas, file, indent=4)
-
-
-# endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
-@app.put("/mesas/{mesa}")
-async def editar_mesa(mesa: int, input: ValorInput):
-    """
-    Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
-    """
-    archivo = f"tmp/Mesa {mesa}.json"  # Consistencia en el nombre del archivo
-    try:
-        with open(archivo, "r") as file:
-            contenido = json.load(file)
-
-        if input.categoria not in contenido:
-            return JSONResponse(
-                content=f"Categoría {input.categoria} no existe en la mesa {mesa}",
-                status_code=400,
-            )
-
-        # Verifica que el tipo de datos sea una lista
-        if not isinstance(contenido[input.categoria], list):
-            return JSONResponse(
-                content=f"La categoría {input.categoria} no es una lista",
-                status_code=400,
-            )
-
-        contenido[input.categoria].extend(input.valor)
-
-        with open(archivo, "w") as file:
-            json.dump(contenido, file, indent=4)
-
-        return JSONResponse(
-            content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}",
-            media_type="application/json",
-        )
-    except Exception as e:
-        return JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
-
-
-@app.post("/mesas/{mesa}/abrir")
-async def abrir_mesa(mesa: int):
-    """
-    Abre una mesa y actualiza su disponibilidad a False.
-    """
-    verifica_directorio("tmp")
-    archivo = f"tmp/Mesa {mesa}.json"
-
-    mesa_data = {
-        "Disponible": False,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [False, 0],
-    }
-
-    try:
-        # Si el archivo ya existe, cargamos los datos
-        if os.path.exists(archivo):
-            with open(archivo, "r") as file:
-                mesa_data = json.load(file)
-
-        # Actualizamos el estado de disponibilidad
-        mesa_data["Disponible"] = False
-
-        # Guardamos los cambios en el archivo
-        with open(archivo, "w") as file:
-            json.dump(mesa_data, file, indent=4)
-
-        return JSONResponse(
-            content=f"Mesa {mesa} abierta y disponibilidad actualizada a False",
-            media_type="application/json",
-        )
-    except Exception as e:
-        return JSONResponse(
-            content=f"Error al abrir la mesa: {str(e)}", status_code=500
-        )
-
-
-@app.post("/mesas/{mesa}/cerrar")
-async def cerrar_mesa(mesa: int):
-    """
-    Cierra una mesa y actualiza su disponibilidad a False.
-    """
-    archivo = f"tmp/Mesa {mesa}.json"
-    try:
-        # Leemos el archivo de la mesa
-        with open(archivo, "r") as file:
-            contenido = file.read()
-        # Guardamos el contenido en un archivo de texto
-        fecha_hoy = datetime.datetime.now().date()
-        with open(f"Docs/{fecha_hoy}.txt", "a") as txt:
-            txt.write("\n\n" + str(datetime.datetime.now()) + "\n")
-            txt.write(contenido)
-        # Actualizamos el estado de la mesa
-        mesa_data = {
-            "Disponible": False,
-            "productos": [],
-            "cantidad_comensales": 0,
-            "comensales_infantiles": [False, 0],
-        }
-        # Guardamos los cambios en el archivo
-        with open(archivo, "w") as file:
-            json.dump(mesa_data, file, indent=4)
-        return JSONResponse(
-            content=f"Mesa {mesa} cerrada", media_type="application/json"
-        )
-    except FileNotFoundError:
-        # Si el archivo no existe, devuelve un error 404
-        return JSONResponse(content="Mesa no encontrada", status_code=404)
-    except Exception as e:
-        # Cualquier otro error, devuelve un error 500
-        return JSONResponse(
-            content=f"Error al cerrar la mesa: {str(e)}", status_code=500
-        )
-
-
-# MARK: UTILS
-def verifica_directorio(directorio):
-    """
-    Verifica si el directorio existe, si no es asi, lo crea.
-    """
-    if not os.path.exists(directorio):
-        os.makedirs(directorio)
-
-
+ # Si se ejecuta este archivo desde el mismo se ejecutan todo lo que este por debajo de este if si no, no se hace
 if __name__ == "__main__":
-    import uvicorn
+    crear_tablas()  # Se crean las tablas
 
-    creas_mesas(10)
-    crea_mesas_tmp()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Menu inicial
+    po = 0
+    while po != 3:  # Ciclo para que se muestre hasta que el usuario quiera salir
+        limpiar()
+        po = int(input("""
+Ingrese la opcion que quiere realizar
+1- Carta
+2- Personal
+3- Salir
+RTA: """))
 
+         # Menu de productos
+        if po == 1:
+            op = 0
+            while (op != 5):  # Ciclo para que se muestre hasta que el usuario quiera salir
+                op = int(input("""
+Ingrese la opcion que quiere realizar:
+1- Cargar producto
+2- Mostrar producto
+3- Modificar producto
+4- Eliminar producto
+5- Volver
+RTA: """))
+               # Acciones del menu Carta
+                if op == 1:
+                    nombre = input("Ingrese el nombre del producto: ")
+                    precio = int(input("Ingrese el precio del producto: "))
+                    Cargar_Producto(nombre, precio)
 
-# # Si se ejecuta este archivo desde el mismo se ejecutan todo lo que este por debajo de este if si no, no se hace
-# if __name__ == "__main__":
-#     crear_tablas()  # Se crean las tablas
+                    input("Presione enter...")
+                    limpiar()
 
-#     # Menu inicial
-#     po = 0
-#     while po != 3:  # Ciclo para que se muestre hasta que el usuario quiera salir
-#         limpiar()
-#         po = int(
-#             input(
-#                 """
-# Ingrese la opcion que quiere realizar
-# 1- Carta
-# 2- Personal
-# 3- Salir
-# RTA: """
-#             )
-#         )
+                elif op == 2:
+                    datos = Mostrar_Productos()
+                    for i in range(0, len(datos)):
+                        for j in range(0, 2):
+                            if j == 0:
+                                print(f"Nombre: {datos[i][j]}")
+                            elif j == 1:
+                                print(f"Precio: {datos[i][j]}")
+                        print("-" * 15)
 
-#         # Menu de productos
-#         if po == 1:
-#             op = 0
-#             while (
-#                 op != 5
-#             ):  # Ciclo para que se muestre hasta que el usuario quiera salir
-#                 op = int(
-#                     input(
-#                         """
-# Ingrese la opcion que quiere realizar:
-# 1- Cargar producto
-# 2- Mostrar producto
-# 3- Modificar producto
-# 4- Eliminar producto
-# 5- Volver
-# RTA: """
-#                     )
-#                 )
-#                 # Acciones del menu Carta
-#                 if op == 1:
-#                     nombre = input("Ingrese el nombre del producto: ")
-#                     precio = int(input("Ingrese el precio del producto: "))
-#                     Cargar_Producto(nombre, precio)
+                    input("Preisone Enter...")
+                    limpiar()
 
-#                     input("Presione enter...")
-#                     limpiar()
+                elif op == 3:
+                    nombre = input("Ingrese el nombre del producto: ")
+                    categoria = input("Ingrese lo que va a modificar si el preico o el stock: ")
+                    valor_nuevo = int(input(f"Ingrese el {categoria} del producto: "))
+                    Modificar_Productos(nombre, categoria.capitalize(), valor_nuevo)
 
-#                 elif op == 2:
-#                     datos = Mostrar_Productos()
-#                     for i in range(0, len(datos)):
-#                         for j in range(0, 2):
-#                             if j == 0:
-#                                 print(f"Nombre: {datos[i][j]}")
-#                             elif j == 1:
-#                                 print(f"Precio: {datos[i][j]}")
-#                         print("-" * 15)
+                    input("Presione enter...")
+                    limpiar()
 
-#                     input("Preisone Enter...")
-#                     limpiar()
+                elif op == 4:
+                    nombre = input("Ingrese el nombre del producto a eliminar: ")
+                    Eliminar_Producto(nombre)
 
-#                 elif op == 3:
-#                     nombre = input("Ingrese el nombre del producto: ")
-#                     categoria = input(
-#                         "Ingrese lo que va a modificar si el preico o el stock: "
-#                     )
-#                     valor_nuevo = int(input(f"Ingrese el {categoria} del producto: "))
-#                     Modificar_Productos(nombre, categoria.capitalize(), valor_nuevo)
+                    input("Presione enter...")
+                    limpiar()
 
-#                     input("Presione enter...")
-#                     limpiar()
+        elif po == 2:
 
-#                 elif op == 4:
-#                     nombre = input("Ingrese el nombre del producto a eliminar: ")
-#                     Eliminar_Producto(nombre)
+            # Menu de empleados
+            pop = 0
+            while (pop != 6):  # Ciclo para que se muestre hasta que el usuario quiera salir
+                pop = int(input("""
+Ingrese la opciona que quiere realizar:
+1- Registrar nuevo empleado
+2- Mostrar empleados
+3- Modificar empleado
+4- Eliminar empleado
+5- Verificar
+6- Volver
+RTA: """))
+                # Acciones del menu de empleados
+                if pop == 1:
+                    datos = Mostrar_Empleados()
 
-#                     input("Presione enter...")
-#                     limpiar()
+                    name = input("Ingrese el nombre del mozo: ")
 
-#         elif po == 2:
+                    codigo = Generar_Codigo()
 
-#             # Menu de empleados
-#             pop = 0
-#             while (
-#                 pop != 6
-#             ):  # Ciclo para que se muestre hasta que el usuario quiera salir
-#                 pop = int(
-#                     input(
-#                         """
-# Ingrese la opciona que quiere realizar:
-# 1- Registrar nuevo empleado
-# 2- Mostrar empleados
-# 3- Modificar empleado
-# 4- Eliminar empleado
-# 5- Verificar
-# 6- Volver
-# RTA: """
-#                     )
-#                 )
-#                 # Acciones del menu de empleados
-#                 if pop == 1:
-#                     datos = Mostrar_Empleados()
+                    Plaza = int(input("Ingrese la plaza a la que va a estar asiganado: "))
 
-#                     name = input("Ingrese el nombre del mozo: ")
+                    Registro_Empleado(name, codigo, Plaza)
 
-#                     codigo = Generar_Codigo()
+                    input("Presione enter...")
+                    limpiar()
+                elif pop == 2:
+                    datos = Mostrar_Empleados()
+                    for i in range(0, len(datos)):
+                        for j in range(0, 4):
+                            if j == 0:
+                                print(f"Mozo: {datos[i][j]}")
+                            elif j == 1:
+                                print(f"Codigo: {datos[i][j]}")
+                            elif j == 2:
+                                print(f"Plaza: {datos[i][j]}")
+                        print("-" * 15)
 
-#                     Plaza = int(
-#                         input("Ingrese la plaza a la que va a estar asiganado: ")
-#                     )
+                    input("Preisone Enter...")
+                    limpiar()
 
-#                     Registro_Empleado(name, codigo, Plaza)
+                elif pop == 3:
+                    name = input("Ingrese el nombre del mozo: ")
+                    categoria = input("Que quiere cambiar el codigo o la plaza?: ")
 
-#                     input("Presione enter...")
-#                     limpiar()
-#                 elif pop == 2:
-#                     datos = Mostrar_Empleados()
-#                     for i in range(0, len(datos)):
-#                         for j in range(0, 4):
-#                             if j == 0:
-#                                 print(f"Mozo: {datos[i][j]}")
-#                             elif j == 1:
-#                                 print(f"Codigo: {datos[i][j]}")
-#                             elif j == 2:
-#                                 print(f"Plaza: {datos[i][j]}")
-#                         print("-" * 15)
+                    if categoria.capitalize() == "Codigo":
+                        valor_nuevo = Generar_Codigo()
+                        print("Espere cambiando codigo...")
 
-#                     input("Preisone Enter...")
-#                     limpiar()
+                        time.sleep(5)
 
-#                 elif pop == 3:
-#                     name = input("Ingrese el nombre del mozo: ")
-#                     categoria = input("Que quiere cambiar el codigo o la plaza?: ")
+                        input("Cambiado con exito!!(Preisone enter...)")
+                    elif categoria.capitalize() == "Plaza":
+                        valor_nuevo = int(input("Ingrese la nueva plaza: "))
+                        input("Preisone Enter...")
 
-#                     if categoria.capitalize() == "Codigo":
-#                         valor_nuevo = Generar_Codigo()
-#                         print("Espere cambiando codigo...")
+                    Modificar_Empleados(name, categoria, valor_nuevo)
+                    limpiar()
 
-#                         time.sleep(5)
+                elif pop == 4:
+                    name = input("Ingrese el nombre del mozo a eliminar: ")
+                    Eliminar_empleados(name)
 
-#                         input("Cambiado con exito!!(Preisone enter...)")
-#                     elif categoria.capitalize() == "Plaza":
-#                         valor_nuevo = int(input("Ingrese la nueva plaza: "))
-#                         input("Preisone Enter...")
+                    input("Preisone Enter...")
+                    limpiar()
 
-#                     Modificar_Empleados(name, categoria, valor_nuevo)
-#                     limpiar()
+                elif pop == 5:
+                    name = input("Ingrese su nombre: ")
+                    code = input("Ingrese su codigo: ")
 
-#                 elif pop == 4:
-#                     name = input("Ingrese el nombre del mozo a eliminar: ")
-#                     Eliminar_empleados(name)
+                    resultado = verificar(name, code)
+                    if resultado == True:
+                        print("Bienvenido")
+                    elif resultado == 2:
+                        print("Usted no esta en el sistema")
+                    else:
+                        print("Su codigo no es correcto")
 
-#                     input("Preisone Enter...")
-#                     limpiar()
-
-#                 elif pop == 5:
-#                     name = input("Ingrese su nombre: ")
-#                     code = input("Ingrese su codigo: ")
-
-#                     resultado = verificar(name, code)
-#                     if resultado == True:
-#                         print("Bienvenido")
-#                     elif resultado == 2:
-#                         print("Usted no esta en el sistema")
-#                     else:
-#                         print("Su codigo no es correcto")
-
-#                     input("Preisone Enter...")
-#                     limpiar()
+                    input("Preisone Enter...")
+                    limpiar()
