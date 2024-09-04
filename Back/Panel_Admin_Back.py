@@ -28,6 +28,7 @@ def crear_tablas():
     )
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS Usuario(
+        ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
         Nombre TEXT,
         Codigo TEXT,
         Plaza INTEGER)"""
@@ -36,7 +37,7 @@ def crear_tablas():
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
-# MARK: empleados
+#MARK: FuncionesAUX
 # Funcion que genera un codigo con 4 letras y 3 numeros, para la identificacion de los mozos
 def Generar_Codigo():
     lista_Letras = [
@@ -66,24 +67,26 @@ def Generar_Codigo():
 
     return codigo
 
-def Registro_Empleado(name, codigo, Plaza):
+
+# MARK: empleados
+def Alta_Mozo(name, codigo, Plaza):
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"INSERT INTO Usuarios (mozo, codigo, plaza) VALUES (?, ?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
+    instruccion = f"INSERT INTO Usuario (nombre, codigo, plaza) VALUES (?, ?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
     cursor.execute(instruccion, (name, codigo, Plaza))  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-def Mostrar_Empleados():
+def Mostrar_Mozos():
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * FROM Usuarios"  # Captura todos los datos de la base de datos por eso SELECT
+    instruccion = f"SELECT * FROM Usuario"  # Captura todos los datos de la base de datos por eso SELECT
     cursor.execute(instruccion)  # Ejecuta la accion
 
     datos = cursor.fetchall()
@@ -94,11 +97,11 @@ def Mostrar_Empleados():
     return datos
 
 
-def Modificar_Empleados(name, categoria, valor):
+def Editar_Mozo(name, categoria, valor):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * from Usuarios WHERE Mozo like '{name}'"
+    instruccion = f"SELECT * from Usuario WHERE Mozo like '{name}'"
     cursor.execute(instruccion)  # Ejecuta la accion
 
     datos = (
@@ -106,7 +109,7 @@ def Modificar_Empleados(name, categoria, valor):
     )  # La variable datos pasa a tener todos los valores que tiene cursos, metiendo en una lista con sub indices
 
     if datos:  # Se ve si datos tiene o no valores
-        instruccion = f"UPDATE Usuarios SET {categoria} = ? WHERE Mozo like ?"  # Se actualiza los datos
+        instruccion = f"UPDATE Usuario SET {categoria} = ? WHERE Mozo like ?"  # Se actualiza los datos
         cursor.execute(instruccion, (valor, name))  # Ejecuta la accion
         conn.commit()  # Guarda los cambios hechos a la base de datos
     else:
@@ -120,7 +123,7 @@ def Eliminar_empleados(name):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"DELETE FROM Usuarios WHERE Mozo like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
+    instruccion = f"DELETE FROM Usuario WHERE Mozo like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
     cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
@@ -182,3 +185,9 @@ def Eliminar_Producto(name):
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
+
+if __name__ == "__main__":
+    crear_tablas()
+    codigo=Generar_Codigo()
+    Alta_Mozo("Nahuel Romero", codigo, 2)
+    print(Mostrar_Mozos())
