@@ -5,8 +5,7 @@ import uvicorn
 
 ruta_db = os.path.join("DB", "Panel_admin.db")
 
-app = FastAPI()
-@app.post("/verificar/{code}")
+
 async def verificar(code: str):
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
@@ -31,4 +30,3 @@ async def verificar(code: str):
         else:
             return "No esta en el sistema"
         
-uvicorn.run(app, host="127.0.0.1", port=8000)

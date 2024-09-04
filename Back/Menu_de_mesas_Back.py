@@ -27,7 +27,7 @@ class ValorInput(BaseModel):
 
 
 # Endpoint para ver las mesas
-@app.get("/mesas")
+
 async def ver_mesas():
     """
     Devuelve una lista con las mesas y sus respectivos valores.
@@ -94,7 +94,7 @@ def creas_mesas(cantidad):
 
 
 # endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
-@app.put("/mesas/{mesa}")
+
 async def editar_mesa(mesa: int, input: ValorInput):
     """
     Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
@@ -131,7 +131,7 @@ async def editar_mesa(mesa: int, input: ValorInput):
 
 
 
-@app.post("/mesas/{mesa}/abrir")
+
 async def abrir_mesa(mesa: int):
     """
     Abre una mesa y actualiza su disponibilidad a False.
@@ -170,7 +170,7 @@ async def abrir_mesa(mesa: int):
         )
 
 
-@app.post("/mesas/{mesa}/cerrar")
+
 async def cerrar_mesa(mesa: int):
     """
     Cierra una mesa y actualiza su disponibilidad a False.
