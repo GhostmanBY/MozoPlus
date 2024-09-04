@@ -11,11 +11,14 @@ Window.size = (400, 700)
 class LoginScreen(MDScreen):
     def login(self):
         codigo = self.ids.codigo_field.text  # Obtener el texto del campo de código
-        if codigo ==  requests.post(f"{BASE_URL}/verificar/{codigo}").text: # Validar el código (verificar) # Ejemplo simple de validación
+        response = requests.post(f"{BASE_URL}/verificar/{codigo}").text
+        print(response) # Validar el código (verificar) # Ejemplo simple de validación
+        if response == 1:
             self.manager.current = 'mesa'
-        else:
+        elif response == 0:
             self.ids.error_label.text = "Código incorrecto"
-
+        else:
+            self.ids.error_label.text = "Código expirado o no encontrado"
     def show_forgot_code_dialog(self):
         dialog = MDDialog(
             title="Recuperar Código",
