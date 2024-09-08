@@ -12,6 +12,10 @@ async def ruta_verificar(code: str):
 async def ruta_ver_mesas():
     return await ver_mesas()
 
+@app.get("/mesas/cantidad")
+async def ruta_cantidad_mesas():
+    return await cantidad_mesas()
+
 @app.put("/mesas/{mesa}")
 async def ruta_editar_mesa(mesa: int, input: dict):
     return await editar_mesa(mesa, input)
@@ -23,6 +27,8 @@ async def ruta_abrir_mesa(mesa: int):
 @app.post("/mesas/{mesa}/cerrar")
 async def ruta_cerrar_mesa(mesa: int):
     return await cerrar_mesa(mesa)
+
+
 
 if __name__ == "__main__":
     import uvicorn

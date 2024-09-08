@@ -210,6 +210,11 @@ async def cerrar_mesa(mesa: int):
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
 
+def cantidad_de_mesas():
+    """
+    Cuenta la cantidad de mesas totales.
+    """
+    return len(os.listdir("tmp"))
 
 # MARK: UTILS
 def verifica_directorio(directorio):
