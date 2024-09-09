@@ -179,14 +179,19 @@ async def cerrar_mesa(mesa: int):
         data = json.loads(contenido)
 
         nombre_mozo = data["Mozo"]
-        print(nombre_mozo)
-        # Guardamos el contenido en un archivo de texto
-        fecha_hoy = datetime.datetime.now().date()
-        fecha = fecha_hoy.strftime("%Y-%m-%d %H:%M")
 
-        with open(f"Docs/{fecha_hoy}_{nombre_mozo}.txt", "a") as txt:
-            txt.write("\n\n" + str(fecha) + "\n")
-            txt.write(contenido)
+        # Captura de la hora de cierre de la mesa y el dia
+        fecha_hoy = datetime.datetime.now().date()
+        fecha_txt = datetime.datetime.now()
+        fecha = fecha_txt.strftime("%H:%M")
+
+        #Añade la hora al json
+        data.update({"Hora": fecha})
+
+        #Guarda los cambios
+        with open(f"Docs/{fecha_hoy}_{nombre_mozo}.json", "a") as file:
+            json.dump(data, file, indent=4)
+
         # Actualizamos el estado de la mesa
         mesa_data = {
             "Mesa": mesa,

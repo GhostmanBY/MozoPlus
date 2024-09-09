@@ -69,13 +69,13 @@ def Generar_Codigo():
 
 
 # MARK: empleados
-def Alta_Mozo(name, codigo, Plaza):
+def Alta_Mozo(name, Plaza):
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
     instruccion = f"INSERT INTO Usuario (nombre, codigo, plaza) VALUES (?, ?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
-    cursor.execute(instruccion, (name, codigo, Plaza))  # Ejecuta la accion
+    cursor.execute(instruccion, (name, Generar_Codigo(), Plaza))  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
