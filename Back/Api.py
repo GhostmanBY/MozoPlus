@@ -14,15 +14,15 @@ async def ruta_ver_mesas():
 
 @app.get("/mesas/cantidad")
 async def ruta_cantidad_mesas():
-    return await cantidad_mesas()
+    return await cantidad_de_mesas()
 
 @app.put("/mesas/{mesa}")
 async def ruta_editar_mesa(mesa: int, input: dict):
     return await editar_mesa(mesa, input)
 
-@app.post("/mesas/{mesa}/abrir")
-async def ruta_abrir_mesa(mesa: int):
-    return await abrir_mesa(mesa)
+@app.post("/mesas/{mesa}/{mozo}/abrir")
+async def ruta_abrir_mesa(mesa: int, mozo: str):
+    return await abrir_mesa(mesa, mozo)
 
 @app.post("/mesas/{mesa}/cerrar")
 async def ruta_cerrar_mesa(mesa: int):

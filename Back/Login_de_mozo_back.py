@@ -17,16 +17,19 @@ async def verificar(code: str):
     datos = (
         cursor.fetchall()
     )  # La variable datos pasa a tener todos los valores que tiene cursos, metiendo en una lista con sub indices
-    print(datos)
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
     for filas in datos:        
         if datos != []:  # Comprobacion si tiene datos o no
-            if code == filas[1]:
-                return 1 #code encontrado
-            else:
-                return 0 #code no encontrado
-        else:
-            return 2 #no hay datos
+            if code == filas[2]:
+                print(filas)
+                data = {
+                    "verificado": 1,
+                    "ID": filas[0],
+                    "Nombre": filas[1],
+                    "Plaza": filas[3]
+                } 
+                return data #code encontrado
+    return 0
         

@@ -73,6 +73,7 @@ def crea_mesas_tmp():
         "productos": [],
         "cantidad_comensales": 0,
         "comensales_infantiles": [False, 0],
+        "Mozo": {},
     }
 
 
@@ -88,6 +89,7 @@ def creas_mesas(cantidad):
             "productos": [],
             "cantidad_comensales": 0,
             "comensales_infantiles": [False, 0],
+            "Mozo": []
         }
         with open(f"Docs/mesas.json", "w") as file:
             json.dump(mesas, file, indent=4)
@@ -132,7 +134,7 @@ async def editar_mesa(mesa: int, input: ValorInput):
 
 
 
-async def abrir_mesa(mesa: int):
+async def abrir_mesa(mesa: int, mozo: str):
     """
     Abre una mesa y actualiza su disponibilidad a False.
     """
@@ -145,17 +147,10 @@ async def abrir_mesa(mesa: int):
         "productos": [],
         "cantidad_comensales": 0,
         "comensales_infantiles": [False, 0],
+        "Mozo": mozo,
     }
 
     try:
-        # Si el archivo ya existe, cargamos los datos
-        if os.path.exists(archivo):
-            with open(archivo, "r") as file:
-                mesa_data = json.load(file)
-
-        # Actualizamos el estado de disponibilidad
-        mesa_data["Disponible"] = False
-
         # Guardamos los cambios en el archivo
         with open(archivo, "w") as file:
             json.dump(mesa_data, file, indent=4)
@@ -180,24 +175,31 @@ async def cerrar_mesa(mesa: int):
         # Leemos el archivo de la mesa
         with open(archivo, "r") as file:
             contenido = file.read()
+        
+        data = json.loads(contenido)
+
+        nombre_mozo = data["Mozo"]
+        print(nombre_mozo)
         # Guardamos el contenido en un archivo de texto
         fecha_hoy = datetime.datetime.now().date()
-        with open(f"Docs/{fecha_hoy}.txt", "a") as txt:
-            txt.write("\n\n" + str(datetime.datetime.now()) + "\n")
+        fecha = fecha_hoy.strftime("%Y-%m-%d %H:%M")
+
+        with open(f"Docs/{fecha_hoy}_{nombre_mozo}.txt", "a") as txt:
+            txt.write("\n\n" + str(fecha) + "\n")
             txt.write(contenido)
         # Actualizamos el estado de la mesa
         mesa_data = {
+            "Mesa": mesa,
             "Disponible": True,
             "productos": [],
             "cantidad_comensales": 0,
             "comensales_infantiles": [False, 0],
+            "Mozo": []
         }
         # Guardamos los cambios en el archivo
         with open(archivo, "w") as file:
             json.dump(mesa_data, file, indent=4)
 
-        if os.path.exists(archivo):
-            os.remove(archivo)
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
         )
@@ -231,4 +233,3 @@ if __name__ == "__main__":
     creas_mesas(10)
     crea_mesas_tmp()
     uvicorn.run(app, host="127.0.0.1", port=8000)
-
