@@ -221,7 +221,13 @@ def cantidad_de_mesas():
     """
     Cuenta la cantidad de mesas totales.
     """
-    return len(os.listdir("tmp"))
+    cantidad = {
+        'tables':[]
+    }
+    
+    for i in range(len(os.listdir("tmp"))):
+        cantidad['tables'].append([{'id': {i+1}}])
+    return cantidad
 
 # MARK: UTILS
 def verifica_directorio(directorio):
@@ -237,4 +243,5 @@ if __name__ == "__main__":
 
     creas_mesas(10)
     crea_mesas_tmp()
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    cantidad_de_mesas()
+
