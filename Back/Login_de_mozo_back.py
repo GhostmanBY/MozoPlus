@@ -23,7 +23,7 @@ async def verificar(code: str):
 
     for filas in datos:        
         if datos != []:  # Comprobacion si tiene datos o no
-            if code == filas[1]:
+            if code == filas[2]:
                 return 1 #code encontrado
             else:
                 return 0 #code no encontrado
