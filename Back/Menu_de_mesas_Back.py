@@ -8,6 +8,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 from pydantic import BaseModel
+
 # MARK: MESAS
 
 
@@ -23,10 +24,11 @@ class Mesa(BaseModel):
 
 class ValorInput(BaseModel):
     categoria: str
-    valor: list
+    valor: list[str]
 
 
 # Endpoint para ver las mesas
+
 
 async def ver_mesas():
     """
@@ -89,13 +91,14 @@ def creas_mesas(cantidad):
             "productos": [],
             "cantidad_comensales": 0,
             "comensales_infantiles": [False, 0],
-            "Mozo": []
+            "Mozo": [],
         }
         with open(f"Docs/mesas.json", "w") as file:
             json.dump(mesas, file, indent=4)
 
 
 # endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
+
 
 async def editar_mesa(mesa: int, input: ValorInput):
     """
@@ -132,8 +135,6 @@ async def editar_mesa(mesa: int, input: ValorInput):
         return JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
 
 
-
-
 async def abrir_mesa(mesa: int, mozo: str):
     """
     Abre una mesa y actualiza su disponibilidad a False.
@@ -165,7 +166,6 @@ async def abrir_mesa(mesa: int, mozo: str):
         )
 
 
-
 async def cerrar_mesa(mesa: int):
     """
     Cierra una mesa y actualiza su disponibilidad a True.
@@ -175,7 +175,7 @@ async def cerrar_mesa(mesa: int):
         # Leemos el archivo de la mesa
         with open(archivo, "r") as file:
             contenido = file.read()
-        
+
         data = json.loads(contenido)
 
         nombre_mozo = data["Mozo"]
@@ -185,10 +185,10 @@ async def cerrar_mesa(mesa: int):
         fecha_txt = datetime.datetime.now()
         fecha = fecha_txt.strftime("%H:%M")
 
-        #Añade la hora al json
+        # Añade la hora al json
         data.update({"Hora": fecha})
 
-        #Guarda los cambios
+        # Guarda los cambios
         with open(f"Docs/{fecha_hoy}_{nombre_mozo}.json", "a") as file:
             json.dump(data, file, indent=4)
 
@@ -199,7 +199,7 @@ async def cerrar_mesa(mesa: int):
             "productos": [],
             "cantidad_comensales": 0,
             "comensales_infantiles": [False, 0],
-            "Mozo": []
+            "Mozo": [],
         }
         # Guardamos los cambios en el archivo
         with open(archivo, "w") as file:
@@ -216,18 +216,19 @@ async def cerrar_mesa(mesa: int):
         return JSONResponse(
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
+    crear_comanda(mesa, nombre_mozo)
+
 
 def cantidad_de_mesas():
     """
     Cuenta la cantidad de mesas totales.
     """
-    cantidad = {
-        'tables':[]
-    }
-    
+    cantidad = {"tables": []}
+
     for i in range(len(os.listdir("tmp"))):
-        cantidad['tables'].append([{'id': {i+1}}])
+        cantidad["tables"].append([{"id": {i + 1}}])
     return cantidad
+
 
 # MARK: UTILS
 def verifica_directorio(directorio):
@@ -238,10 +239,68 @@ def verifica_directorio(directorio):
         os.makedirs(directorio)
 
 
+def crear_comanda(mesa, mesero):
+    """
+    Crea una comanda con un formato específico y la guarda en un archivo.
+
+    :param mesa: Número de mesa
+    :param mesero: Nombre del mesero
+    """
+    items = []
+    with open(f"tmp/Mesa {mesa}.json", "r") as file:
+        data = json.load(file)
+        productos = data["productos"]
+        file.close()
+    with open(f"Docs/Menu.json", "r") as file:
+        menu = json.load(file)
+        file.close()
+
+    for categoria in menu:
+        for item in productos:
+            for plato in menu[categoria]:
+
+                if item == plato["Nombre"]:
+                    items.append([plato["Nombre"], 1, plato["Precio"]])
+
+    # Generar un número único para la comanda
+    numero_comanda = datetime.datetime.now().strftime("%d-%m-%Y-%H-%M")
+
+    # Calcular el total
+    total = sum(cantidad * precio for _, cantidad, precio in items)
+
+    # Crear el contenido de la comanda
+    contenido = f"""
+=======================================
+           COMANDA #{numero_comanda}
+=======================================
+Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+Mesa: {mesa}
+Mesero: {mesero}
+
+Items:
+---------------------------------------
+{"Item".ljust(20)} {"Cant.".rjust(5)} {"Precio".rjust(10)} {"Total".rjust(10)}
+---------------------------------------
+"""
+
+    for item, cantidad, precio in items:
+        subtotal = cantidad * precio
+        contenido += f"{item.ljust(20)} {str(cantidad).rjust(5)} {f'${precio:.2f}'.rjust(10)} {f'${subtotal:.2f}'.rjust(10)}\n"
+
+    contenido += f"""
+---------------------------------------
+{"TOTAL:".ljust(36)} {f'${total:.2f}'.rjust(10)}
+=======================================
+"""
+
+    # Guardar la comanda en un archivo
+    with open(f"Docs/comandas/comanda_{numero_comanda}.txt", "w") as archivo:
+        archivo.write(contenido)
+
+    print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    creas_mesas(10)
-    crea_mesas_tmp()
-    cantidad_de_mesas()
-
+    crear_comanda(1, "Juan")
