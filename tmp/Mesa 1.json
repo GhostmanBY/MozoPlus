@@ -1,14 +1,11 @@
 {
     "Mesa": 1,
-    "Disponible": false,
-    "productos": [
-        "asado",
-        "Milanesa"
-    ],
+    "Disponible": true,
+    "productos": [],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": "nahuel"
+    "Mozo": []
 }

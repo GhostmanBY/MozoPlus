@@ -216,7 +216,6 @@ async def cerrar_mesa(mesa: int):
         return JSONResponse(
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
-    crear_comanda(mesa, nombre_mozo)
 
 
 def cantidad_de_mesas():
@@ -239,7 +238,7 @@ def verifica_directorio(directorio):
         os.makedirs(directorio)
 
 
-def crear_comanda(mesa, mesero):
+async def crear_comanda(mesa):
     """
     Crea una comanda con un formato específico y la guarda en un archivo.
 
@@ -249,6 +248,7 @@ def crear_comanda(mesa, mesero):
     items = []
     with open(f"tmp/Mesa {mesa}.json", "r") as file:
         data = json.load(file)
+        mozo = data["Mozo"]
         productos = data["productos"]
         file.close()
     with open(f"Docs/Menu.json", "r") as file:
@@ -271,26 +271,25 @@ def crear_comanda(mesa, mesero):
     # Crear el contenido de la comanda
     contenido = f"""
 =======================================
-           COMANDA #{numero_comanda}
+      COMANDA #{numero_comanda}
 =======================================
 Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
 Mesa: {mesa}
-Mesero: {mesero}
+Mozo: {mozo}
 
-Items:
----------------------------------------
+--------------------------------------------------
 {"Item".ljust(20)} {"Cant.".rjust(5)} {"Precio".rjust(10)} {"Total".rjust(10)}
----------------------------------------
+--------------------------------------------------
 """
 
     for item, cantidad, precio in items:
         subtotal = cantidad * precio
-        contenido += f"{item.ljust(20)} {str(cantidad).rjust(5)} {f'${precio:.2f}'.rjust(10)} {f'${subtotal:.2f}'.rjust(10)}\n"
+        contenido += f"{item.ljust(20)} {str(cantidad).rjust(5)} {f'${precio:,.2f}'.rjust(10)} {f'${subtotal:,.2f}'.rjust(10)}\n"
 
     contenido += f"""
----------------------------------------
-{"TOTAL:".ljust(36)} {f'${total:.2f}'.rjust(10)}
-=======================================
+---------------------------------------------------
+{"TOTAL:".ljust(36)} {f'${total:,.2f}'.rjust(10)}
+===================================================
 """
 
     # Guardar la comanda en un archivo

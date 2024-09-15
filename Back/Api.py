@@ -41,6 +41,7 @@ async def ruta_abrir_mesa(mesa: int, mozo: str):
 
 @app.post("/mesas/{mesa}/cerrar")
 async def ruta_cerrar_mesa(mesa: int):
+    await crear_comanda(mesa)
     return await cerrar_mesa(mesa)
 
 
