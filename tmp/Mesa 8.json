@@ -1,0 +1,11 @@
+{
+    "Mesa": 8,
+    "Disponible": true,
+    "productos": [],
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
+    ],
+    "Mozo": []
+}

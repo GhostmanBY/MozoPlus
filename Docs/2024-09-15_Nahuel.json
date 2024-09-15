@@ -1,0 +1,12 @@
+{
+    "Mesa": 1,
+    "Disponible": false,
+    "productos": [],
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
+    ],
+    "Mozo": "Nahuel",
+    "Hora": "13:03"
+}

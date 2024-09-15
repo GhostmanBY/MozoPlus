@@ -168,7 +168,7 @@ async def abrir_mesa(mesa: int, mozo: str):
 
 async def cerrar_mesa(mesa: int):
     """
-    Cierra una mesa y actualiza su disponibilidad a False.
+    Cierra una mesa y actualiza su disponibilidad a True.
     """
     archivo = f"tmp/Mesa {mesa}.json"
     try:

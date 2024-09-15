@@ -1,0 +1,18 @@
+{
+    "Carne": [
+        {
+            "Nombre": "Milanesa",
+            "Precio": 500
+        },
+        {
+            "Nombre": "asado",
+            "Precio": 1500
+        }
+    ],
+    "Pastas": [
+        {
+            "Nombre": "Rabioles",
+            "Precio": 2500
+        }
+    ]
+}

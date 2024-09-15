@@ -1,12 +1,11 @@
 {
-    "Mesa": 1,
-    "Disponible": false,
+    "Mesa": 9,
+    "Disponible": true,
     "productos": [],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": "Nahuel",
-    "Hora": "13:35"
+    "Mozo": []
 }

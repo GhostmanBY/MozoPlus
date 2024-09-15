@@ -1,10 +1,11 @@
 import os
-import time
+import json
 import random
 import sqlite3
 from fastapi import FastAPI
 
 ruta_db = os.path.join("DB", "Panel_admin.db")
+ruta_json = os.path.join("..", "Docs", "Menu.json")
 
 def limpiar():
     if os.name == "nt":
@@ -130,39 +131,39 @@ def Eliminar_empleados(name):
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-
 # MARK: MENUS
-def Cargar_Producto(name, precio):
+def Cargar_Producto(categoria, name, precio):
+    name_new = name.capitalize()
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
     # Se crea una variable para darle instrucciones, estas se dan con parametros especificos propios de SQL
-    instruccion = "INSERT INTO Productos (nombre, precio) VALUES (?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
-    cursor.execute(instruccion, (name, precio))  # Ejecuta la accion
+    instruccion = "INSERT INTO Menu (categoria, nombre, precio) VALUES (?, ?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
+    cursor.execute(instruccion, (categoria, name_new, precio))  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-def Modificar_Productos(name, categoria, nuevo_valor):
+def Modificar_Menu(name, categoria, nuevo_valor):
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"UPDATE Productos SET {categoria} = {nuevo_valor} WHERE Nombre like '{name}'"  # Actualiza los valores que se le indiquen en la base de datos por eso UPDATE
+    instruccion = f"UPDATE Menu SET {categoria} = {nuevo_valor} WHERE Nombre like '{name}'"  # Actualiza los valores que se le indiquen en la base de datos por eso UPDATE
     cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-def Mostrar_Productos():
+def Mostrar_Menu():
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * FROM Productos"  # Captura todos los datos de la base de datos por eso SELECT
+    instruccion = f"SELECT * FROM Menu"  # Captura todos los datos de la base de datos por eso SELECT
     cursor.execute(instruccion)  # Ejecuta la accion
 
     datos = (
@@ -180,14 +181,42 @@ def Eliminar_Producto(name):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"DELETE FROM Productos WHERE Nombre like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
+    instruccion = f"DELETE FROM Menu WHERE Nombre like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
     cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
+def Recargar_menu():
+    try:
+        with open("Docs/Menu.json", "r") as json_file:
+            data_disc = json.load(json_file)  # Cargar el contenido del archivo JSON
+    except FileNotFoundError:
+        # Si el archivo no existe, creamos un diccionario vacío
+        data_disc = {}
+
+    # Obtener los nuevos productos
+    data = Mostrar_Menu()
+
+    # Organizar los datos en el diccionario
+    for item in data:
+        nombre = item[0]  # Nombre del producto (ej. "Carne")
+        categoria = item[1]  # Categoría del producto (ej. "Asado")
+        precio = item[2]  # Precio del producto (ej. 1500)
+
+        if nombre not in data_disc:
+            data_disc[nombre] = []  # Si no existe el producto, se crea la entrada como lista
+        
+        # Verificar si la categoría ya existe dentro del producto
+        if not any(prod['Nombre'] == categoria for prod in data_disc[nombre]):
+            # Si la categoría no está presente, agregarla
+            data_disc[nombre].append({"Nombre": categoria, "Precio": precio})
+
+    # Guardar los cambios en el archivo JSON
+    with open("Docs/Menu.json", "w") as json_file:
+        json.dump(data_disc, json_file, indent=4)
+
 if __name__ == "__main__":
-    crear_tablas()
-    codigo=Generar_Codigo()
-    Alta_Mozo("Nahuel Romero", codigo, 2)
-    print(Mostrar_Mozos())
+    #Cargar_Producto("Carne", "asado", 1500)
+    Recargar_menu()
+

@@ -23,7 +23,6 @@ async def verificar(code: str):
     for filas in datos:        
         if datos != []:  # Comprobacion si tiene datos o no
             if code == filas[2]:
-                print(filas)
                 data = {
                     "verificado": 1,
                     "ID": filas[0],
