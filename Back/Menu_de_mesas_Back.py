@@ -299,7 +299,29 @@ Mozo: {mozo}
     print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
 
 
+def dividir_cuenta(mesa, cantidad):
+    total = 0
+    with open(f"tmp/Mesa {mesa}.json", "r") as file:
+        data = json.load(file)
+        productos = data["productos"]
+        file.close()
+
+    with open(f"Docs/Menu.json", "r") as file:
+        menu = json.load(file)
+        file.close()
+
+    for categoria in menu:
+        for item in productos:
+            for plato in menu[categoria]:
+
+                if item == plato["Nombre"]:
+                    total += float(plato["Precio"])
+    total = total / cantidad
+    total = round(total, 2)
+    return total
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    crear_comanda(1, "Juan")
+    print(dividir_cuenta(1, 3))
