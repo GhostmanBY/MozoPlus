@@ -1,7 +1,5 @@
 import sqlite3
 import os
-from fastapi import FastAPI
-import uvicorn
 
 ruta_db = os.path.join("DB", "Panel_admin.db")
 
