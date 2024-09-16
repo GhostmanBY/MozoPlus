@@ -82,6 +82,7 @@ def creas_mesas(cantidad):
 
 
 async def editar_mesa(mesa: int, input: ValorInput):
+
     """
     Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
     """
@@ -89,7 +90,10 @@ async def editar_mesa(mesa: int, input: ValorInput):
     try:
         with open(archivo, "r") as file:
             contenido = json.load(file)
-
+        if contenido['Disponible'] == 'true' or contenido['Disponible'] == True:
+            return JSONResponse(
+                content=f"Mesa {mesa} no disponible", status_code=400
+            )
         if input.categoria not in contenido:
             return JSONResponse(
                 content=f"Categoría {input.categoria} no existe en la mesa {mesa}",
@@ -157,7 +161,13 @@ async def cerrar_mesa(mesa: int):
         with open(archivo, "r") as file:
             contenido = file.read()
 
+        # Convertimos el contenido a un diccionario
         data = json.loads(contenido)
+
+        if data['Disponible'] == True:
+            return JSONResponse(
+                content=f"Mesa {mesa} no disponible, debe abrirla primero", status_code=400
+            )
 
         nombre_mozo = data["Mozo"]
 
@@ -192,6 +202,9 @@ async def cerrar_mesa(mesa: int):
     except FileNotFoundError:
         # Si el archivo no existe, devuelve un error 404
         return JSONResponse(content="Mesa no encontrada", status_code=404)
+    except json.JSONDecodeError:
+        # Error al decodificar el JSON
+        return JSONResponse(content="Error al procesar el archivo JSON", status_code=400)
     except Exception as e:
         # Cualquier otro error, devuelve un error 500
         return JSONResponse(
