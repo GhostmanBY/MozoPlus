@@ -29,7 +29,7 @@ async def ver_mesas():
     for i in range(len(archivos)):
         archivo = f"tmp/Mesa {i+1}.json"
         if os.path.exists(archivo):
-            with open(archivo, "r") as file:
+            with open(archivo, "r", encoding="utf-8") as file:
                 datos = json.load(file)
                 mesas.append(
                     datos
@@ -44,12 +44,12 @@ def crea_mesas_tmp():
     """
     Crea mesas con los valores por defecto en el directorio 'tmp'.
     """
-    with open("Docs/mesas.json", "r") as file:
+    with open("Docs/mesas.json", "r", encoding="utf-8") as file:
         mesas = json.load(file)
 
     for mesa in mesas:
-        with open(f"tmp/{mesa}.json", "w") as file:
-            json.dump(mesas[mesa], file, indent=4)
+        with open(f"tmp/{mesa}.json", "w", encoding="utf-8") as file:
+            json.dump(mesas[mesa], file, ensure_ascii=False, indent=4)
 
     return {
         "Disponible": True,
@@ -74,8 +74,8 @@ def creas_mesas(cantidad):
             "comensales_infantiles": [False, 0],
             "Mozo": [],
         }
-        with open(f"Docs/mesas.json", "w") as file:
-            json.dump(mesas, file, indent=4)
+        with open(f"Docs/mesas.json", "w", encoding="utf-8") as file:
+            json.dump(mesas, file, ensure_ascii=False, indent=4)
 
 
 # endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
@@ -88,7 +88,7 @@ async def editar_mesa(mesa: int, input: ValorInput):
     """
     archivo = f"tmp/Mesa {mesa}.json"  # Consistencia en el nombre del archivo
     try:
-        with open(archivo, "r") as file:
+        with open(archivo, "r", encoding="utf-8") as file:
             contenido = json.load(file)
         if contenido['Disponible'] == 'true' or contenido['Disponible'] == True:
             return JSONResponse(
@@ -109,8 +109,8 @@ async def editar_mesa(mesa: int, input: ValorInput):
 
         contenido[input.categoria].extend(input.valor)
 
-        with open(archivo, "w") as file:
-            json.dump(contenido, file, indent=4)
+        with open(archivo, "w", encoding="utf-8") as file:
+            json.dump(contenido, file, ensure_ascii=False, indent=4)
 
         return JSONResponse(
             content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}",
@@ -138,8 +138,8 @@ async def abrir_mesa(mesa: int, mozo: str):
 
     try:
         # Guardamos los cambios en el archivo
-        with open(archivo, "w") as file:
-            json.dump(mesa_data, file, indent=4)
+        with open(archivo, "w", encoding="utf-8") as file:
+            json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
         return JSONResponse(
             content=f"Mesa {mesa} abierta y disponibilidad actualizada a False",
@@ -158,7 +158,7 @@ async def cerrar_mesa(mesa: int):
     archivo = f"tmp/Mesa {mesa}.json"
     try:
         # Leemos el archivo de la mesa
-        with open(archivo, "r") as file:
+        with open(archivo, "r", encoding="utf-8") as file:
             contenido = file.read()
 
         # Convertimos el contenido a un diccionario
@@ -180,8 +180,8 @@ async def cerrar_mesa(mesa: int):
         data.update({"Hora": fecha})
 
         # Guarda los cambios
-        with open(f"Docs/{fecha_hoy}_{nombre_mozo}.json", "a") as file:
-            json.dump(data, file, indent=4)
+        with open(f"Docs/{fecha_hoy}_{nombre_mozo}.json", "a", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
 
         # Actualizamos el estado de la mesa
         mesa_data = {
@@ -193,8 +193,8 @@ async def cerrar_mesa(mesa: int):
             "Mozo": [],
         }
         # Guardamos los cambios en el archivo
-        with open(archivo, "w") as file:
-            json.dump(mesa_data, file, indent=4)
+        with open(archivo, "w", encoding="utf-8") as file:
+            json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
@@ -230,12 +230,12 @@ async def crear_comanda(mesa):
     :param mesero: Nombre del mesero
     """
     items = []
-    with open(f"tmp/Mesa {mesa}.json", "r") as file:
+    with open(f"tmp/Mesa {mesa}.json", "r", encoding="utf-8") as file:
         data = json.load(file)
         mozo = data["Mozo"]
         productos = data["productos"]
         file.close()
-    with open(f"Docs/Menu.json", "r") as file:
+    with open(f"Docs/Menu.json", "r", encoding="utf-8") as file:
         menu = json.load(file)
         file.close()
 
@@ -277,7 +277,7 @@ Mozo: {mozo}
 """
 
     # Guardar la comanda en un archivo
-    with open(f"Docs/comandas/comanda_{numero_comanda}.txt", "w") as archivo:
+    with open(f"Docs/comandas/comanda_{numero_comanda}.txt", "w", encoding="utf-8") as archivo:
         archivo.write(contenido)
 
     print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
@@ -295,12 +295,12 @@ def verifica_directorio(directorio):
 
 def dividir_cuenta(mesa, cantidad):
     total = 0
-    with open(f"tmp/Mesa {mesa}.json", "r") as file:
+    with open(f"tmp/Mesa {mesa}.json", "r", encoding="utf-8") as file:
         data = json.load(file)
         productos = data["productos"]
         file.close()
 
-    with open(f"Docs/Menu.json", "r") as file:
+    with open(f"Docs/Menu.json", "r", encoding="utf-8") as file:
         menu = json.load(file)
         file.close()
 
@@ -318,4 +318,4 @@ def dividir_cuenta(mesa, cantidad):
 if __name__ == "__main__":
     import uvicorn
 
-    print(dividir_cuenta(1, 3))
+    crea_mesas_tmp()

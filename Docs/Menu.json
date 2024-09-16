@@ -1,23 +1,23 @@
 {
     "Bebidas": [
         {
-            "Nombre": "Café expreso",
+            "Nombre": "CafÃ© expreso",
             "Precio": 400
         },
         {
-            "Nombre": "Café americano",
+            "Nombre": "CafÃ© americano",
             "Precio": 450
         },
         {
-            "Nombre": "Café con leche",
+            "Nombre": "CafÃ© con leche",
             "Precio": 500
         },
         {
-            "Nombre": "Té negro",
+            "Nombre": "TÃ© negro",
             "Precio": 350
         },
         {
-            "Nombre": "Té verde",
+            "Nombre": "TÃ© verde",
             "Precio": 350
         },
         {
@@ -39,6 +39,26 @@
         {
             "Nombre": "Agua mineral",
             "Precio": 300
+        },
+        {
+            "Nombre": "Café expreso",
+            "Precio": 400
+        },
+        {
+            "Nombre": "Café americano",
+            "Precio": 450
+        },
+        {
+            "Nombre": "Café con leche",
+            "Precio": 500
+        },
+        {
+            "Nombre": "Té negro",
+            "Precio": 350
+        },
+        {
+            "Nombre": "Té verde",
+            "Precio": 350
         }
     ],
     "Dulces": [
@@ -59,7 +79,7 @@
             "Precio": 700
         },
         {
-            "Nombre": "Muffin de arándanos",
+            "Nombre": "Muffin de arÃ¡ndanos",
             "Precio": 800
         },
         {
@@ -81,15 +101,19 @@
         {
             "Nombre": "Alfajor de maicena",
             "Precio": 450
+        },
+        {
+            "Nombre": "Muffin de arándanos",
+            "Precio": 800
         }
     ],
     "Salados": [
         {
-            "Nombre": "Sándwich de jamón y queso",
+            "Nombre": "SÃ¡ndwich de jamÃ³n y queso",
             "Precio": 900
         },
         {
-            "Nombre": "Medialuna con jamón y queso",
+            "Nombre": "Medialuna con jamÃ³n y queso",
             "Precio": 800
         },
         {
@@ -105,7 +129,7 @@
             "Precio": 1200
         },
         {
-            "Nombre": "Tostado de jamón y queso",
+            "Nombre": "Tostado de jamÃ³n y queso",
             "Precio": 950
         },
         {
@@ -113,7 +137,7 @@
             "Precio": 1100
         },
         {
-            "Nombre": "Hamburguesa clásica",
+            "Nombre": "Hamburguesa clÃ¡sica",
             "Precio": 1500
         },
         {
@@ -123,6 +147,22 @@
         {
             "Nombre": "Tarta de verduras",
             "Precio": 900
+        },
+        {
+            "Nombre": "Sándwich de jamón y queso",
+            "Precio": 900
+        },
+        {
+            "Nombre": "Medialuna con jamón y queso",
+            "Precio": 800
+        },
+        {
+            "Nombre": "Tostado de jamón y queso",
+            "Precio": 950
+        },
+        {
+            "Nombre": "Hamburguesa clásica",
+            "Precio": 1500
         }
     ],
     "Postres": [
@@ -131,7 +171,7 @@
             "Precio": 600
         },
         {
-            "Nombre": "Tiramisú",
+            "Nombre": "TiramisÃº",
             "Precio": 1000
         },
         {
@@ -155,16 +195,28 @@
             "Precio": 1100
         },
         {
+            "Nombre": "Tarta de limÃ³n",
+            "Precio": 1150
+        },
+        {
+            "Nombre": "BudÃ­n de pan",
+            "Precio": 650
+        },
+        {
+            "Nombre": "Helado de dulce de leche",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Tiramisú",
+            "Precio": 1000
+        },
+        {
             "Nombre": "Tarta de limón",
             "Precio": 1150
         },
         {
             "Nombre": "Budín de pan",
             "Precio": 650
-        },
-        {
-            "Nombre": "Helado de dulce de leche",
-            "Precio": 700
         }
     ]
 }
