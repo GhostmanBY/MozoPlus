@@ -217,53 +217,5 @@ def Recargar_menu():
         json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    """    # Bebidas
-    Cargar_Producto("Bebidas", "Café Expreso", 400)
-    Cargar_Producto("Bebidas", "Café Americano", 450)
-    Cargar_Producto("Bebidas", "Café con Leche", 500)
-    Cargar_Producto("Bebidas", "Té Negro", 350)
-    Cargar_Producto("Bebidas", "Té Verde", 350)
-    Cargar_Producto("Bebidas", "Limonada", 500)
-    Cargar_Producto("Bebidas", "Jugo de Naranja Natural", 600)
-    Cargar_Producto("Bebidas", "Chocolate Caliente", 550)
-    Cargar_Producto("Bebidas", "Batido de Fresa", 700)
-    Cargar_Producto("Bebidas", "Agua Mineral", 300)
-
-    # Dulces
-    Cargar_Producto("Dulces", "Tarta de Chocolate", 1200)
-    Cargar_Producto("Dulces", "Brownie con Helado", 1300)
-    Cargar_Producto("Dulces", "Cheesecake de Frutilla", 1100)
-    Cargar_Producto("Dulces", "Croissant con Mermelada", 700)
-    Cargar_Producto("Dulces", "Muffin de Arándanos", 800)
-    Cargar_Producto("Dulces", "Medialuna", 500)
-    Cargar_Producto("Dulces", "Churros con Dulce de Leche", 900)
-    Cargar_Producto("Dulces", "Helado de Vainilla", 700)
-    Cargar_Producto("Dulces", "Pastel de Manzana", 1000)
-    Cargar_Producto("Dulces", "Alfajor de Maicena", 450)
-
-    # Salados
-    Cargar_Producto("Salados", "Sándwich de Jamón y Queso", 900)
-    Cargar_Producto("Salados", "Medialuna con Jamón y Queso", 800)
-    Cargar_Producto("Salados", "Empanada de Carne", 700)
-    Cargar_Producto("Salados", "Empanada de Pollo", 700)
-    Cargar_Producto("Salados", "Pizza Margarita", 1200)
-    Cargar_Producto("Salados", "Tostado de Jamón y Queso", 950)
-    Cargar_Producto("Salados", "Panini de Pollo", 1100)
-    Cargar_Producto("Salados", "Hamburguesa Clásica", 1500)
-    Cargar_Producto("Salados", "Wrap de Pollo", 1200)
-    Cargar_Producto("Salados", "Tarta de Verduras", 900)
-
-    # Postres
-    Cargar_Producto("Postres", "Flan Casero", 600)
-    Cargar_Producto("Postres", "Tiramisú", 1000)
-    Cargar_Producto("Postres", "Frutillas con Crema", 900)
-    Cargar_Producto("Postres", "Mousse de Chocolate", 850)
-    Cargar_Producto("Postres", "Helado de Chocolate", 700)
-    Cargar_Producto("Postres", "Torta de Zanahoria", 1200)
-    Cargar_Producto("Postres", "Crepes con Dulce de Leche", 1100)
-    Cargar_Producto("Postres", "Tarta de Limón", 1150)
-    Cargar_Producto("Postres", "Budín de Pan", 650)
-    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
-"""
     Recargar_menu()
 
