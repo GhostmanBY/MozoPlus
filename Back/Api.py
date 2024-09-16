@@ -1,7 +1,14 @@
 from fastapi import FastAPI
+from models import Mesa, ValorInput
 from Login_de_mozo_back import verificar
-from Menu_de_mesas_Back import *
-
+from Menu_de_mesas_Back import (
+    ver_mesas,
+    cantidad_de_mesas,
+    editar_mesa,
+    abrir_mesa,
+    cerrar_mesa,
+    crear_comanda,
+)
 app = FastAPI()
 
 

@@ -4,30 +4,11 @@ import random
 import sqlite3
 import json
 import datetime
-from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
-from fastapi.requests import Request
-from pydantic import BaseModel
+from models import Mesa, ValorInput
+
 
 # MARK: MESAS
-
-
-app = FastAPI()
-
-
-class Mesa(BaseModel):
-    disponible: bool
-    productos: list
-    cantidad_comensales: int
-    comensales_infantiles: list
-
-
-class ValorInput(BaseModel):
-    categoria: str
-    valor: list[str]
-
-
-# Endpoint para ver las mesas
 
 
 async def ver_mesas():
@@ -228,16 +209,6 @@ def cantidad_de_mesas():
         cantidad["tables"].append([{"id": {i + 1}}])
     return cantidad
 
-
-# MARK: UTILS
-def verifica_directorio(directorio):
-    """
-    Verifica si el directorio existe, si no es asi, lo crea.
-    """
-    if not os.path.exists(directorio):
-        os.makedirs(directorio)
-
-
 async def crear_comanda(mesa):
     """
     Crea una comanda con un formato específico y la guarda en un archivo.
@@ -297,6 +268,16 @@ Mozo: {mozo}
         archivo.write(contenido)
 
     print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
+
+
+# MARK: UTILS
+def verifica_directorio(directorio):
+    """
+    Verifica si el directorio existe, si no es asi, lo crea.
+    """
+    if not os.path.exists(directorio):
+        os.makedirs(directorio)
+
 
 
 def dividir_cuenta(mesa, cantidad):
