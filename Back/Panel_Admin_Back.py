@@ -213,10 +213,9 @@ def Recargar_menu():
             data_disc[nombre].append({"Nombre": categoria, "Precio": precio})
 
     # Guardar los cambios en el archivo JSON
-    with open("Docs/Menu.json", "w") as json_file:
-        json.dump(data_disc, json_file, indent=4)
+    with open("Docs/Menu.json", "w", encoding="utf-8") as json_file:
+        json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    #Cargar_Producto("Carne", "asado", 1500)
     Recargar_menu()
 
