@@ -1,18 +1,170 @@
 {
-    "Carne": [
+    "Bebidas": [
         {
-            "Nombre": "Milanesa",
+            "Nombre": "Café expreso",
+            "Precio": 400
+        },
+        {
+            "Nombre": "Café americano",
+            "Precio": 450
+        },
+        {
+            "Nombre": "Café con leche",
             "Precio": 500
         },
         {
-            "Nombre": "asado",
-            "Precio": 1500
+            "Nombre": "Té negro",
+            "Precio": 350
+        },
+        {
+            "Nombre": "Té verde",
+            "Precio": 350
+        },
+        {
+            "Nombre": "Limonada",
+            "Precio": 500
+        },
+        {
+            "Nombre": "Jugo de naranja natural",
+            "Precio": 600
+        },
+        {
+            "Nombre": "Chocolate caliente",
+            "Precio": 550
+        },
+        {
+            "Nombre": "Batido de fresa",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Agua mineral",
+            "Precio": 300
         }
     ],
-    "Pastas": [
+    "Dulces": [
         {
-            "Nombre": "Rabioles",
-            "Precio": 2500
+            "Nombre": "Tarta de chocolate",
+            "Precio": 1200
+        },
+        {
+            "Nombre": "Brownie con helado",
+            "Precio": 1300
+        },
+        {
+            "Nombre": "Cheesecake de frutilla",
+            "Precio": 1100
+        },
+        {
+            "Nombre": "Croissant con mermelada",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Muffin de arándanos",
+            "Precio": 800
+        },
+        {
+            "Nombre": "Medialuna",
+            "Precio": 500
+        },
+        {
+            "Nombre": "Churros con dulce de leche",
+            "Precio": 900
+        },
+        {
+            "Nombre": "Helado de vainilla",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Pastel de manzana",
+            "Precio": 1000
+        },
+        {
+            "Nombre": "Alfajor de maicena",
+            "Precio": 450
+        }
+    ],
+    "Salados": [
+        {
+            "Nombre": "Sándwich de jamón y queso",
+            "Precio": 900
+        },
+        {
+            "Nombre": "Medialuna con jamón y queso",
+            "Precio": 800
+        },
+        {
+            "Nombre": "Empanada de carne",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Empanada de pollo",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Pizza margarita",
+            "Precio": 1200
+        },
+        {
+            "Nombre": "Tostado de jamón y queso",
+            "Precio": 950
+        },
+        {
+            "Nombre": "Panini de pollo",
+            "Precio": 1100
+        },
+        {
+            "Nombre": "Hamburguesa clásica",
+            "Precio": 1500
+        },
+        {
+            "Nombre": "Wrap de pollo",
+            "Precio": 1200
+        },
+        {
+            "Nombre": "Tarta de verduras",
+            "Precio": 900
+        }
+    ],
+    "Postres": [
+        {
+            "Nombre": "Flan casero",
+            "Precio": 600
+        },
+        {
+            "Nombre": "Tiramisú",
+            "Precio": 1000
+        },
+        {
+            "Nombre": "Frutillas con crema",
+            "Precio": 900
+        },
+        {
+            "Nombre": "Mousse de chocolate",
+            "Precio": 850
+        },
+        {
+            "Nombre": "Helado de chocolate",
+            "Precio": 700
+        },
+        {
+            "Nombre": "Torta de zanahoria",
+            "Precio": 1200
+        },
+        {
+            "Nombre": "Crepes con dulce de leche",
+            "Precio": 1100
+        },
+        {
+            "Nombre": "Tarta de limón",
+            "Precio": 1150
+        },
+        {
+            "Nombre": "Budín de pan",
+            "Precio": 650
+        },
+        {
+            "Nombre": "Helado de dulce de leche",
+            "Precio": 700
         }
     ]
 }
