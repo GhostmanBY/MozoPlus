@@ -24,8 +24,7 @@ async def verificar(code: str):
                 data = {
                     "verificado": 1,
                     "ID": filas[0],
-                    "Nombre": filas[1],
-                    "Plaza": filas[3]
+                    "Nombre": filas[1]
                 } 
                 return data #code encontrado
     return 0

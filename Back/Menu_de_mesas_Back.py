@@ -150,6 +150,10 @@ async def abrir_mesa(mesa: int, mozo: str):
             content=f"Error al abrir la mesa: {str(e)}", status_code=500
         )
 
+import os
+import json
+import datetime
+from fastapi.responses import JSONResponse
 
 async def cerrar_mesa(mesa: int):
     """
@@ -164,26 +168,42 @@ async def cerrar_mesa(mesa: int):
         # Convertimos el contenido a un diccionario
         data = json.loads(contenido)
 
-        if data['Disponible'] == True:
+        if data['Disponible']:
             return JSONResponse(
                 content=f"Mesa {mesa} no disponible, debe abrirla primero", status_code=400
             )
 
         nombre_mozo = data["Mozo"]
 
-        # Captura de la hora de cierre de la mesa y el dia
+        # Captura de la hora de cierre de la mesa y el día
         fecha_hoy = datetime.datetime.now().date()
         fecha_txt = datetime.datetime.now()
         fecha = fecha_txt.strftime("%H:%M")
 
-        # Añade la hora al json
+        # Añade la hora de cierre al JSON de la mesa
         data.update({"Hora": fecha})
 
-        # Guarda los cambios
-        with open(f"Docs/{fecha_hoy}_{nombre_mozo}.json", "a", encoding="utf-8") as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)
+        # Archivo de comandas por fecha y mozo
+        comanda_archivo = f"Docs/{fecha_hoy}_{nombre_mozo}.json"
 
-        # Actualizamos el estado de la mesa
+        # Cargar comandas existentes o iniciar lista vacía
+        if os.path.exists(comanda_archivo):
+            with open(comanda_archivo, "r", encoding="utf-8") as file:
+                try:
+                    comandas = json.load(file)
+                except json.JSONDecodeError:
+                    comandas = []
+        else:
+            comandas = []
+
+        # Añadir la nueva comanda
+        comandas.append(data)
+
+        # Sobrescribir el archivo con todas las comandas
+        with open(comanda_archivo, "w", encoding="utf-8") as file:
+            json.dump(comandas, file, ensure_ascii=False, indent=4)
+
+        # Actualizamos el estado de la mesa a disponible
         mesa_data = {
             "Mesa": mesa,
             "Disponible": True,
@@ -192,13 +212,15 @@ async def cerrar_mesa(mesa: int):
             "comensales_infantiles": [False, 0],
             "Mozo": [],
         }
-        # Guardamos los cambios en el archivo
+
+        # Guardamos los cambios en el archivo de la mesa
         with open(archivo, "w", encoding="utf-8") as file:
             json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
         )
+
     except FileNotFoundError:
         # Si el archivo no existe, devuelve un error 404
         return JSONResponse(content="Mesa no encontrada", status_code=404)
@@ -280,7 +302,7 @@ Mozo: {mozo}
     with open(f"Docs/comandas/comanda_{numero_comanda}.txt", "w", encoding="utf-8") as archivo:
         archivo.write(contenido)
 
-    print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
+    #print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
 
 
 # MARK: UTILS
@@ -318,4 +340,5 @@ def dividir_cuenta(mesa, cantidad):
 if __name__ == "__main__":
     import uvicorn
 
+    creas_mesas(10)
     crea_mesas_tmp()
