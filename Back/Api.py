@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from models import Mesa, ValorInput
 from Login_de_mozo_back import verificar
 from Menu_de_mesas_Back import (
@@ -9,7 +10,17 @@ from Menu_de_mesas_Back import (
     cerrar_mesa,
     crear_comanda,
 )
+
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # O puedes restringirlo a una URL específica
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos HTTP (GET, POST, etc.)
+    allow_headers=["*"],  # Permite todos los encabezados
+)
 
 
 @app.post("/verificar/{code}")
