@@ -150,11 +150,6 @@ async def abrir_mesa(mesa: int, mozo: str):
             content=f"Error al abrir la mesa: {str(e)}", status_code=500
         )
 
-import os
-import json
-import datetime
-from fastapi.responses import JSONResponse
-
 async def cerrar_mesa(mesa: int):
     """
     Cierra una mesa y actualiza su disponibilidad a True.
@@ -179,9 +174,11 @@ async def cerrar_mesa(mesa: int):
         fecha_hoy = datetime.datetime.now().date()
         fecha_txt = datetime.datetime.now()
         fecha = fecha_txt.strftime("%H:%M")
+        print(fecha_hoy)
 
         # Añade la hora de cierre al JSON de la mesa
         data.update({"Hora": fecha})
+        data.update({"Fecha": str(fecha_hoy)})
 
         # Archivo de comandas por fecha y mozo
         comanda_archivo = f"Docs/{fecha_hoy}_{nombre_mozo}.json"
@@ -338,7 +335,4 @@ def dividir_cuenta(mesa, cantidad):
 
 
 if __name__ == "__main__":
-    import uvicorn
-
-    creas_mesas(10)
-    crea_mesas_tmp()
+    cerrar_mesa(1)

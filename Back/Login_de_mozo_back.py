@@ -4,12 +4,13 @@ import json
 import datetime
 
 ruta_db = os.path.join("DB", "Panel_admin.db")
-ruta_registro = f"Docs/registro_mozo.json"
 Mozo_registro = {}
 
 fecha_hoy = datetime.datetime.now().date()
 fecha_txt = datetime.datetime.now()
 fecha = fecha_txt.strftime("%H:%M")
+
+ruta_registro = f"Docs/registro_mozos_{fecha_hoy}.json"
 
 async def verificar(code: str):
     # Se conecta a la base de datos y crea el cursor
@@ -92,7 +93,7 @@ async def login_out(code: int):
                             mozo_encontrado = item
                             break
                     
-                    # Si el mozo fue encontrado, actualizar 'Horario_salida'
+                    
                     if mozo_encontrado:
                         mozo_encontrado[nombre_mozo]['Horario_salida'] = fecha
                         mozo_encontrado[nombre_mozo]['Mesas totales'] = len(mesas)
