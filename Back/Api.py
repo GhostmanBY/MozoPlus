@@ -29,9 +29,11 @@ async def ruta_verificar(code: str):
         code
     )  # Asegúrate de usar 'await' si 'verificar' es asincrónica
 
+
 @app.post("/salir/{code}")
-async def salida_mozo(code: str):
+async def ruta_login_out(code: str):
     return await login_out(code)
+
 
 @app.get("/mesas")
 async def ruta_ver_mesas():

@@ -7,11 +7,6 @@ from fastapi import FastAPI
 ruta_db = os.path.join("DB", "Panel_admin.db")
 ruta_json = os.path.join("..", "Docs", "Menu.json")
 
-def limpiar():
-    if os.name == "nt":
-        os.system("cls")
-    else:
-        os.system("clear")
 
 # MARK: DB
 # Creacion de las tables

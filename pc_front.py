@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QHeaderView,
     QMessageBox,
+    QDialog,
 )
 from PyQt5.QtGui import QFont, QColor, QPalette
 from PyQt5.QtCore import Qt
@@ -29,6 +30,11 @@ from Back.Panel_Admin_Back import (
     Mostrar_Mozos,
     Alta_Mozo,
     Editar_Mozo,
+    Mostrar_Menu,
+    Modificar_Menu,
+    Cargar_Producto,
+    Eliminar_Producto,
+    Recargar_menu,
 )
 
 
@@ -51,6 +57,221 @@ class RestaurantInterface(QMainWindow):
         # Configurar la interfaz principal
         self.setup_main_tab()
         self.setup_mozos_tab()
+        self.setup_menu_tab()
+
+    def setup_menu_tab(self):
+
+        menu_widget = QWidget()
+        menu_layout = QVBoxLayout(menu_widget)
+
+        # Add Product section
+        add_product_layout = QGridLayout()
+        self.category_input = QLineEdit()
+        self.category_input.setPlaceholderText("Categoría")
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Nombre del Producto")
+        self.price_input = QLineEdit()
+        self.price_input.setPlaceholderText("Precio")
+        add_product_button = QPushButton("Agregar Producto")
+        add_product_button.clicked.connect(self.add_product)
+        add_product_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """
+        )
+
+        add_product_layout.addWidget(QLabel("Categoría:"), 0, 0)
+        add_product_layout.addWidget(self.category_input, 0, 1)
+        add_product_layout.addWidget(QLabel("Nombre:"), 1, 0)
+        add_product_layout.addWidget(self.name_input, 1, 1)
+        add_product_layout.addWidget(QLabel("Precio:"), 2, 0)
+        add_product_layout.addWidget(self.price_input, 2, 1)
+        add_product_layout.addWidget(add_product_button, 3, 0, 1, 2)
+
+        menu_layout.addLayout(add_product_layout)
+
+        # Menu Table
+        self.menu_table = QTableWidget(0, 4)
+        self.menu_table.setHorizontalHeaderLabels(
+            ["Nombre", "Categoría", "Precio", "Acciones"]
+        )
+        self.menu_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        menu_layout.addWidget(self.menu_table)
+
+        # Refresh button
+        refresh_button = QPushButton("Actualizar Menu")
+        refresh_button.clicked.connect(self.load_menu)
+        refresh_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #007B9A;
+            }
+        """
+        )
+        menu_layout.addWidget(refresh_button)
+
+        self.central_widget.addTab(menu_widget, "Gestión de Menú")
+
+        # Load initial menu data
+        self.load_menu()
+
+    def add_product(self):
+        category = self.category_input.text()
+        name = self.name_input.text()
+        price = self.price_input.text()
+
+        if category and name and price:
+            try:
+                price = float(price)
+                Cargar_Producto(category, name, price)
+                self.category_input.clear()
+                self.name_input.clear()
+                self.price_input.clear()
+                self.load_menu()
+            except ValueError:
+                QMessageBox.warning(
+                    self, "Error", "El precio debe ser un número válido."
+                )
+        else:
+            QMessageBox.warning(self, "Error", "Por favor, complete todos los campos.")
+
+    def load_menu(self):
+        menu_items = Mostrar_Menu()
+        self.menu_table.setRowCount(0)
+        for row, item in enumerate(menu_items):
+            self.menu_table.insertRow(row)
+            self.menu_table.setItem(row, 0, QTableWidgetItem(item[1]))  # Categoría
+            self.menu_table.setItem(row, 1, QTableWidgetItem(item[0]))  # Nombre
+            self.menu_table.setItem(row, 2, QTableWidgetItem(str(item[2])))  # Precio
+
+            # Edit and Delete buttons
+            button_widget = QWidget()
+            button_layout = QHBoxLayout(button_widget)
+            button_layout.setContentsMargins(0, 0, 0, 0)
+
+            edit_button = QPushButton("Editar")
+            edit_button.clicked.connect(lambda _, r=row: self.edit_product(r))
+            edit_button.setStyleSheet(
+                """
+                QPushButton {
+                    background-color: #FFA500;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    min-width: 80px;
+                    max-width: 80px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #FF8C00;
+                }
+            """
+            )
+            delete_button = QPushButton("Eliminar")
+            delete_button.clicked.connect(lambda _, n=item[0]: self.delete_product(n))
+            delete_button.setStyleSheet(
+                """
+                QPushButton {
+                    background-color: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    min-width: 80px;
+                    max-width: 80px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #d32f2f;
+                }
+            """
+            )
+
+            button_layout.addWidget(edit_button)
+            button_layout.addWidget(delete_button)
+
+            self.menu_table.setCellWidget(row, 3, button_widget)
+
+        Recargar_menu()  # Update the JSON file
+
+    def edit_product(self, row):
+        category = self.menu_table.item(row, 0).text()
+        name = self.menu_table.item(row, 1).text()
+        price = self.menu_table.item(row, 2).text()
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Editar Producto: {name}")
+        dialog_layout = QVBoxLayout(dialog)
+
+        category_input = QLineEdit(category)
+        name_input = QLineEdit(name)
+        price_input = QLineEdit(price)
+
+        dialog_layout.addWidget(QLabel("Categoría:"))
+        dialog_layout.addWidget(category_input)
+        dialog_layout.addWidget(QLabel("Nombre:"))
+        dialog_layout.addWidget(name_input)
+        dialog_layout.addWidget(QLabel("Precio:"))
+        dialog_layout.addWidget(price_input)
+
+        save_button = QPushButton("Guardar")
+        save_button.clicked.connect(
+            lambda: self.save_product_edit(
+                name,
+                category_input.text(),
+                name_input.text(),
+                price_input.text(),
+                dialog,
+            )
+        )
+        dialog_layout.addWidget(save_button)
+
+        dialog.setLayout(dialog_layout)
+        dialog.exec_()
+
+    def save_product_edit(self, old_name, new_category, new_name, new_price, dialog):
+        try:
+            new_price = float(new_price)
+            Modificar_Menu(old_name, "categoria", f"'{new_category}'")
+            Modificar_Menu(old_name, "nombre", f"'{new_name}'")
+            Modificar_Menu(old_name, "precio", new_price)
+            self.load_menu()
+            dialog.close()
+        except ValueError:
+            QMessageBox.warning(dialog, "Error", "El precio debe ser un número válido.")
+
+    def delete_product(self, name):
+        reply = QMessageBox.question(
+            self,
+            "Confirmar Eliminación",
+            f"¿Está seguro de que desea eliminar el producto {name}?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            Eliminar_Producto(name)
+            self.load_menu()
 
     def setup_mozos_tab(self):
         mozos_widget = QWidget()
