@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from models import Mesa, ValorInput
-from Login_de_mozo_back import verificar
+from Login_de_mozo_back import verificar, login_out
 from Menu_de_mesas_Back import (
     ver_mesas,
     cantidad_de_mesas,
@@ -18,6 +18,9 @@ async def ruta_verificar(code: str):
         code
     )  # Asegúrate de usar 'await' si 'verificar' es asincrónica
 
+@app.post("/salir/{code}")
+async def salida_mozo(code: str):
+    return await login_out(code)
 
 @app.get("/mesas")
 async def ruta_ver_mesas():
