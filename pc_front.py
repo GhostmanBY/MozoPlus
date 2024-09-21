@@ -458,34 +458,79 @@ class RestaurantInterface(QMainWindow):
         )  # Set a fixed width for the action column
 
     def edit_mozo(self, row):
-        name = self.mozos_table.item(row, 0).text()
-        code = self.mozos_table.item(row, 1).text()
+        name = self.mozos_table.item(row, 1).text()
+        code = self.mozos_table.item(row, 0).text()
 
-        dialog = QWidget(self, Qt.Window)
+        dialog = QDialog(self)
         dialog.setWindowTitle(f"Editar Mozo: {name}")
-        dialog_layout = QVBoxLayout(dialog)
+        dialog.setFixedSize(400, 250)
+        dialog.setStyleSheet(
+            """
+            QDialog {
+                background-color: #f5f5f5;
+                border-radius: 10px;
+            }
+            QLabel {
+                font-size: 14px;
+                color: #333;
+                min-width: 60px;
+            }
+            QLineEdit {
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: white;
+            }
+            QLineEdit:disabled {
+                background-color: #e0e0e0;
+            }
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """
+        )
 
-        name_input = QLineEdit(name)
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        code_layout = QHBoxLayout()
+        code_label = QLabel("Código:")
         code_input = QLineEdit(code)
-        code_input.setReadOnly(True)
+        code_input.setDisabled(True)
+        code_layout.addWidget(code_label)
+        code_layout.addWidget(code_input)
+        layout.addLayout(code_layout)
 
-        dialog_layout.addWidget(QLabel("Nombre:"))
-        dialog_layout.addWidget(name_input)
-        dialog_layout.addWidget(QLabel("Código:"))
-        dialog_layout.addWidget(code_input)
+        name_layout = QHBoxLayout()
+        name_label = QLabel("Nombre:")
+        name_input = QLineEdit(name)
+        name_input.setPlaceholderText("Ingresa el nombre del mozo")
+        name_layout.addWidget(name_label)
+        name_layout.addWidget(name_input)
+        layout.addLayout(name_layout)
 
         save_button = QPushButton("Guardar")
         save_button.clicked.connect(
             lambda: self.save_mozo_edit(name, name_input.text(), dialog)
         )
-        dialog_layout.addWidget(save_button)
+        layout.addWidget(save_button, alignment=Qt.AlignCenter)
 
-        dialog.setLayout(dialog_layout)
-        dialog.show()
+        dialog.setLayout(layout)
+        dialog.exec_()
 
     def save_mozo_edit(self, old_name, new_name, dialog):
         if old_name != new_name:
-            Editar_Mozo(old_name, "Mozo", new_name)
+            Editar_Mozo(old_name, "Nombre", new_name)
             self.load_mozos()
             dialog.close()
 
