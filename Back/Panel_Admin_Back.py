@@ -101,7 +101,7 @@ def Editar_Mozo(name, categoria, valor):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * from Usuario WHERE Mozo like '{name}'"
+    instruccion = f"SELECT * from Usuario WHERE Nombre like '{name}'"
     cursor.execute(instruccion)  # Ejecuta la accion
 
     datos = (
@@ -109,7 +109,7 @@ def Editar_Mozo(name, categoria, valor):
     )  # La variable datos pasa a tener todos los valores que tiene cursos, metiendo en una lista con sub indices
 
     if datos:  # Se ve si datos tiene o no valores
-        instruccion = f"UPDATE Usuario SET {categoria} = ? WHERE Mozo like ?"  # Se actualiza los datos
+        instruccion = f"UPDATE Usuario SET {categoria} = ? WHERE Nombre like ?"  # Se actualiza los datos
         cursor.execute(instruccion, (valor, name))  # Ejecuta la accion
         conn.commit()  # Guarda los cambios hechos a la base de datos
     else:
@@ -123,7 +123,7 @@ def Eliminar_empleados(name):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"DELETE FROM Usuario WHERE Mozo like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
+    instruccion = f"DELETE FROM Usuario WHERE Nombre like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
     cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos

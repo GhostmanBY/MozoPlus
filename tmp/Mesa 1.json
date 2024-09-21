@@ -1,6 +1,6 @@
 {
     "Mesa": 1,
-    "Disponible": true,
+    "Disponible": false,
     "productos": [],
     "cantidad_comensales": 0,
     "comensales_infantiles": [

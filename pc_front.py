@@ -17,10 +17,19 @@ from PyQt5.QtWidgets import (
     QSplitter,
     QScrollArea,
     QDesktopWidget,
+    QLineEdit,
+    QHeaderView,
+    QMessageBox,
 )
 from PyQt5.QtGui import QFont, QColor, QPalette
 from PyQt5.QtCore import Qt
 from datetime import datetime
+from Back.Panel_Admin_Back import (
+    Eliminar_empleados,
+    Mostrar_Mozos,
+    Alta_Mozo,
+    Editar_Mozo,
+)
 
 
 class RestaurantInterface(QMainWindow):
@@ -37,9 +46,239 @@ class RestaurantInterface(QMainWindow):
 
         # Inicializar atributos
         self.registro_table = None
+        self.mozos_table = None
 
         # Configurar la interfaz principal
         self.setup_main_tab()
+        self.setup_mozos_tab()
+
+    def setup_mozos_tab(self):
+        mozos_widget = QWidget()
+        mozos_layout = QVBoxLayout(mozos_widget)
+        mozos_layout.setContentsMargins(10, 10, 10, 10)  # Add some padding
+
+        # Add Mozo section
+        add_mozo_layout = QHBoxLayout()
+        self.mozo_name_input = QLineEdit()
+        self.mozo_name_input.setPlaceholderText("Nombre del Mozo")
+        self.mozo_name_input.setStyleSheet(
+            """
+            QLineEdit {
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                font-size: 14px;
+            }
+        """
+        )
+        add_mozo_button = QPushButton("Agregar Mozo")
+        add_mozo_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """
+        )
+        add_mozo_button.clicked.connect(self.add_mozo)
+        add_mozo_layout.addWidget(self.mozo_name_input, 3)
+        add_mozo_layout.addWidget(add_mozo_button, 1)
+        mozos_layout.addLayout(add_mozo_layout)
+
+        # Mozos Table
+        self.mozos_table = QTableWidget(0, 4)
+        self.mozos_table.setHorizontalHeaderLabels(
+            ["#", "Nombre", "Código", "Acciones"]
+        )
+        self.mozos_table.setStyleSheet(
+            """
+            QTableWidget {
+                background-color: white; 
+                border: 1px solid #CCCCCC;
+                border-radius: 5px;
+            }
+            QHeaderView::section {
+                background-color: #009688; 
+                color: white;
+                padding: 8px;
+                border: none;
+                font-weight: bold;
+            }
+            QTableWidget::item {
+                padding: 8px;
+            }
+            QTableWidget::item:selected {
+                background-color: #E8F5E9;
+                color: #333333;
+            }
+        """
+        )
+        self.mozos_table.horizontalHeader().setStretchLastSection(True)
+        self.mozos_table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.Stretch
+        )  # Stretch the Name column
+        self.mozos_table.verticalHeader().setDefaultSectionSize(
+            40
+        )  # Increase row height
+        mozos_layout.addWidget(self.mozos_table)
+
+        # Refresh button
+        refresh_button = QPushButton("Actualizar Lista")
+        refresh_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #007B9A;
+            }
+        """
+        )
+        refresh_button.clicked.connect(self.load_mozos)
+        mozos_layout.addWidget(refresh_button, alignment=Qt.AlignRight)
+
+        self.central_widget.addTab(mozos_widget, "Gestión de Mozos")
+
+        # Load initial data
+        self.load_mozos()
+
+    def add_mozo(self):
+        name = self.mozo_name_input.text()
+        if name:
+            Alta_Mozo(name)
+            self.mozo_name_input.clear()
+            self.load_mozos()
+        else:
+            QMessageBox.warning(
+                self, "Error", "Por favor, ingrese un nombre para el mozo."
+            )
+
+    def load_mozos(self):
+        mozos = Mostrar_Mozos()
+        self.mozos_table.setRowCount(0)
+        for row, mozo in enumerate(mozos):
+            self.mozos_table.insertRow(row)
+            self.mozos_table.setItem(row, 0, QTableWidgetItem(str(row + 1)))
+            self.mozos_table.setItem(row, 1, QTableWidgetItem(mozo[1]))
+            self.mozos_table.setItem(row, 2, QTableWidgetItem(mozo[2]))
+
+            # Edit and Delete buttons
+            button_widget = QWidget()
+            button_layout = QHBoxLayout(button_widget)
+            button_layout.setContentsMargins(5, 2, 5, 2)
+            button_layout.setSpacing(10)  # Add space between buttons
+
+            edit_button = QPushButton("Editar")
+            edit_button.setStyleSheet(
+                """
+                QPushButton {
+                    background-color: #FFA500;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    min-width: 80px;
+                    max-width: 80px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #FF8C00;
+                }
+            """
+            )
+            edit_button.clicked.connect(lambda _, r=row: self.edit_mozo(r))
+
+            delete_button = QPushButton("Eliminar")
+            delete_button.setStyleSheet(
+                """
+                QPushButton {
+                    background-color: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    min-width: 80px;
+                    max-width: 80px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #d32f2f;
+                }
+            """
+            )
+            delete_button.clicked.connect(lambda _, n=mozo[1]: self.delete_mozo(n))
+
+            button_layout.addWidget(edit_button)
+            button_layout.addWidget(delete_button)
+            button_layout.addStretch()  # Add stretch to push buttons to the left
+
+            self.mozos_table.setCellWidget(row, 3, button_widget)
+
+        self.mozos_table.resizeColumnsToContents()
+        self.mozos_table.setColumnWidth(
+            0, 50
+        )  # Set a fixed width for the numbering column
+        self.mozos_table.setColumnWidth(
+            3, 200
+        )  # Set a fixed width for the action column
+
+    def edit_mozo(self, row):
+        name = self.mozos_table.item(row, 0).text()
+        code = self.mozos_table.item(row, 1).text()
+
+        dialog = QWidget(self, Qt.Window)
+        dialog.setWindowTitle(f"Editar Mozo: {name}")
+        dialog_layout = QVBoxLayout(dialog)
+
+        name_input = QLineEdit(name)
+        code_input = QLineEdit(code)
+        code_input.setReadOnly(True)
+
+        dialog_layout.addWidget(QLabel("Nombre:"))
+        dialog_layout.addWidget(name_input)
+        dialog_layout.addWidget(QLabel("Código:"))
+        dialog_layout.addWidget(code_input)
+
+        save_button = QPushButton("Guardar")
+        save_button.clicked.connect(
+            lambda: self.save_mozo_edit(name, name_input.text(), dialog)
+        )
+        dialog_layout.addWidget(save_button)
+
+        dialog.setLayout(dialog_layout)
+        dialog.show()
+
+    def save_mozo_edit(self, old_name, new_name, dialog):
+        if old_name != new_name:
+            Editar_Mozo(old_name, "Mozo", new_name)
+            self.load_mozos()
+            dialog.close()
+
+    def delete_mozo(self, name):
+        reply = QMessageBox.question(
+            self,
+            "Confirmar Eliminación",
+            f"¿Está seguro de que desea eliminar al mozo {name}?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            Eliminar_empleados(name)
+            self.load_mozos()
 
     def set_style(self):
         # Paleta de colores mejorada
@@ -408,11 +647,7 @@ class RestaurantInterface(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    # Aplicar un estilo global a la aplicación
     app.setStyle("Fusion")
-
-    # Configurar una hoja de estilo global
     app.setStyleSheet(
         """
         QMainWindow {
