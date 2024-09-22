@@ -216,8 +216,8 @@ class RestaurantInterface(QMainWindow):
         Recargar_menu()  # Update the JSON file
 
     def edit_product(self, row):
-        category = self.menu_table.item(row, 0).text()
-        name = self.menu_table.item(row, 1).text()
+        name = self.menu_table.item(row, 0).text()
+        category = self.menu_table.item(row, 1).text()
         price = self.menu_table.item(row, 2).text()
 
         dialog = QDialog(self)
@@ -236,6 +236,22 @@ class RestaurantInterface(QMainWindow):
         dialog_layout.addWidget(price_input)
 
         save_button = QPushButton("Guardar")
+        save_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """
+        )
         save_button.clicked.connect(
             lambda: self.save_product_edit(
                 name,
@@ -253,9 +269,9 @@ class RestaurantInterface(QMainWindow):
     def save_product_edit(self, old_name, new_category, new_name, new_price, dialog):
         try:
             new_price = float(new_price)
-            Modificar_Menu(old_name, "categoria", f"'{new_category}'")
-            Modificar_Menu(old_name, "nombre", f"'{new_name}'")
-            Modificar_Menu(old_name, "precio", new_price)
+            Modificar_Menu(old_name, "Categoria", f"'{new_category}'")
+            Modificar_Menu(old_name, "Nombre", f"'{new_name}'")
+            Modificar_Menu(old_name, "Precio", new_price)
             self.load_menu()
             dialog.close()
         except ValueError:
