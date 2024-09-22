@@ -166,5 +166,11 @@
             "Nombre": "Helado de dulce de leche",
             "Precio": 700
         }
+    ],
+    "Salado": [
+        {
+            "Nombre": "Pure",
+            "Precio": 800
+        }
     ]
 }
