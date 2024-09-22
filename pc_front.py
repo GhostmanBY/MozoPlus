@@ -21,9 +21,22 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QMessageBox,
     QDialog,
+    QComboBox,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QScrollArea,
+    QFrame,
+    QSizePolicy,
+    QSpacerItem,
+    QComboBox,
+    QPushButton,
+    QCalendarWidget,
+    QProgressBar,
 )
 from PyQt5.QtGui import QFont, QColor, QPalette
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDate
 from datetime import datetime
 from Back.Panel_Admin_Back import (
     Eliminar_empleados,
@@ -43,12 +56,16 @@ class RestaurantInterface(QMainWindow):
         super().__init__()
         self.setWindowTitle("Interfaz de Restaurante")
         self.ajustar_tamano_pantalla()
-
-        # Configuración de estilos mejorada
         self.set_style()
 
         self.central_widget = QTabWidget()
         self.setCentralWidget(self.central_widget)
+
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_content = QWidget()
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_area.setWidget(self.scroll_content)
 
         # Inicializar atributos
         self.registro_table = None
@@ -58,6 +75,140 @@ class RestaurantInterface(QMainWindow):
         self.setup_main_tab()
         self.setup_mozos_tab()
         self.setup_menu_tab()
+        self.setup_info_tab()
+
+    def setup_info_tab(self):
+        info_widget = QWidget()
+        info_layout = QVBoxLayout(info_widget)
+
+        # Estilo para el widget de desplazamiento
+        self.scroll_area.setStyleSheet(
+            """
+            QScrollArea {
+                border: 1px solid #bdc3c7;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+        """
+        )
+        info_layout.addWidget(self.scroll_area)
+
+        # Mejora del botón "Cargar resumen de registros"
+        load_button = QPushButton("Cargar resumen de registros")
+        load_button.clicked.connect(self.load_summary)
+        load_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+            QPushButton:pressed {
+                background-color: #2573a7;
+            }
+        """
+        )
+        info_layout.addWidget(load_button)
+
+        self.central_widget.addTab(info_widget, "Resumen")
+
+    def load_summary(self):
+        for i in reversed(range(self.scroll_layout.count())):
+            widget = self.scroll_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.setParent(None)
+
+        registros = self.get_summary_records()
+
+        for fecha, data in registros.items():
+            fecha_frame = QFrame()
+            fecha_frame.setStyleSheet(
+                """
+                QFrame {
+                    background-color: #ecf0f1;
+                    border-radius: 10px;
+                    margin: 10px;
+                    padding: 10px;
+                }
+            """
+            )
+            fecha_layout = QVBoxLayout(fecha_frame)
+
+            fecha_label = QLabel(f"Fecha: {fecha}")
+            fecha_label.setStyleSheet(
+                """
+                font-weight: bold;
+                font-size: 18px;
+                color: #2c3e50;
+                margin-bottom: 10px;
+            """
+            )
+            fecha_layout.addWidget(fecha_label)
+
+            for entry in data:
+                entry_frame = QFrame()
+                entry_frame.setStyleSheet(
+                    """
+                    QFrame {
+                        background-color: white;
+                        border: 1px solid #bdc3c7;
+                        border-radius: 5px;
+                        margin: 5px;
+                        padding: 10px;
+                    }
+                """
+                )
+                entry_layout = QVBoxLayout(entry_frame)
+
+                mozo_label = QLabel(f"Mozo: {entry['mozo']}")
+                mozo_label.setStyleSheet("font-weight: bold; color: #2980b9;")
+                entry_layout.addWidget(mozo_label)
+
+                mesa_label = QLabel(f"Mesa: {entry['mesa']}")
+                entry_layout.addWidget(mesa_label)
+
+                hora_label = QLabel(f"Hora: {entry['hora']}")
+                entry_layout.addWidget(hora_label)
+
+                productos_label = QLabel(f"Productos: {', '.join(entry['productos'])}")
+                productos_label.setWordWrap(True)
+                productos_label.setStyleSheet("color: #27ae60;")
+                entry_layout.addWidget(productos_label)
+
+                fecha_layout.addWidget(entry_frame)
+
+            self.scroll_layout.addWidget(fecha_frame)
+
+    def get_summary_records(self):
+        resumen = {}
+        docs_dir = "Docs/registro"
+        for filename in os.listdir(docs_dir):
+            if filename.endswith(".json"):
+                date_str, mozo_name = (
+                    filename.split("_", 1)[0],
+                    filename.split("_", 1)[1],
+                )
+                with open(os.path.join(docs_dir, filename), "r") as file:
+                    entries = json.load(file)
+                if date_str not in resumen:
+                    resumen[date_str] = []
+                for entry in entries:
+                    resumen[date_str].append(
+                        {
+                            "mozo": mozo_name,
+                            "mesa": entry["Mesa"],
+                            "hora": entry["Hora"],
+                            "productos": entry["productos"],
+                        }
+                    )
+        return resumen
 
     def setup_menu_tab(self):
 
@@ -252,7 +403,8 @@ class RestaurantInterface(QMainWindow):
             QPushButton:hover {
                 background-color: #45a049;
             }
-            """)
+            """
+        )
         save_button.clicked.connect(
             lambda: self.save_product_edit(
                 name,
@@ -838,7 +990,7 @@ class RestaurantInterface(QMainWindow):
     def procesar_pedido_con_json(self, pedido_json):
         with open("Docs/Menu.json", "r") as f:
             menu = json.load(f)
-            
+
         mesa = pedido_json.get("Mesa", "")
         fecha = pedido_json.get("Hora", "")
         mozo = pedido_json.get("Mozo", "")
@@ -876,9 +1028,9 @@ class RestaurantInterface(QMainWindow):
             for producto in productos:
                 for categoria in menu:
                     for pedido in menu[categoria]:
-                        if producto == pedido['Nombre']:
-                            precio = pedido['Precio']
-                            
+                        if producto == pedido["Nombre"]:
+                            precio = pedido["Precio"]
+
                 total = precio
                 total_general += total
                 comanda_texto += f"""
