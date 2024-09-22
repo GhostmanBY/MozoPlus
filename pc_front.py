@@ -829,14 +829,14 @@ class RestaurantInterface(QMainWindow):
     def cargar_json(self, mesa_num):
         ruta_archivo = f"tmp/Mesa {mesa_num}.json"
         try:
-            with open(ruta_archivo, "r") as f:
+            with open(ruta_archivo, "r", encoding="utf-8") as f:
                 pedido_json = json.load(f)
                 self.procesar_pedido_con_json(pedido_json)
         except (json.JSONDecodeError, FileNotFoundError):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
 
     def procesar_pedido_con_json(self, pedido_json):
-        with open("Docs/Menu.json", "r") as f:
+        with open("Docs/Menu.json", "r", encoding="utf-8") as f:
             menu = json.load(f)
             
         mesa = pedido_json.get("Mesa", "")
@@ -853,7 +853,7 @@ class RestaurantInterface(QMainWindow):
             comanda_texto = f"""
             <style>
                 table {{ border-collapse: collapse; width: 100%; margin-top: 10px; }}
-                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;}}
                 th {{ background-color: #4CAF50; color: white; }}
                 .total {{ font-weight: bold; }}
             </style>

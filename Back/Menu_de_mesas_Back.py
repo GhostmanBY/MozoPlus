@@ -7,7 +7,7 @@ import datetime
 from fastapi.responses import JSONResponse
 from models import Mesa, ValorInput
 
-
+base_dir = os.path.dirname(os.path.abspath(__file__))
 # MARK: MESAS
 
 
@@ -20,14 +20,14 @@ async def ver_mesas():
     archivos = sorted(
         [
             name
-            for name in os.listdir("tmp")
-            if os.path.isfile(os.path.join("tmp", name))
+            for name in os.listdir(os.path.join(base_dir, "../tmp"))
+            if os.path.isfile(os.path.join(os.path.join(base_dir, "../tmp"), name))
         ]
     )
 
     # Recorrer los archivos esperados
     for i in range(len(archivos)):
-        archivo = f"tmp/Mesa {i+1}.json"
+        archivo =  os.path.join(base_dir, f"../tmp/Mesa {i+1}.json")
         if os.path.exists(archivo):
             with open(archivo, "r", encoding="utf-8") as file:
                 datos = json.load(file)
@@ -44,11 +44,11 @@ def crea_mesas_tmp():
     """
     Crea mesas con los valores por defecto en el directorio 'tmp'.
     """
-    with open("Docs/mesas.json", "r", encoding="utf-8") as file:
+    with open(os.path.join(base_dir, f"../Docs/mesas.json"), "r", encoding="utf-8") as file:
         mesas = json.load(file)
 
     for mesa in mesas:
-        with open(f"tmp/{mesa}.json", "w", encoding="utf-8") as file:
+        with open( os.path.join(base_dir, f"../tmp/Mesa {mesa}.json"), "w", encoding="utf-8") as file:
             json.dump(mesas[mesa], file, ensure_ascii=False, indent=4)
 
     return {
@@ -74,7 +74,7 @@ def creas_mesas(cantidad):
             "comensales_infantiles": [False, 0],
             "Mozo": [],
         }
-        with open(f"Docs/mesas.json", "w", encoding="utf-8") as file:
+        with open(os.path.join(base_dir, f"../Docs/mesas.json"), "w", encoding="utf-8") as file:
             json.dump(mesas, file, ensure_ascii=False, indent=4)
 
 
@@ -86,7 +86,7 @@ async def editar_mesa(mesa: int, input: ValorInput):
     """
     Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
     """
-    archivo = f"tmp/Mesa {mesa}.json"  # Consistencia en el nombre del archivo
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")  # Consistencia en el nombre del archivo
     try:
         with open(archivo, "r", encoding="utf-8") as file:
             contenido = json.load(file)
@@ -124,8 +124,8 @@ async def abrir_mesa(mesa: int, mozo: str):
     """
     Abre una mesa y actualiza su disponibilidad a False.
     """
-    verifica_directorio("tmp")
-    archivo = f"tmp/Mesa {mesa}.json"
+    verifica_directorio(os.path.join(base_dir, "tmp"))
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json") 
 
     mesa_data = {
         "Mesa": mesa,
@@ -154,7 +154,7 @@ async def cerrar_mesa(mesa: int):
     """
     Cierra una mesa y actualiza su disponibilidad a True.
     """
-    archivo = f"tmp/Mesa {mesa}.json"
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
     try:
         # Leemos el archivo de la mesa
         with open(archivo, "r", encoding="utf-8") as file:
@@ -181,7 +181,7 @@ async def cerrar_mesa(mesa: int):
         data.update({"Fecha": str(fecha_hoy)})
 
         # Archivo de comandas por fecha y mozo
-        comanda_archivo = f"Docs/{fecha_hoy}_{nombre_mozo}.json"
+        comanda_archivo = os.path.join(base_dir, f"../Docs/{fecha_hoy}_{nombre_mozo}.json")
 
         # Cargar comandas existentes o iniciar lista vacía
         if os.path.exists(comanda_archivo):
@@ -237,7 +237,7 @@ def cantidad_de_mesas():
     """
     cantidad = {"tables": []}
 
-    for i in range(len(os.listdir("tmp"))):
+    for i in range(len(os.listdir(os.path.join(base_dir, "../tmp")))):
         cantidad["tables"].append([{"id": {i + 1}}])
     return cantidad
 
@@ -249,12 +249,12 @@ async def crear_comanda(mesa):
     :param mesero: Nombre del mesero
     """
     items = []
-    with open(f"tmp/Mesa {mesa}.json", "r", encoding="utf-8") as file:
+    with open(os.path.join(base_dir, f"../tmp/Mesa {mesa}.json"), "r", encoding="utf-8") as file:
         data = json.load(file)
         mozo = data["Mozo"]
         productos = data["productos"]
         file.close()
-    with open(f"Docs/Menu.json", "r", encoding="utf-8") as file:
+    with open(os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8") as file:
         menu = json.load(file)
         file.close()
 
@@ -296,7 +296,7 @@ Mozo: {mozo}
 """
 
     # Guardar la comanda en un archivo
-    with open(f"Docs/comandas/comanda_{numero_comanda}.txt", "w", encoding="utf-8") as archivo:
+    with open(os.path.join(base_dir, f"../Docs/comandas/comanda_{numero_comanda}.txt"), "w", encoding="utf-8") as archivo:
         archivo.write(contenido)
 
     #print(f"Comanda #{numero_comanda} creada y guardada exitosamente.")
@@ -314,12 +314,12 @@ def verifica_directorio(directorio):
 
 def dividir_cuenta(mesa, cantidad):
     total = 0
-    with open(f"tmp/Mesa {mesa}.json", "r", encoding="utf-8") as file:
+    with open(os.path.join(base_dir, f"../tmp/Mesa {mesa}.json"), "r", encoding="utf-8") as file:
         data = json.load(file)
         productos = data["productos"]
         file.close()
 
-    with open(f"Docs/Menu.json", "r", encoding="utf-8") as file:
+    with open(os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8") as file:
         menu = json.load(file)
         file.close()
 

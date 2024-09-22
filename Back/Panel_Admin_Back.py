@@ -2,10 +2,11 @@ import os
 import json
 import random
 import sqlite3
-from fastapi import FastAPI
 
-ruta_db = os.path.join("DB", "Panel_admin.db")
-ruta_json = os.path.join("..", "Docs", "Menu.json")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
+ruta_json = os.path.join(base_dir, "../Docs/mesas.json")
 
 
 # MARK: DB
@@ -183,7 +184,7 @@ def Eliminar_Producto(name):
 
 def Recargar_menu():
     try:
-        with open("Docs/Menu.json", "r", encoding="utf-8") as json_file:
+        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as json_file:
             data_disc = json.load(json_file)  # Cargar el contenido del archivo JSON
     except FileNotFoundError:
         # Si el archivo no existe, creamos un diccionario vacío
@@ -207,7 +208,7 @@ def Recargar_menu():
             data_disc[nombre].append({"Nombre": categoria, "Precio": precio})
 
     # Guardar los cambios en el archivo JSON
-    with open("Docs/Menu.json", "w", encoding="utf-8") as json_file:
+    with open(os.path.join(base_dir, "../Docs/Menu.json"), "w", encoding="utf-8") as json_file:
         json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":

@@ -3,14 +3,16 @@ import os
 import json
 import datetime
 
-ruta_db = os.path.join("DB", "Panel_admin.db")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
 Mozo_registro = {}
 
 fecha_hoy = datetime.datetime.now().date()
 fecha_txt = datetime.datetime.now()
 fecha = fecha_txt.strftime("%H:%M")
 
-ruta_registro = f"Docs/registro_mozos_{fecha_hoy}.json"
+ruta_registro = os.path.join(base_dir, f"Docs/registro_mozos_{fecha_hoy}.json")
 
 async def verificar(code: str):
     # Se conecta a la base de datos y crea el cursor
@@ -77,7 +79,7 @@ async def login_out(code: int):
             if code == filas[2]:
                 nombre_mozo = filas[1]
 
-                with open(f"Docs/{fecha_hoy}_{nombre_mozo}.json", "r", encoding="utf-8") as file:
+                with open(os.path.join(base_dir, f"Docs/{fecha_hoy}_{nombre_mozo}.json"), "r", encoding="utf-8") as file:
                     mesas = json.load(file)
 
                 # Abrir el archivo JSON y cargar el contenido
