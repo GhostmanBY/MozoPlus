@@ -1,11 +1,11 @@
 {
     "Mesa": 1,
-    "Disponible": false,
-    "productos": ["Milanesa","Té negro"],
-    "cantidad_comensales": 4,
+    "Disponible": true,
+    "productos": [],
+    "cantidad_comensales": 0,
     "comensales_infantiles": [
-        true,
-        2
+        false,
+        0
     ],
-    "Mozo": "Leon"
+    "Mozo": []
 }

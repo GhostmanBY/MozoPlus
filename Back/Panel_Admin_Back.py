@@ -183,7 +183,7 @@ def Eliminar_Producto(name):
 
 def Recargar_menu():
     try:
-        with open("Docs/Menu.json", "r") as json_file:
+        with open("Docs/Menu.json", "r", encoding="utf-8") as json_file:
             data_disc = json.load(json_file)  # Cargar el contenido del archivo JSON
     except FileNotFoundError:
         # Si el archivo no existe, creamos un diccionario vacío
@@ -261,7 +261,7 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Budín de Pan", 650)
     Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
 """
-    #Recargar_menu()
+    Recargar_menu()
 
     """Alta_Mozo("Juan Pérez")
     Alta_Mozo("María García")

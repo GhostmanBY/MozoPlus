@@ -236,6 +236,23 @@ class RestaurantInterface(QMainWindow):
         dialog_layout.addWidget(price_input)
 
         save_button = QPushButton("Guardar")
+        save_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                margin: 25px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                min-width: 80px;
+                max-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            """)
         save_button.clicked.connect(
             lambda: self.save_product_edit(
                 name,
@@ -819,6 +836,9 @@ class RestaurantInterface(QMainWindow):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
 
     def procesar_pedido_con_json(self, pedido_json):
+        with open("Docs/Menu.json", "r") as f:
+            menu = json.load(f)
+            
         mesa = pedido_json.get("Mesa", "")
         fecha = pedido_json.get("Hora", "")
         mozo = pedido_json.get("Mozo", "")
@@ -837,7 +857,7 @@ class RestaurantInterface(QMainWindow):
                 th {{ background-color: #4CAF50; color: white; }}
                 .total {{ font-weight: bold; }}
             </style>
-            <h2>COMANDA #{mesa} - {fecha_formateada}</h2>
+            <h2>COMANDA MESA: {mesa}</h2>
             <p><strong>Fecha:</strong> {fecha_formateada}</p>
             <p><strong>Mesa:</strong> {mesa}</p>
             <p><strong>Mozo:</strong> {mozo}</p>
@@ -851,9 +871,14 @@ class RestaurantInterface(QMainWindow):
                     <th>Total</th>
                 </tr>
             """
+
             total_general = 0
             for producto in productos:
-                precio = 350.00
+                for categoria in menu:
+                    for pedido in menu[categoria]:
+                        if producto == pedido['Nombre']:
+                            precio = pedido['Precio']
+                            
                 total = precio
                 total_general += total
                 comanda_texto += f"""
@@ -874,7 +899,7 @@ class RestaurantInterface(QMainWindow):
             """
         else:
             comanda_texto = f"""
-            <h2>COMANDA #{mesa}</h2>
+            <h2>COMANDA MESA:{mesa}</h2>
             <p><strong>Fecha:</strong> -</p>
             <p><strong>Mesa:</strong> {mesa}</p>
             <p><strong>Mozo:</strong> -</p>
