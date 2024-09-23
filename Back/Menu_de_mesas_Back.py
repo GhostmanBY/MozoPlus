@@ -8,6 +8,12 @@ from fastapi.responses import JSONResponse
 from models import Mesa, ValorInput
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Captura de la hora de cierre de la mesa y el día
+fecha_hoy = datetime.datetime.now().date()
+fecha_txt = datetime.datetime.now()
+fecha = fecha_txt.strftime("%H:%M")
+
 # MARK: MESAS
 
 
@@ -48,7 +54,7 @@ def crea_mesas_tmp():
         mesas = json.load(file)
 
     for mesa in mesas:
-        with open( os.path.join(base_dir, f"../tmp/Mesa {mesa}.json"), "w", encoding="utf-8") as file:
+        with open( os.path.join(base_dir, f"../tmp/{mesa}.json"), "w", encoding="utf-8") as file:
             json.dump(mesas[mesa], file, ensure_ascii=False, indent=4)
 
     return {
@@ -134,6 +140,8 @@ async def abrir_mesa(mesa: int, mozo: str):
         "cantidad_comensales": 0,
         "comensales_infantiles": [False, 0],
         "Mozo": mozo,
+        "Hora": fecha,
+        "Fecha": str(fecha_hoy)
     }
 
     try:
@@ -170,18 +178,11 @@ async def cerrar_mesa(mesa: int):
 
         nombre_mozo = data["Mozo"]
 
-        # Captura de la hora de cierre de la mesa y el día
-        fecha_hoy = datetime.datetime.now().date()
-        fecha_txt = datetime.datetime.now()
-        fecha = fecha_txt.strftime("%H:%M")
-        print(fecha_hoy)
-
         # Añade la hora de cierre al JSON de la mesa
-        data.update({"Hora": fecha})
-        data.update({"Fecha": str(fecha_hoy)})
+        data.update({"Hora_cierre": fecha})
 
         # Archivo de comandas por fecha y mozo
-        comanda_archivo = os.path.join(base_dir, f"../Docs/{fecha_hoy}_{nombre_mozo}.json")
+        comanda_archivo = os.path.join(base_dir, f"../Docs/Registro/{fecha_hoy}_{nombre_mozo}.json")
 
         # Cargar comandas existentes o iniciar lista vacía
         if os.path.exists(comanda_archivo):
@@ -200,19 +201,8 @@ async def cerrar_mesa(mesa: int):
         with open(comanda_archivo, "w", encoding="utf-8") as file:
             json.dump(comandas, file, ensure_ascii=False, indent=4)
 
-        # Actualizamos el estado de la mesa a disponible
-        mesa_data = {
-            "Mesa": mesa,
-            "Disponible": True,
-            "productos": [],
-            "cantidad_comensales": 0,
-            "comensales_infantiles": [False, 0],
-            "Mozo": [],
-        }
-
-        # Guardamos los cambios en el archivo de la mesa
         with open(archivo, "w", encoding="utf-8") as file:
-            json.dump(mesa_data, file, ensure_ascii=False, indent=4)
+            json.dump(data, file, ensure_ascii=False, indent=4)
 
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
@@ -230,6 +220,22 @@ async def cerrar_mesa(mesa: int):
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
 
+async def restaurar_mesa(mesa: int):
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
+
+    # Actualizamos el estado de la mesa a disponible
+    mesa_data = {
+        "Mesa": mesa,
+        "Disponible": True,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [False, 0],
+        "Mozo": [],
+    }
+
+    # Guardamos los cambios en el archivo de la mesa
+    with open(archivo, "w", encoding="utf-8") as file:
+        json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
 def cantidad_de_mesas():
     """
@@ -335,4 +341,4 @@ def dividir_cuenta(mesa, cantidad):
 
 
 if __name__ == "__main__":
-    cerrar_mesa(1)
+    crea_mesas_tmp()

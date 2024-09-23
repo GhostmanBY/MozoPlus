@@ -1,6 +1,8 @@
 import sys
 import json
 import os
+import datetime
+
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -50,6 +52,11 @@ from Back.Panel_Admin_Back import (
     Recargar_menu,
 )
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+fecha_hoy = datetime.now().date()
+fecha_txt = datetime.now()
+fecha = fecha_txt.strftime("%H:%M")
 
 class RestaurantInterface(QMainWindow):
     def __init__(self):
@@ -174,8 +181,11 @@ class RestaurantInterface(QMainWindow):
                 mesa_label = QLabel(f"Mesa: {entry['mesa']}")
                 entry_layout.addWidget(mesa_label)
 
-                hora_label = QLabel(f"Hora: {entry['hora']}")
+                hora_label = QLabel(f"Hora Apertura: {entry['hora']}")
                 entry_layout.addWidget(hora_label)
+
+                hora_cierre_label = QLabel(f"Hora Cierre: {entry['hora_cierre']}")
+                entry_layout.addWidget(hora_cierre_label)
 
                 productos_label = QLabel(f"Productos: {', '.join(entry['productos'])}")
                 productos_label.setWordWrap(True)
@@ -188,14 +198,13 @@ class RestaurantInterface(QMainWindow):
 
     def get_summary_records(self):
         resumen = {}
-        docs_dir = "Docs/registro"
+        docs_dir = os.path.join(base_dir, "Docs/Registro")
         for filename in os.listdir(docs_dir):
             if filename.endswith(".json"):
-                date_str, mozo_name = (
-                    filename.split("_", 1)[0],
-                    filename.split("_", 1)[1],
-                )
-                with open(os.path.join(docs_dir, filename), "r") as file:
+                mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
+                date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
+    
+                with open(os.path.join(docs_dir, filename), "r", encoding="utf-8") as file:
                     entries = json.load(file)
                 if date_str not in resumen:
                     resumen[date_str] = []
@@ -205,6 +214,7 @@ class RestaurantInterface(QMainWindow):
                             "mozo": mozo_name,
                             "mesa": entry["Mesa"],
                             "hora": entry["Hora"],
+                            "hora_cierre": entry["Hora_cierre"],
                             "productos": entry["productos"],
                         }
                     )
@@ -884,12 +894,14 @@ class RestaurantInterface(QMainWindow):
         self.cargar_mesas()
 
     def cargar_mesas(self):
-        directorio_json = "tmp/"
+        directorio_json = os.path.join(base_dir, "tmp")
         self.registro_table.setRowCount(0)
         archivos_json = [f for f in os.listdir(directorio_json) if f.endswith(".json")]
-
-        for archivo in archivos_json:
+        archivos_json_Final = sorted(archivos_json, key=lambda archivo: int(archivo.replace("Mesa ", "").replace(".json", "")), reverse=False)
+        
+        for archivo in archivos_json_Final:
             nombre_mesa = archivo.replace("Mesa ", "").replace(".json", "")
+
             try:
                 mesa_num = int(nombre_mesa)
                 mesa_button = QPushButton(f"Mesa {mesa_num}")
@@ -899,7 +911,7 @@ class RestaurantInterface(QMainWindow):
                     lambda _, num=mesa_num: self.mesa_clicked(num)
                 )
 
-                with open(os.path.join(directorio_json, archivo), "r") as file:
+                with open(os.path.join(directorio_json, archivo), "r", encoding="utf-8") as file:
                     mesa_data = json.load(file)
 
                 if mesa_data.get("Disponible", True):
@@ -955,9 +967,9 @@ class RestaurantInterface(QMainWindow):
                     "Disponible" if mesa_data.get("Disponible", True) else "Ocupada"
                 )
                 hora_apertura = self.formatear_fecha(mesa_data.get("Hora", ""))
-                fecha = mesa_data.get("fecha", "")
+                fecha = mesa_data.get("Fecha", "")
                 mozo = mesa_data.get("Mozo", "")
-                hora_cierre = mesa_data.get("Hora cierre", "")
+                hora_cierre = mesa_data.get("Hora_cierre", "")
                 if mozo == []:
                     mozo = None
 
@@ -968,18 +980,18 @@ class RestaurantInterface(QMainWindow):
                         "Hora de Apertura": hora_apertura,
                         "Hora cierre": hora_cierre,
                         "Mozo": mozo,
-                        "Fecha y Hora": fecha,
+                        "Fecha": fecha,
                     }
                 )
         except (json.JSONDecodeError, FileNotFoundError):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
 
     def mesa_clicked(self, mesa_num):
-        print(f"Mesa {mesa_num} seleccionada")
+        #print(f"Mesa {mesa_num} seleccionada")
         self.cargar_json(mesa_num)
 
     def cargar_json(self, mesa_num):
-        ruta_archivo = f"tmp/Mesa {mesa_num}.json"
+        ruta_archivo = os.path.join(base_dir, f"tmp/Mesa {mesa_num}.json")
         try:
             with open(ruta_archivo, "r", encoding="utf-8") as f:
                 pedido_json = json.load(f)
@@ -988,11 +1000,12 @@ class RestaurantInterface(QMainWindow):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
 
     def procesar_pedido_con_json(self, pedido_json):
-        with open("Docs/Menu.json", "r", encoding="utf-8") as f:
+        with open(os.path.join(base_dir, "Docs/Menu.json"), "r", encoding="utf-8") as f:
             menu = json.load(f)
 
         mesa = pedido_json.get("Mesa", "")
-        fecha = pedido_json.get("Hora", "")
+        fecha = pedido_json.get("Fecha", "")
+        Hora = pedido_json.get("Hora", "")
         mozo = pedido_json.get("Mozo", "")
         productos = pedido_json.get("productos", [])
         cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
@@ -1010,8 +1023,8 @@ class RestaurantInterface(QMainWindow):
                 .total {{ font-weight: bold; }}
             </style>
             <h2>COMANDA MESA: {mesa}</h2>
-            <p><strong>Fecha:</strong> {fecha_formateada}</p>
-            <p><strong>Mesa:</strong> {mesa}</p>
+            <p><strong>Fecha:</strong> {fecha}</p>
+            <p><strong>Hora:</strong> {Hora}</p>
             <p><strong>Mozo:</strong> {mozo}</p>
             <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles[1]})</p>
 
@@ -1053,7 +1066,7 @@ class RestaurantInterface(QMainWindow):
             comanda_texto = f"""
             <h2>COMANDA MESA:{mesa}</h2>
             <p><strong>Fecha:</strong> -</p>
-            <p><strong>Mesa:</strong> {mesa}</p>
+            <p><strong>Hora:</strong> -</p>
             <p><strong>Mozo:</strong> -</p>
             <p>No hay pedidos registrados para esta mesa.</p>
             """

@@ -9,6 +9,7 @@ from Menu_de_mesas_Back import (
     abrir_mesa,
     cerrar_mesa,
     crear_comanda,
+    restaurar_mesa,
 )
 
 app = FastAPI()
@@ -66,6 +67,11 @@ async def ruta_abrir_mesa(mesa: int, mozo: str):
 async def ruta_cerrar_mesa(mesa: int):
     await crear_comanda(mesa)
     return await cerrar_mesa(mesa)
+
+
+@app.post("/mesas/{mesa}/reset")
+async def ruta_reset(mesa: int):
+    return await restaurar_mesa(mesa)
 
 
 if __name__ == "__main__":
