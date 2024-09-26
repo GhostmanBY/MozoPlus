@@ -244,7 +244,8 @@ def cantidad_de_mesas():
     cantidad = {"tables": []}
 
     for i in range(len(os.listdir(os.path.join(base_dir, "../tmp")))):
-        cantidad["tables"].append([{"id": {i + 1}}])
+        cantidad["tables"].append({"id": i + 1})
+    
     return cantidad
 
 async def crear_comanda(mesa):

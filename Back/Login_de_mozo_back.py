@@ -12,7 +12,7 @@ fecha_hoy = datetime.datetime.now().date()
 fecha_txt = datetime.datetime.now()
 fecha = fecha_txt.strftime("%H:%M")
 
-ruta_registro = os.path.join(base_dir, f"Docs/registro_mozos_{fecha_hoy}.json")
+ruta_registro = os.path.join(base_dir, f"../Docs/registro_mozos_{fecha_hoy}.json")
 
 async def verificar(code: str):
     # Se conecta a la base de datos y crea el cursor

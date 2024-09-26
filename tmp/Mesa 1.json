@@ -1,11 +1,11 @@
 {
     "Mesa": 1,
-    "Disponible": true,
-    "productos": [],
-    "cantidad_comensales": 0,
+    "Disponible": false,
+    "productos": ["Café americano", "Jugo de naranja natural"],
+    "cantidad_comensales": 6,
     "comensales_infantiles": [
-        false,
-        0
+        true,
+        3
     ],
-    "Mozo": []
+    "Mozo": "nahuel"
 }

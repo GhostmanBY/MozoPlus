@@ -43,7 +43,7 @@ async def ruta_ver_mesas():
 
 @app.get("/mesas/cantidad")
 async def ruta_cantidad_mesas():
-    return await cantidad_de_mesas()
+    return cantidad_de_mesas()
 
 
 @app.put("/mesas/{mesa}")

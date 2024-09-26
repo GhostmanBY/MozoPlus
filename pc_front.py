@@ -58,6 +58,7 @@ fecha_hoy = datetime.now().date()
 fecha_txt = datetime.now()
 fecha = fecha_txt.strftime("%H:%M")
 
+
 class RestaurantInterface(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -75,7 +76,7 @@ class RestaurantInterface(QMainWindow):
         self.scroll_area.setWidget(self.scroll_content)
 
         # Inicializar atributos
-        self.registro_table = None
+        # self.registro_table = None
         self.mozos_table = None
 
         # Configurar la interfaz principal
@@ -203,8 +204,10 @@ class RestaurantInterface(QMainWindow):
             if filename.endswith(".json"):
                 mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
                 date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
-    
-                with open(os.path.join(docs_dir, filename), "r", encoding="utf-8") as file:
+
+                with open(
+                    os.path.join(docs_dir, filename), "r", encoding="utf-8"
+                ) as file:
                     entries = json.load(file)
                 if date_str not in resumen:
                     resumen[date_str] = []
@@ -818,11 +821,17 @@ class RestaurantInterface(QMainWindow):
             """
             border: 2px solid #009688; 
             border-radius: 10px; 
-            padding: 10px; 
+            padding: 45px; 
             background-color: #FFFFFF;
             selection-background-color: #4CAF50;
+            width: 100%;
+            height: 100%;
         """
         )
+        self.json_input.setSizePolicy(
+            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+        )
+
         self.json_input.setReadOnly(True)
         pedidos_layout.addWidget(self.json_input)
 
@@ -848,46 +857,46 @@ class RestaurantInterface(QMainWindow):
         pedidos_layout.addWidget(procesar_button)
 
         # Área de registro
-        registro_widget = QWidget()
-        registro_layout = QVBoxLayout(registro_widget)
-        registro_layout.addWidget(QLabel("Registro de Mesas:"))
+        # registro_widget = QWidget()
+        # registro_layout = QVBoxLayout(registro_widget)
+        # registro_layout.addWidget(QLabel("Registro de Mesas:"))
 
-        self.registro_table = QTableWidget(0, 6)
-        self.registro_table.setHorizontalHeaderLabels(
-            ["Mesa", "Estado", "Hora de Apertura", "Hora de Cierre", "Mozo", "Fecha"]
-        )
-        self.registro_table.setStyleSheet(
-            """
-            QTableWidget {
-                background-color: white; 
-                border: 1px solid #CCCCCC;
-                border-radius: 5px;
-            }
-            QHeaderView::section {
-                background-color: #009688; 
-                color: white;
-                padding: 8px;
-                border: none;
-                font-weight: bold;
-            }
-            QTableWidget::item {
-                padding: 8px;
-            }
-            QTableWidget::item:selected {
-                background-color: #E8F5E9;
-                color: #333333;
-            }
-        """
-        )
-        registro_layout.addWidget(self.registro_table)
+        # self.registro_table = QTableWidget(0, 6)
+        # self.registro_table.setHorizontalHeaderLabels(
+        #     ["Mesa", "Estado", "Hora de Apertura", "Hora de Cierre", "Mozo", "Fecha"]
+        # )
+        # self.registro_table.setStyleSheet(
+        #     """
+        #     QTableWidget {
+        #         background-color: white;
+        #         border: 1px solid #CCCCCC;
+        #         border-radius: 5px;
+        #     }
+        #     QHeaderView::section {
+        #         background-color: #009688;
+        #         color: white;
+        #         padding: 8px;
+        #         border: none;
+        #         font-weight: bold;
+        #     }
+        #     QTableWidget::item {
+        #         padding: 8px;
+        #     }
+        #     QTableWidget::item:selected {
+        #         background-color: #E8F5E9;
+        #         color: #333333;
+        #     }
+        # """
+        # )
+        # registro_layout.addWidget(self.registro_table)
 
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(pedidos_widget)
-        splitter.addWidget(registro_widget)
+        # splitter.addWidget(registro_widget)
         right_layout.addWidget(splitter)
 
-        main_layout.addWidget(mesas_scroll, 7)
-        main_layout.addWidget(right_widget, 3)
+        main_layout.addWidget(mesas_scroll, 6)
+        main_layout.addWidget(right_widget, 4)
 
         self.central_widget.addTab(main_widget, "Restaurante")
 
@@ -895,10 +904,14 @@ class RestaurantInterface(QMainWindow):
 
     def cargar_mesas(self):
         directorio_json = os.path.join(base_dir, "tmp")
-        self.registro_table.setRowCount(0)
+        # self.registro_table.setRowCount(0)
         archivos_json = [f for f in os.listdir(directorio_json) if f.endswith(".json")]
-        archivos_json_Final = sorted(archivos_json, key=lambda archivo: int(archivo.replace("Mesa ", "").replace(".json", "")), reverse=False)
-        
+        archivos_json_Final = sorted(
+            archivos_json,
+            key=lambda archivo: int(archivo.replace("Mesa ", "").replace(".json", "")),
+            reverse=False,
+        )
+
         for archivo in archivos_json_Final:
             nombre_mesa = archivo.replace("Mesa ", "").replace(".json", "")
 
@@ -911,7 +924,9 @@ class RestaurantInterface(QMainWindow):
                     lambda _, num=mesa_num: self.mesa_clicked(num)
                 )
 
-                with open(os.path.join(directorio_json, archivo), "r", encoding="utf-8") as file:
+                with open(
+                    os.path.join(directorio_json, archivo), "r", encoding="utf-8"
+                ) as file:
                     mesa_data = json.load(file)
 
                 if mesa_data.get("Disponible", True):
@@ -951,43 +966,46 @@ class RestaurantInterface(QMainWindow):
                     """
                     )
 
+                # Agregamos el botón de la mesa al layout, en la fila y columna correspondientes
+                # para que se muestren las mesas en una grilla de 3xN
                 self.mesas_layout.addWidget(
                     mesa_button, (mesa_num - 1) // 3, (mesa_num - 1) % 3
                 )
-                self.cargar_info_mesa(mesa_num, os.path.join(directorio_json, archivo))
+                # Cargamos la información de la mesa en el registro
+                # self.cargar_info_mesa(mesa_num, os.path.join(directorio_json, archivo))
 
             except ValueError:
                 print(f"Error: El nombre del archivo '{archivo}' no es válido")
 
-    def cargar_info_mesa(self, mesa_num, ruta_archivo):
-        try:
-            with open(ruta_archivo, "r") as f:
-                mesa_data = json.load(f)
-                estado = (
-                    "Disponible" if mesa_data.get("Disponible", True) else "Ocupada"
-                )
-                hora_apertura = self.formatear_fecha(mesa_data.get("Hora", ""))
-                fecha = mesa_data.get("Fecha", "")
-                mozo = mesa_data.get("Mozo", "")
-                hora_cierre = mesa_data.get("Hora_cierre", "")
-                if mozo == []:
-                    mozo = None
+    # def cargar_info_mesa(self, mesa_num, ruta_archivo):
+    #     try:
+    #         with open(ruta_archivo, "r") as f:
+    #             mesa_data = json.load(f)
+    #             estado = (
+    #                 "Disponible" if mesa_data.get("Disponible", True) else "Ocupada"
+    #             )
+    #             hora_apertura = self.formatear_fecha(mesa_data.get("Hora", ""))
+    #             fecha = mesa_data.get("Fecha", "")
+    #             mozo = mesa_data.get("Mozo", "")
+    #             hora_cierre = mesa_data.get("Hora_cierre", "")
+    #             if mozo == []:
+    #                 mozo = None
 
-                self.agregar_a_registro(
-                    {
-                        "Mesa": mesa_num,
-                        "Estado": estado,
-                        "Hora de Apertura": hora_apertura,
-                        "Hora cierre": hora_cierre,
-                        "Mozo": mozo,
-                        "Fecha": fecha,
-                    }
-                )
-        except (json.JSONDecodeError, FileNotFoundError):
-            print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
+    #             self.agregar_a_registro(
+    #                 {
+    #                     "Mesa": mesa_num,
+    #                     "Estado": estado,
+    #                     "Hora de Apertura": hora_apertura,
+    #                     "Hora cierre": hora_cierre,
+    #                     "Mozo": mozo,
+    #                     "Fecha": fecha,
+    #                 }
+    #             )
+    #     except (json.JSONDecodeError, FileNotFoundError):
+    #         print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
 
     def mesa_clicked(self, mesa_num):
-        #print(f"Mesa {mesa_num} seleccionada")
+        # print(f"Mesa {mesa_num} seleccionada")
         self.cargar_json(mesa_num)
 
     def cargar_json(self, mesa_num):
@@ -998,14 +1016,13 @@ class RestaurantInterface(QMainWindow):
                 self.procesar_pedido_con_json(pedido_json)
         except (json.JSONDecodeError, FileNotFoundError):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
-
     def procesar_pedido_con_json(self, pedido_json):
         with open(os.path.join(base_dir, "Docs/Menu.json"), "r", encoding="utf-8") as f:
             menu = json.load(f)
 
         mesa = pedido_json.get("Mesa", "")
         fecha = pedido_json.get("Fecha", "")
-        Hora = pedido_json.get("Hora", "")
+        hora = pedido_json.get("Hora", "")
         mozo = pedido_json.get("Mozo", "")
         productos = pedido_json.get("productos", [])
         cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
@@ -1017,24 +1034,97 @@ class RestaurantInterface(QMainWindow):
             fecha_formateada = self.formatear_fecha(fecha)
             comanda_texto = f"""
             <style>
-                table {{ border-collapse: collapse; width: 100%; margin-top: 10px; }}
-                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;}}
-                th {{ background-color: #4CAF50; color: white; }}
-                .total {{ font-weight: bold; }}
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f9f9f9; /* Color de fondo más suave */
+                    min-height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }}
+                .comanda {{
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    padding: 40px;
+                    width: 90%;
+                    max-width: 1200px;
+                    margin: 20px auto;
+                }}
+                h2 {{
+                    color: #2E7D32;
+                    text-align: center;
+                    font-size: 2.5em;
+                    margin-bottom: 30px;
+                }}
+                .info {{
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    font-size: 1.2em;
+                    margin-bottom: 30px;
+                }}
+                .info p {{
+                    margin: 10px 0;
+                    flex: 1 1 40%;
+                }}
+                table {{
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin-top: 30px;
+                    font-size: 1.1em;
+                }}
+                th, td {{
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    text-align: left;
+                    transition: background-color 0.3s; /* Animación suave */
+                }}
+                th {{
+                    background-color: #2E7D32;
+                    color: white;
+                    font-size: 1.2em;
+                }}
+                tr:hover {{ /* Efecto hover */
+                    background-color: #e8f5e9;
+                }}
+                .total {{
+                    font-weight: bold;
+                    background-color: #E8F5E9;
+                    font-size: 1.3em;
+                }}
+                @media (max-width: 768px) {{
+                    .comanda {{
+                        padding: 20px;
+                        width: 95%;
+                    }}
+                    .info p {{
+                        flex: 1 1 100%;
+                    }}
+                    th, td {{
+                        padding: 10px;
+                        font-size: 0.9em;
+                    }}
+                }}
             </style>
-            <h2>COMANDA MESA: {mesa}</h2>
-            <p><strong>Fecha:</strong> {fecha}</p>
-            <p><strong>Hora:</strong> {Hora}</p>
-            <p><strong>Mozo:</strong> {mozo}</p>
-            <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles[1]})</p>
+            <div class="comanda">
+                <h2>COMANDA MESA: {mesa}</h2>
+                <div class="info">
+                    <p><strong>Fecha:</strong> {fecha}</p>
+                    <p><strong>Hora:</strong> {hora}</p>
+                    <p><strong>Mozo:</strong> {mozo}</p>
+                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles[1]})</p>
+                </div>
 
-            <table>
-                <tr>
-                    <th>Item</th>
-                    <th>Cant.</th>
-                    <th>Precio</th>
-                    <th>Total</th>
-                </tr>
+                <table>
+                    <tr>
+                        <th>Item</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Total</th>
+                    </tr>
             """
 
             total_general = 0
@@ -1043,17 +1133,16 @@ class RestaurantInterface(QMainWindow):
                     for pedido in menu[categoria]:
                         if producto == pedido["Nombre"]:
                             precio = pedido["Precio"]
-
-                total = precio
-                total_general += total
-                comanda_texto += f"""
-                <tr>
-                    <td>{producto}</td>
-                    <td>1</td>
-                    <td>${precio:.2f}</td>
-                    <td>${total:.2f}</td>
-                </tr>
-                """
+                            total = precio
+                            total_general += total
+                            comanda_texto += f"""
+                            <tr>
+                                <td>{producto}</td>
+                                <td>1</td>
+                                <td>${precio:.2f}</td>
+                                <td>${total:.2f}</td>
+                            </tr>
+                            """
 
             comanda_texto += f"""
                 <tr class="total">
@@ -1061,14 +1150,48 @@ class RestaurantInterface(QMainWindow):
                     <td>${total_general:.2f}</td>
                 </tr>
             </table>
+            </div>
             """
         else:
             comanda_texto = f"""
-            <h2>COMANDA MESA:{mesa}</h2>
-            <p><strong>Fecha:</strong> -</p>
-            <p><strong>Hora:</strong> -</p>
-            <p><strong>Mozo:</strong> -</p>
-            <p>No hay pedidos registrados para esta mesa.</p>
+            <style>
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f9f9f9; /* Color de fondo más suave */
+                    min-height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }}
+                .comanda {{
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    padding: 40px;
+                    width: 90%;
+                    max-width: 1200px;
+                    margin: 20px auto;
+                    text-align: center;
+                }}
+                h2 {{
+                    color: #2E7D32;
+                    font-size: 2.5em;
+                    margin-bottom: 30px;
+                }}
+                p {{
+                    font-size: 1.2em;
+                    margin: 15px 0;
+                }}
+            </style>
+            <div class="comanda">
+                <h2>COMANDA MESA: {mesa}</h2>
+                <p><strong>Fecha:</strong> -</p>
+                <p><strong>Hora:</strong> -</p>
+                <p><strong>Mozo:</strong> -</p>
+                <p>No hay pedidos registrados para esta mesa.</p>
+            </div>
             """
 
         self.json_input.setHtml(comanda_texto)
@@ -1080,25 +1203,25 @@ class RestaurantInterface(QMainWindow):
         except ValueError:
             return fecha_str
 
-    def agregar_a_registro(self, info):
-        if self.registro_table is None:
-            print("Error: registro_table no está inicializado")
-            return
+    # def agregar_a_registro(self, info):
+    #     if self.registro_table is None:
+    #         print("Error: registro_table no está inicializado")
+    #         return
 
-        row = self.registro_table.rowCount()
-        self.registro_table.insertRow(row)
-        for col, (clave, valor) in enumerate(info.items()):
-            item = QTableWidgetItem(str(valor))
-            item.setTextAlignment(Qt.AlignCenter)
-            if clave == "Estado":
-                if valor == "Disponible":
-                    item.setBackground(QColor("#E8F5E9"))  # Verde claro
-                else:
-                    item.setBackground(QColor("#FFEBEE"))  # Rojo claro
-            self.registro_table.setItem(row, col, item)
+    #     row = self.registro_table.rowCount()
+    #     self.registro_table.insertRow(row)
+    #     for col, (clave, valor) in enumerate(info.items()):
+    #         item = QTableWidgetItem(str(valor))
+    #         item.setTextAlignment(Qt.AlignCenter)
+    #         if clave == "Estado":
+    #             if valor == "Disponible":
+    #                 item.setBackground(QColor("#E8F5E9"))  # Verde claro
+    #             else:
+    #                 item.setBackground(QColor("#FFEBEE"))  # Rojo claro
+    #         self.registro_table.setItem(row, col, item)
 
-        # Ajustar el ancho de las columnas para que se ajusten al contenido
-        self.registro_table.resizeColumnsToContents()
+    #     # Ajustar el ancho de las columnas para que se ajusten al contenido
+    #     self.registro_table.resizeColumnsToContents()
 
 
 if __name__ == "__main__":
