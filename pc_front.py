@@ -805,27 +805,76 @@ class RestaurantInterface(QMainWindow):
 
         mesas_scroll.setWidget(mesas_widget)
 
+        # Estilo para el QScrollArea (mesas_scroll)
+        mesas_scroll.setStyleSheet(
+            """
+            QScrollArea {
+                border: none;
+                background-color: #F5F5F5;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #E0E0E0;
+                width: 10px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #BDBDBD;
+                min-height: 20px;
+                border-radius: 5px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+        """
+        )
+
         # Sección derecha para pedidos y registro
         right_widget = QWidget()
         right_layout = QVBoxLayout(right_widget)
 
+        # Estilo para el widget derecho
+        right_widget.setStyleSheet(
+            """
+            QWidget {
+                background-color: #FAFAFA;
+                border-radius: 10px;
+            }
+        """
+        )
+
         # Área de pedidos
         pedidos_widget = QWidget()
         pedidos_layout = QVBoxLayout(pedidos_widget)
-        pedidos_layout.addWidget(QLabel("Datos del pedido:"))
+        pedidos_label = QLabel("Datos del pedido:")
+        pedidos_layout.addWidget(pedidos_label)
+
+        # Estilo para las etiquetas
+        pedidos_label.setStyleSheet(
+            """
+            QLabel {
+                font-size: 16px;
+                font-weight: bold;
+                color: #333333;
+                margin-bottom: 5px;
+            }
+        """
+        )
 
         self.json_input = QTextEdit()
-        self.json_input.setFont(QFont("Courier New", 10))
+        self.json_input.setFont(QFont("Courier New", 12))
         self.json_input.setPlaceholderText("Datos del pedido se mostrarán aquí")
         self.json_input.setStyleSheet(
             """
-            border: 2px solid #009688; 
-            border-radius: 10px; 
-            padding: 45px; 
-            background-color: #FFFFFF;
-            selection-background-color: #4CAF50;
-            width: 100%;
-            height: 100%;
+            QTextEdit {
+                border: 2px solid #4CAF50;
+                border-radius: 10px;
+                padding: 10px;
+                background-color: #FFFFFF;
+                selection-background-color: #81C784;
+                font-family: 'Courier New';
+                font-size: 12px;
+            }
         """
         )
         self.json_input.setSizePolicy(
@@ -839,61 +888,37 @@ class RestaurantInterface(QMainWindow):
         procesar_button.setStyleSheet(
             """
             QPushButton {
-                background-color: #009688; 
-                color: white; 
-                border-radius: 15px; 
-                padding: 12px; 
-                font-size: 16px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #00796B;
+                background-color: #45a049;
             }
             QPushButton:pressed {
-                background-color: #00695C;
+                background-color: #3d8b40;
             }
         """
         )
         procesar_button.clicked.connect(self.cargar_mesas)
         pedidos_layout.addWidget(procesar_button)
 
-        # Área de registro
-        # registro_widget = QWidget()
-        # registro_layout = QVBoxLayout(registro_widget)
-        # registro_layout.addWidget(QLabel("Registro de Mesas:"))
-
-        # self.registro_table = QTableWidget(0, 6)
-        # self.registro_table.setHorizontalHeaderLabels(
-        #     ["Mesa", "Estado", "Hora de Apertura", "Hora de Cierre", "Mozo", "Fecha"]
-        # )
-        # self.registro_table.setStyleSheet(
-        #     """
-        #     QTableWidget {
-        #         background-color: white;
-        #         border: 1px solid #CCCCCC;
-        #         border-radius: 5px;
-        #     }
-        #     QHeaderView::section {
-        #         background-color: #009688;
-        #         color: white;
-        #         padding: 8px;
-        #         border: none;
-        #         font-weight: bold;
-        #     }
-        #     QTableWidget::item {
-        #         padding: 8px;
-        #     }
-        #     QTableWidget::item:selected {
-        #         background-color: #E8F5E9;
-        #         color: #333333;
-        #     }
-        # """
-        # )
-        # registro_layout.addWidget(self.registro_table)
-
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(pedidos_widget)
-        # splitter.addWidget(registro_widget)
         right_layout.addWidget(splitter)
+
+        # Estilo para el QSplitter
+        splitter.setStyleSheet(
+            """
+            QSplitter::handle {
+                background-color: #E0E0E0;
+            }
+        """
+        )
 
         main_layout.addWidget(mesas_scroll, 6)
         main_layout.addWidget(right_widget, 4)
@@ -904,7 +929,6 @@ class RestaurantInterface(QMainWindow):
 
     def cargar_mesas(self):
         directorio_json = os.path.join(base_dir, "tmp")
-        # self.registro_table.setRowCount(0)
         archivos_json = [f for f in os.listdir(directorio_json) if f.endswith(".json")]
         archivos_json_Final = sorted(
             archivos_json,
@@ -966,46 +990,14 @@ class RestaurantInterface(QMainWindow):
                     """
                     )
 
-                # Agregamos el botón de la mesa al layout, en la fila y columna correspondientes
-                # para que se muestren las mesas en una grilla de 3xN
                 self.mesas_layout.addWidget(
                     mesa_button, (mesa_num - 1) // 3, (mesa_num - 1) % 3
                 )
-                # Cargamos la información de la mesa en el registro
-                # self.cargar_info_mesa(mesa_num, os.path.join(directorio_json, archivo))
 
             except ValueError:
                 print(f"Error: El nombre del archivo '{archivo}' no es válido")
 
-    # def cargar_info_mesa(self, mesa_num, ruta_archivo):
-    #     try:
-    #         with open(ruta_archivo, "r") as f:
-    #             mesa_data = json.load(f)
-    #             estado = (
-    #                 "Disponible" if mesa_data.get("Disponible", True) else "Ocupada"
-    #             )
-    #             hora_apertura = self.formatear_fecha(mesa_data.get("Hora", ""))
-    #             fecha = mesa_data.get("Fecha", "")
-    #             mozo = mesa_data.get("Mozo", "")
-    #             hora_cierre = mesa_data.get("Hora_cierre", "")
-    #             if mozo == []:
-    #                 mozo = None
-
-    #             self.agregar_a_registro(
-    #                 {
-    #                     "Mesa": mesa_num,
-    #                     "Estado": estado,
-    #                     "Hora de Apertura": hora_apertura,
-    #                     "Hora cierre": hora_cierre,
-    #                     "Mozo": mozo,
-    #                     "Fecha": fecha,
-    #                 }
-    #             )
-    #     except (json.JSONDecodeError, FileNotFoundError):
-    #         print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
-
     def mesa_clicked(self, mesa_num):
-        # print(f"Mesa {mesa_num} seleccionada")
         self.cargar_json(mesa_num)
 
     def cargar_json(self, mesa_num):
@@ -1016,6 +1008,7 @@ class RestaurantInterface(QMainWindow):
                 self.procesar_pedido_con_json(pedido_json)
         except (json.JSONDecodeError, FileNotFoundError):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
+
     def procesar_pedido_con_json(self, pedido_json):
         with open(os.path.join(base_dir, "Docs/Menu.json"), "r", encoding="utf-8") as f:
             menu = json.load(f)
@@ -1038,75 +1031,54 @@ class RestaurantInterface(QMainWindow):
                     font-family: 'Arial', sans-serif;
                     margin: 0;
                     padding: 0;
-                    background-color: #f9f9f9; /* Color de fondo más suave */
-                    min-height: 100vh;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
+                    background-color: #f9f9f9;
                 }}
                 .comanda {{
                     background-color: #ffffff;
                     border-radius: 12px;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    padding: 40px;
-                    width: 90%;
-                    max-width: 1200px;
-                    margin: 20px auto;
+                    padding: 30px;
+                    width: 100%;
+                    box-sizing: border-box;
                 }}
                 h2 {{
                     color: #2E7D32;
                     text-align: center;
-                    font-size: 2.5em;
-                    margin-bottom: 30px;
+                    font-size: 24px;
+                    margin-bottom: 20px;
                 }}
                 .info {{
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    font-size: 1.2em;
-                    margin-bottom: 30px;
+                    font-size: 14px;
+                    margin-bottom: 20px;
                 }}
                 .info p {{
-                    margin: 10px 0;
+                    margin: 5px 0;
                     flex: 1 1 40%;
                 }}
                 table {{
                     border-collapse: collapse;
                     width: 100%;
-                    margin-top: 30px;
-                    font-size: 1.1em;
+                    margin-top: 20px;
+                    font-size: 14px;
                 }}
                 th, td {{
                     border: 1px solid #ddd;
-                    padding: 15px;
+                    padding: 10px;
                     text-align: left;
-                    transition: background-color 0.3s; /* Animación suave */
                 }}
                 th {{
                     background-color: #2E7D32;
                     color: white;
-                    font-size: 1.2em;
                 }}
-                tr:hover {{ /* Efecto hover */
-                    background-color: #e8f5e9;
+                tr:nth-child(even) {{
+                    background-color: #f2f2f2;
                 }}
                 .total {{
                     font-weight: bold;
                     background-color: #E8F5E9;
-                    font-size: 1.3em;
-                }}
-                @media (max-width: 768px) {{
-                    .comanda {{
-                        padding: 20px;
-                        width: 95%;
-                    }}
-                    .info p {{
-                        flex: 1 1 100%;
-                    }}
-                    th, td {{
-                        padding: 10px;
-                        font-size: 0.9em;
-                    }}
                 }}
             </style>
             <div class="comanda">
@@ -1159,42 +1131,57 @@ class RestaurantInterface(QMainWindow):
                     font-family: 'Arial', sans-serif;
                     margin: 0;
                     padding: 0;
-                    background-color: #f9f9f9; /* Color de fondo más suave */
-                    min-height: 100vh;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
+                    background-color: #f9f9f9;
                 }}
-                .comanda {{
+                .comanda-vacia {{
                     background-color: #ffffff;
                     border-radius: 12px;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    padding: 40px;
-                    width: 90%;
-                    max-width: 1200px;
-                    margin: 20px auto;
+                    padding: 30px;
+                    width: 100%;
+                    box-sizing: border-box;
                     text-align: center;
                 }}
                 h2 {{
                     color: #2E7D32;
-                    font-size: 2.5em;
-                    margin-bottom: 30px;
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }}
+                .icon {{
+                    font-size: 48px;
+                    color: #9E9E9E;
+                    margin-bottom: 20px;
                 }}
                 p {{
-                    font-size: 1.2em;
-                    margin: 15px 0;
+                    font-size: 16px;
+                    color: #616161;
+                    margin: 10px 0;
+                    line-height: 1.5;
+                }}
+                .estado {{
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: {('#4CAF50' if estado == 'Disponible' else '#F44336')};
+                    margin-top: 20px;
                 }}
             </style>
-            <div class="comanda">
-                <h2>COMANDA MESA: {mesa}</h2>
-                <p><strong>Fecha:</strong> -</p>
-                <p><strong>Hora:</strong> -</p>
-                <p><strong>Mozo:</strong> -</p>
+            <div class="comanda-vacia">
+                <h2>MESA {mesa}</h2>
+                <div class="icon">📋</div>
                 <p>No hay pedidos registrados para esta mesa.</p>
+                <p>Esta mesa está actualmente:</p>
+                <p class="estado">{estado.upper()}</p>
             </div>
             """
 
         self.json_input.setHtml(comanda_texto)
+
+    def formatear_fecha(self, fecha_str):
+        try:
+            fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
+            return fecha_obj.strftime("%d/%m/%Y %H:%M")
+        except ValueError:
+            return fecha_str
 
     def formatear_fecha(self, fecha_str):
         try:

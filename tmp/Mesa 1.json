@@ -1,7 +1,7 @@
 {
     "Mesa": 1,
     "Disponible": false,
-    "productos": ["Café americano", "Jugo de naranja natural"],
+    "productos": ["Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural"],
     "cantidad_comensales": 6,
     "comensales_infantiles": [
         true,
