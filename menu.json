@@ -1,0 +1,32 @@
+{
+    "menu": {
+        "beverages": [
+            {
+                "name": "Coca Cola",
+                "price": 2.5
+            },
+            {
+                "name": "Sprite",
+                "price": 2.0
+            }
+        ],
+        "starters": [
+            {
+                "name": "Ensalada",
+                "price": 5.0
+            }
+        ],
+        "main_courses": [
+            {
+                "name": "Pizza",
+                "price": 8.0
+            }
+        ],
+        "desserts": [
+            {
+                "name": "Helado",
+                "price": 3.0
+            }
+        ]
+    }
+}

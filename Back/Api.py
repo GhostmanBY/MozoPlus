@@ -11,7 +11,7 @@ from Menu_de_mesas_Back import (
     crear_comanda,
     restaurar_mesa,
 )
-
+from Menu import obtener_menu_en_json
 app = FastAPI()
 
 
@@ -73,6 +73,9 @@ async def ruta_cerrar_mesa(mesa: int):
 async def ruta_reset(mesa: int):
     return await restaurar_mesa(mesa)
 
+@app.get("/menu")
+async def ruta_menu():
+    return await obtener_menu_en_json()
 
 if __name__ == "__main__":
     import uvicorn
