@@ -1,32 +1,50 @@
 {
-    "menu": {
-        "beverages": [
-            {
-                "name": "Coca Cola",
-                "price": 2.5
-            },
-            {
-                "name": "Sprite",
-                "price": 2.0
-            }
-        ],
-        "starters": [
-            {
-                "name": "Ensalada",
-                "price": 5.0
-            }
-        ],
-        "main_courses": [
-            {
-                "name": "Pizza",
-                "price": 8.0
-            }
-        ],
-        "desserts": [
-            {
-                "name": "Helado",
-                "price": 3.0
-            }
-        ]
-    }
+    "bebidas": [
+        {
+            "name": "Coca Cola",
+            "price": 2.5
+        },
+        {
+            "name": "Sprite",
+            "price": 2.0
+        },
+        {
+            "name": "Fanta",
+            "price": 2.0
+        },
+        {
+            "name": "Agua mineral",
+            "price": 1.5
+        },
+        {
+            "name": "Jugo de naranja",
+            "price": 3.0
+        }
+    ],
+    "entradas": [
+        {
+            "name": "Ensalada",
+            "price": 5.0
+        }
+    ],
+    "platos principales": [
+        {
+            "name": "Pizza",
+            "price": 8.0
+        }
+    ],
+    "postres": [
+        {
+            "name": "Helado",
+            "price": 3.0
+        },
+        {
+            "name": "Torta de zanahoria",
+            "price": 4.0
+        },
+        {
+            "name": "Tiramisú",
+            "price": 5.0
+        }
+    ]
 }

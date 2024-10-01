@@ -1,6 +1,9 @@
 from fpdf import FPDF
 import json
 
+# Lista de platos inicial vacía
+lista_platos = {}
+
 # Inicializa el PDF
 pdf = FPDF()
 pdf.set_font("Arial", size=15)
@@ -38,9 +41,14 @@ def obtener_menu_en_json():
         return json.loads(fileread.decode("utf-8"))
 
 
+def crear_menu_json(lista_platos):
+    """Crea el archivo json con el menú."""
+    with open("menu.json", "w", encoding="utf-8") as file:
+        json.dump(lista_platos, file, ensure_ascii=False, indent=4)
+
+
 if __name__ == "__main__":
-    # Lista de platos inicial vacía
-    lista_platos = {}
+
 
     # Ejemplo: agregar platos
     agregar_a_menu(lista_platos, "Coca Cola", 2.5, "bebidas")
@@ -55,3 +63,6 @@ if __name__ == "__main__":
     agregar_a_menu(lista_platos, "Tiramisú", 5.0, "postres")
     # Muestra el menú en el PDF
     mostrar_menu(pdf, lista_platos)
+    # Crea el archivo json con el menú
+    crear_menu_json(lista_platos)
+
