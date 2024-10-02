@@ -212,49 +212,50 @@ def Recargar_menu():
         json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
 def obtener_menu_en_json():
+    print(os.path.join(base_dir, "../Docs/Menu.json"))
     """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
-        print(json.load(file))
+        
         return json.load(file)
 
 if __name__ == "__main__":
     #crear_tablas()
 
     # Bebidas
-    Cargar_Producto("bebidas", "Café Expreso", 400)
-    Cargar_Producto("bebidas", "Café Americano", 450)
-    Cargar_Producto("bebidas", "Café con Leche", 500)
-    Cargar_Producto("bebidas", "Té Negro", 350)
-    Cargar_Producto("bebidas", "Té Verde", 350)
-    Cargar_Producto("bebidas", "Limonada", 500)
-    Cargar_Producto("bebidas", "Jugo de Naranja Natural", 600)
-    Cargar_Producto("bebidas", "Chocolate Caliente", 550)
-    Cargar_Producto("bebidas", "Batido de Fresa", 700)
-    Cargar_Producto("bebidas", "Agua Mineral", 300)
+    Cargar_Producto("Bebidas", "Café Expreso", 400)
+    Cargar_Producto("Bebidas", "Café Americano", 450)
+    Cargar_Producto("Bebidas", "Café con Leche", 500)
+    Cargar_Producto("Bebidas", "Té Negro", 350)
+    Cargar_Producto("Bebidas", "Té Verde", 350)
+    Cargar_Producto("Bebidas", "Limonada", 500)
+    Cargar_Producto("Bebidas", "Jugo de Naranja Natural", 600)
+    Cargar_Producto("Bebidas", "Chocolate Caliente", 550)
+    Cargar_Producto("Bebidas", "Batido de Fresa", 700)
+    Cargar_Producto("Bebidas", "Agua Mineral", 300)
 
-    # dulces
-    Cargar_Producto("postres", "Tarta de Chocolate", 1200)
-    Cargar_Producto("postres", "Brownie con Helado", 1300)
-    Cargar_Producto("postres", "Cheesecake de Frutilla", 1100)
-    Cargar_Producto("postres", "Croissant con Mermelada", 700)
-    Cargar_Producto("postres", "Muffin de Arándanos", 800)
-    Cargar_Producto("postres", "Medialuna", 500)
-    Cargar_Producto("postres", "Churros con Dulce de Leche", 900)
-    Cargar_Producto("postres", "Helado de Vainilla", 700)
-    Cargar_Producto("postres", "Pastel de Manzana", 1000)
-    Cargar_Producto("postres", "Alfajor de Maicena", 450)
+    # Dulces
+    Cargar_Producto("Dulces", "Tarta de Chocolate", 1200)
+    Cargar_Producto("Dulces", "Brownie con Helado", 1300)
+    Cargar_Producto("Dulces", "Cheesecake de Frutilla", 1100)
+    Cargar_Producto("Dulces", "Croissant con Mermelada", 700)
+    Cargar_Producto("Dulces", "Muffin de Arándanos", 800)
+    Cargar_Producto("Dulces", "Medialuna", 500)
+    Cargar_Producto("Dulces", "Churros con Dulce de Leche", 900)
+    Cargar_Producto("Dulces", "Helado de Vainilla", 700)
+    Cargar_Producto("Dulces", "Pastel de Manzana", 1000)
+    Cargar_Producto("Dulces", "Alfajor de Maicena", 450)
 
-    # entradas
-    Cargar_Producto("entradas", "Sándwich de Jamón y Queso", 900)
-    Cargar_Producto("entradas", "Medialuna con Jamón y Queso", 800)
-    Cargar_Producto("entradas", "Empanada de Carne", 700)
-    Cargar_Producto("entradas", "Empanada de Pollo", 700)
-    Cargar_Producto("entradas", "Pizza Margarita", 1200)
-    Cargar_Producto("entradas", "Tostado de Jamón y Queso", 950)
-    Cargar_Producto("entradas", "Panini de Pollo", 1100)
-    Cargar_Producto("entradas", "Hamburguesa Clásica", 1500)
-    Cargar_Producto("entradas", "Wrap de Pollo", 1200)
-    Cargar_Producto("entradas", "Tarta de Verduras", 900)
+    # Salados
+    Cargar_Producto("Salados", "Sándwich de Jamón y Queso", 900)
+    Cargar_Producto("Salados", "Medialuna con Jamón y Queso", 800)
+    Cargar_Producto("Salados", "Empanada de Carne", 700)
+    Cargar_Producto("Salados", "Empanada de Pollo", 700)
+    Cargar_Producto("Salados", "Pizza Margarita", 1200)
+    Cargar_Producto("Salados", "Tostado de Jamón y Queso", 950)
+    Cargar_Producto("Salados", "Panini de Pollo", 1100)
+    Cargar_Producto("Salados", "Hamburguesa Clásica", 1500)
+    Cargar_Producto("Salados", "Wrap de Pollo", 1200)
+    Cargar_Producto("Salados", "Tarta de Verduras", 900)
 
     # Postres
     Cargar_Producto("Postres", "Flan Casero", 600)

@@ -1101,10 +1101,10 @@ class RestaurantInterface(QMainWindow):
 
             total_general = 0
             for producto in productos:
-                for categoria in menu:
-                    for pedido in menu[categoria]:
-                        if producto == pedido["Nombre"]:
-                            precio = pedido["Precio"]
+                for categoria in menu["menu"]:
+                    for pedido in menu["menu"][categoria]:
+                        if producto == pedido["name"]:
+                            precio = pedido["price"]
                             total = precio
                             total_general += total
                             comanda_texto += f"""
