@@ -5,5 +5,12 @@
             "Horario_salida": null,
             "Mesas totales": null
         }
+    },
+    {
+        "María García": {
+            "Horario_entrada": "18:51",
+            "Horario_salida": null,
+            "Mesas totales": null
+        }
     }
 ]

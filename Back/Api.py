@@ -11,7 +11,7 @@ from Menu_de_mesas_Back import (
     crear_comanda,
     restaurar_mesa,
 )
-from Menu import obtener_menu_en_json
+from Panel_Admin_Back import obtener_menu_en_json
 
 app = FastAPI()
 
