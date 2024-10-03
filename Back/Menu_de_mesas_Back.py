@@ -261,10 +261,7 @@ def cantidad_de_mesas():
         with open(os.path.join(base_dir, f"../tmp/Mesa {i+1}.json"), "r", encoding="utf-8") as file:
             mesa_tmp = json.load(file)
         cantidad["tables"].append({"id": i + 1,"Dispo": mesa_tmp["Disponible"]})
-
-
-    with open(os.path.join(base_dir, "../Docs/Cantidad_de_mesas.json"), "w", encoding="utf-8") as file:
-        json.dump(cantidad, file, ensure_ascii=False, indent=4)  # json.load(file)
+    return cantidad
 
     # return cantidad
 
