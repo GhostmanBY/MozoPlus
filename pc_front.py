@@ -1068,6 +1068,7 @@ class RestaurantInterface(QMainWindow):
                     border: 1px solid #ddd;
                     padding: 10px;
                     text-align: left;
+                    white-space: nowrap;
                 }}
                 th {{
                     background-color: #2E7D32;
