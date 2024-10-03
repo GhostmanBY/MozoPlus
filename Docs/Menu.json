@@ -40,6 +40,10 @@
             {
                 "name": "Agua mineral",
                 "price": 300
+            },
+            {
+                "name": "Vino tinto ",
+                "price": 19000
             }
         ],
         "Dulces": [
