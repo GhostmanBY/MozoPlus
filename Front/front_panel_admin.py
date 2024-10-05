@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, 
-                             QVBoxLayout, QHBoxLayout, QWidget, QTextEdit, QSplitter)
+                             QVBoxLayout, QHBoxLayout, QWidget, QTextEdit, QSplitter, QDesktopWidget)
 from PyQt5.QtCore import Qt, QTimer, QTime
 
 
@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         
         self.setWindowTitle("Gestión de Mesas")
-        self.setGeometry(100, 100, 800, 400)
+        self.ajustar_tamano_pantalla()
 
         self.mesa_buttons = []
         self.tiempos = []
@@ -17,7 +17,12 @@ class MainWindow(QMainWindow):
                         "pedido_mesa_3.txt", "pedido_mesa_4.txt"]
         
         self.initUI()
-        
+    
+    def ajustar_tamano_pantalla(self):
+        screen = QDesktopWidget().screenGeometry()
+        self.setGeometry(0, 0, screen.width(), screen.height())
+        self.showMaximized()
+    
     def initUI(self):
         # Layout principal
         main_layout = QHBoxLayout()

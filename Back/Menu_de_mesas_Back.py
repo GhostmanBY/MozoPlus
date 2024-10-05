@@ -135,6 +135,12 @@ async def abrir_mesa(mesa: int, mozo: str):
     """
     Abre una mesa y actualiza su disponibilidad a False.
     """
+    # Captura de la hora de cierre de la mesa y el día
+    fecha_hoy = datetime.datetime.now().date()
+    fecha_txt = datetime.datetime.now()
+    fecha = fecha_txt.strftime("%H:%M")
+
+
     verifica_directorio(os.path.join(base_dir, "tmp"))
     archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
 
@@ -168,6 +174,11 @@ async def cerrar_mesa(mesa: int):
     """
     Cierra una mesa y actualiza su disponibilidad a True.
     """
+    # Captura de la hora de cierre de la mesa y el día
+    fecha_hoy = datetime.datetime.now().date()
+    fecha_txt = datetime.datetime.now()
+    fecha = fecha_txt.strftime("%H:%M")
+    
     archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
     try:
         # Leemos el archivo de la mesa
