@@ -11,7 +11,7 @@ from Menu_de_mesas_Back import (
     crear_comanda,
     restaurar_mesa,
 )
-from Menu import obtener_menu_en_json
+from Panel_Admin_Back import obtener_menu_en_json
 
 app = FastAPI()
 
@@ -83,4 +83,4 @@ async def ruta_menu():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

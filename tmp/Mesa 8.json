@@ -1,11 +1,17 @@
 {
     "Mesa": 8,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": [
+        "Café americano",
+        "Té verde",
+        "Tarta de chocolate"
+    ],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": []
+    "Mozo": "María García",
+    "Hora": "15:22",
+    "Fecha": "2024-10-03"
 }

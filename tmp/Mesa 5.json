@@ -1,11 +1,13 @@
 {
     "Mesa": 5,
-    "Disponible": true,
+    "Disponible": false,
     "productos": [],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": []
+    "Mozo": "María García",
+    "Hora": "08:14",
+    "Fecha": "2024-10-03"
 }

@@ -1,11 +1,17 @@
 {
     "Mesa": 1,
     "Disponible": false,
-    "productos": ["Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural","Café americano", "Jugo de naranja natural"],
-    "cantidad_comensales": 6,
-    "comensales_infantiles": [
-        true,
-        3
+    "productos": [
+        "Café expreso",
+        "Té negro",
+        "Mousse de chocolate"
     ],
-    "Mozo": "nahuel"
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
+    ],
+    "Mozo": "María García",
+    "Hora": "12:48",
+    "Fecha": "2024-10-03"
 }
