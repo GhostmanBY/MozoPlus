@@ -266,6 +266,7 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Budín de Pan", 650)
     Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
 """
+    Recargar_menu()
 
     """Alta_Mozo("Juan Pérez")
     Alta_Mozo("María García")
