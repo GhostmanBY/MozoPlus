@@ -176,49 +176,52 @@ def Eliminar_Producto(name):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = "DELETE FROM Menu WHERE Nombre = ?" # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
-    cursor.execute(instruccion, (name,))  # Ejecuta la accion
+    instruccion = f"DELETE FROM Menu WHERE Nombre like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
+    cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
 
 def Recargar_menu():
-    print("Paso por la funcion")
     try:
         with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as json_file:
             data_disc = json.load(json_file)  # Cargar el contenido del archivo JSON
     except FileNotFoundError:
-        # Si el archivo no existe, creamos un diccionario vacío
-        data_disc = {}
+        # Si el archivo no existe, creamos una estructura base
+        data_disc = {"menu": {}}
 
-    # Obtener los nuevos productos
+    # Obtener los nuevos productos desde la base de datos
     data = Mostrar_Menu()
 
     # Organizar los datos en el diccionario
     for item in data:
-        nombre = item[0]  # Nombre del producto (ej. "Carne")
-        categoria = item[1]  # Categoría del producto (ej. "Asado")
+        nombre = item[1]  # Nombre del producto (ej. "Carne")
+        categoria = item[0]  # Categoría del producto (ej. "Asado")
         precio = item[2]  # Precio del producto (ej. 1500)
 
-        if nombre not in data_disc:
-            data_disc[nombre] = []  # Si no existe el producto, se crea la entrada como lista
+        if categoria not in data_disc["menu"]:
+            data_disc["menu"][categoria] = []  # Si no existe la categoría, la creamos como una lista vacía
         
-        # Verificar si la categoría ya existe dentro del producto
-        if not any(prod['Nombre'] == categoria for prod in data_disc[nombre]):
-            # Si la categoría no está presente, agregarla
-            data_disc[nombre].append({"Nombre": categoria, "Precio": precio})
+        # Verificar si el producto ya está dentro de la categoría
+        if not any(prod['name'] == nombre for prod in data_disc["menu"][categoria]):
+            # Si el producto no está presente, agregarlo
+            data_disc["menu"][categoria].append({"name": nombre, "price": precio})
 
-            print(f"diccionario: {data_disc}")
     # Guardar los cambios en el archivo JSON
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "w", encoding="utf-8") as json_file:
         json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
+def obtener_menu_en_json():
+    print(os.path.join(base_dir, "../Docs/Menu.json"))
+    """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
+    with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
+        
+        return json.load(file)
+
 if __name__ == "__main__":
-    Eliminar_Producto("Budín de pan")
-    Recargar_menu()
     #crear_tablas()
 
-    """    # Bebidas
+    # Bebidas
     Cargar_Producto("Bebidas", "Café Expreso", 400)
     Cargar_Producto("Bebidas", "Café Americano", 450)
     Cargar_Producto("Bebidas", "Café con Leche", 500)
@@ -265,7 +268,7 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Tarta de Limón", 1150)
     Cargar_Producto("Postres", "Budín de Pan", 650)
     Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
-"""
+
     Recargar_menu()
 
     """Alta_Mozo("Juan Pérez")

@@ -432,8 +432,6 @@ class RestaurantInterface(QMainWindow):
         dialog.setLayout(dialog_layout)
         dialog.exec_()
 
-        Recargar_menu()  # Update the JSON file
-
     def save_product_edit(self, old_name, new_category, new_name, new_price, dialog):
         try:
             new_price = float(new_price)
@@ -444,8 +442,6 @@ class RestaurantInterface(QMainWindow):
             dialog.close()
         except ValueError:
             QMessageBox.warning(dialog, "Error", "El precio debe ser un número válido.")
-
-        Recargar_menu()  # Update the JSON file
 
     def delete_product(self, name):
         reply = QMessageBox.question(
@@ -458,8 +454,6 @@ class RestaurantInterface(QMainWindow):
         if reply == QMessageBox.Yes:
             Eliminar_Producto(name)
             self.load_menu()
-        
-        Recargar_menu()  # Update the JSON file
 
     def setup_mozos_tab(self):
         mozos_widget = QWidget()
@@ -1074,6 +1068,7 @@ class RestaurantInterface(QMainWindow):
                     border: 1px solid #ddd;
                     padding: 10px;
                     text-align: left;
+                    white-space: nowrap;
                 }}
                 th {{
                     background-color: #2E7D32;
@@ -1107,10 +1102,10 @@ class RestaurantInterface(QMainWindow):
 
             total_general = 0
             for producto in productos:
-                for categoria in menu:
-                    for pedido in menu[categoria]:
-                        if producto == pedido["Nombre"]:
-                            precio = pedido["Precio"]
+                for categoria in menu["menu"]:
+                    for pedido in menu["menu"][categoria]:
+                        if producto == pedido["name"]:
+                            precio = pedido["price"]
                             total = precio
                             total_general += total
                             comanda_texto += f"""
