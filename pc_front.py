@@ -353,7 +353,7 @@ class RestaurantInterface(QMainWindow):
             """
             )
             delete_button = QPushButton("Eliminar")
-            delete_button.clicked.connect(lambda _, n=item[0]: self.delete_product(n))
+            delete_button.clicked.connect(lambda _, n=item[1]: self.delete_product(n))
             delete_button.setStyleSheet(
                 """
                 QPushButton {
@@ -380,8 +380,8 @@ class RestaurantInterface(QMainWindow):
         Recargar_menu()  # Update the JSON file
 
     def edit_product(self, row):
-        name = self.menu_table.item(row, 0).text()
-        category = self.menu_table.item(row, 1).text()
+        name = self.menu_table.item(row, 1).text()
+        category = self.menu_table.item(row, 0).text()
         price = self.menu_table.item(row, 2).text()
 
         dialog = QDialog(self)
@@ -448,10 +448,13 @@ class RestaurantInterface(QMainWindow):
             self,
             "Confirmar Eliminación",
             f"¿Está seguro de que desea eliminar el producto {name}?",
+
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
+
         if reply == QMessageBox.Yes:
+            print(name)
             Eliminar_Producto(name)
             self.load_menu()
 

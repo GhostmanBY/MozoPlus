@@ -176,11 +176,12 @@ def Eliminar_Producto(name):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"DELETE FROM Menu WHERE Nombre like '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
+    instruccion = f"DELETE FROM Menu WHERE Nombre = '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
     cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
+    Recargar_menu()
 
 def Recargar_menu():
     try:
@@ -195,8 +196,8 @@ def Recargar_menu():
 
     # Organizar los datos en el diccionario
     for item in data:
-        nombre = item[1]  # Nombre del producto (ej. "Carne")
         categoria = item[0]  # Categoría del producto (ej. "Asado")
+        nombre = item[1]  # Nombre del producto (ej. "Carne")
         precio = item[2]  # Precio del producto (ej. 1500)
 
         if categoria not in data_disc["menu"]:
@@ -219,6 +220,7 @@ def obtener_menu_en_json():
         return json.load(file)
 
 if __name__ == "__main__":
+    Eliminar_Producto("Tarta de chocolate")
     #crear_tablas()
 
     """# Bebidas
