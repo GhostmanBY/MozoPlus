@@ -1,6 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import Mesa, ValorInput
+from models import ValorInput
 from Login_de_mozo_back import verificar, login_out
 from Menu_de_mesas_Back import (
     ver_mesas,
@@ -27,14 +27,20 @@ app.add_middleware(
 
 @app.post("/verificar/{code}")
 async def ruta_verificar(code: str):
-    return await verificar(
-        code
-    )  # Asegúrate de usar 'await' si 'verificar' es asincrónica
+    try:
+        return await verificar(
+            code
+        )  # Asegúrate de usar 'await' si 'verificar' es asincrónica
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/salir/{code}")
 async def ruta_login_out(code: str):
-    return await login_out(code)
+    try:
+        return await login_out(code)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/mesas")
