@@ -128,57 +128,5 @@
         "Mozo": [],
         "Pagado": false,
         "Metodo": ""
-    },
-    "Mesa 11": {
-        "Mesa": 11,
-        "Disponible": true,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [
-            false,
-            0
-        ],
-        "Mozo": [],
-        "Pagado": false,
-        "Metodo": ""
-    },
-    "Mesa 12": {
-        "Mesa": 12,
-        "Disponible": true,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [
-            false,
-            0
-        ],
-        "Mozo": [],
-        "Pagado": false,
-        "Metodo": ""
-    },
-    "Mesa 13": {
-        "Mesa": 13,
-        "Disponible": true,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [
-            false,
-            0
-        ],
-        "Mozo": [],
-        "Pagado": false,
-        "Metodo": ""
-    },
-    "Mesa 14": {
-        "Mesa": 14,
-        "Disponible": true,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [
-            false,
-            0
-        ],
-        "Mozo": [],
-        "Pagado": false,
-        "Metodo": ""
     }
 }

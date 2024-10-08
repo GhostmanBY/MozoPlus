@@ -1,7 +1,11 @@
 import subprocess
 import os
 if __name__ == "__main__":
-    if not os.listdir("tmp"):
-        subprocess.Popen(["python", "Front/crear_mesa.py"])
     subprocess.Popen(["python", "pc_front.py"])
-    subprocess.Popen(["python", "Back/Api.py"]) 
+    subprocess.Popen(["python", "Back/Api.py"])
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    print(f"Tu IP es {ip}")
