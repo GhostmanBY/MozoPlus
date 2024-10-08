@@ -286,13 +286,14 @@ async def crear_comanda(mesa):
     ) as file:
         menu = json.load(file)
         file.close()
+    
 
-    for categoria in menu:
+    for categoria in menu["menu"]:
         for item in productos:
-            for plato in menu[categoria]:
+            for plato in menu["menu"][categoria]:
 
-                if item == plato["Nombre"]:
-                    items.append([plato["Nombre"], 1, plato["Precio"]])
+                if item == plato["name"]:
+                    items.append([plato["name"], 1, plato["price"]])
 
     # Generar un número único para la comanda
     numero_comanda = datetime.datetime.now().strftime("%d-%m-%Y-%H-%M")

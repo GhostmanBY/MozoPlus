@@ -2,16 +2,16 @@
     "Mesa": 1,
     "Disponible": false,
     "productos": [
-        "Café expreso",
         "Té negro",
-        "Mousse de chocolate"
+        "Tostado de jamón y queso"
     ],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": "María García",
-    "Hora": "12:48",
-    "Fecha": "2024-10-03"
+    "Mozo": "Nahuel",
+    "Hora": "20:58",
+    "Fecha": "2024-10-07",
+    "Hora_cierre": "21:11"
 }
