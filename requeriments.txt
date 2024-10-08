@@ -1,0 +1,4 @@
+fastapi
+fpdf
+pydantic
+PyQt5
