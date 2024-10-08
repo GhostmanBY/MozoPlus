@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QDialog, QLabel,QHeaderView
 import os
 import json
+import re
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from Back.Panel_Admin_Back import Alta_Mozo, Mostrar_Mozos, Editar_Mozo, Eliminar_empleados
@@ -197,15 +198,20 @@ def update_current_view(self):
     self.mozos_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
 def add_mozo(self):
-    name = self.mozo_name_input.text()
-    if name:
-        Alta_Mozo(name)
-        self.mozo_name_input.clear()
-        load_mozos(self)
-    else:
-        QMessageBox.warning(
-            self, "Error", "Por favor, ingrese un nombre para el mozo."
-        )
+        name = self.mozo_name_input.text()
+        if re.search(r'[^a-zA-Z ]', name):
+            QMessageBox.warning(
+                self, "Error", "Por favor, no Ingrese caracteres especiales."
+            )
+
+        if name:
+            Alta_Mozo(name)
+            self.mozo_name_input.clear()
+            self.load_mozos()
+        else:
+            QMessageBox.warning(
+                self, "Error", "Por favor, ingrese un nombre para el mozo."
+            )
 
 def load_mozos(self):
     mozos = Mostrar_Mozos()

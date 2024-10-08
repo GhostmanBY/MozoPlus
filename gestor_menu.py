@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QHBoxLayout, QDialog, QMessageBox
 from Back.Panel_Admin_Back import Cargar_Producto, Mostrar_Menu, Modificar_Menu, Eliminar_Producto
+import re
 
 def setup_menu_tab(self):
     menu_widget = QWidget()
@@ -76,6 +77,19 @@ def add_product(self):
     category = self.category_input.text()
     name = self.name_input.text()
     price = self.price_input.text()
+    
+    if re.search(r'[^a-zA-Z ]', name) :
+        QMessageBox.warning(
+            self, "Error", "Por favor, no Ingrese caracteres especiales."
+        )
+    elif re.search(r'[^0-9 ]', price):
+        QMessageBox.warning(
+            self, "Error", "Por favor, solo ingrese numeros."
+        )
+    elif re.search(r'[^a-zA-Z ]', category):
+        QMessageBox.warning(
+            self, "Error", "Por favor, no Ingrese caracteres especiales."
+        )
 
     if category and name and price:
         try:
@@ -153,6 +167,19 @@ def edit_product(self, row):
     name = self.menu_table.item(row, 1).text()
     category = self.menu_table.item(row, 0).text()
     price = self.menu_table.item(row, 2).text()
+
+    if re.search(r'[^a-zA-Z ]', name) :
+        QMessageBox.warning(
+            self, "Error", "Por favor, no Ingrese caracteres especiales."
+        )
+    elif re.search(r'[^0-9 ]', price):
+        QMessageBox.warning(
+            self, "Error", "Por favor, solo ingrese numeros."
+        )
+    elif re.search(r'[^a-zA-Z ]', category):
+        QMessageBox.warning(
+            self, "Error", "Por favor, no Ingrese caracteres especiales."
+        )
 
     dialog = QDialog(self)
     dialog.setWindowTitle(f"Editar Producto: {name}")

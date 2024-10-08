@@ -5,7 +5,7 @@ import sqlite3
 import json
 import datetime
 from fastapi.responses import JSONResponse
-from Back.models import Mesa, ValorInput
+from models import Mesa, ValorInput
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
