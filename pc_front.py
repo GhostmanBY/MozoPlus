@@ -454,16 +454,16 @@ class RestaurantInterface(QMainWindow):
         )
 
         if reply == QMessageBox.Yes:
-            print(name)
+            #print(name)
             Eliminar_Producto(name)
             self.load_menu()
 
     def setup_mozos_tab(self):
         mozos_widget = QWidget()
         mozos_layout = QVBoxLayout(mozos_widget)
-        mozos_layout.setContentsMargins(10, 10, 10, 10)  # Add some padding
+        mozos_layout.setContentsMargins(10, 10, 10, 10)
 
-        # Add Mozo section
+        # Sección para agregar mozo
         add_mozo_layout = QHBoxLayout()
         self.mozo_name_input = QLineEdit()
         self.mozo_name_input.setPlaceholderText("Nombre del Mozo")
@@ -499,10 +499,31 @@ class RestaurantInterface(QMainWindow):
         add_mozo_layout.addWidget(add_mozo_button, 1)
         mozos_layout.addLayout(add_mozo_layout)
 
-        # Mozos Table
+        # Botón para cambiar entre vistas
+        self.toggle_view_button = QPushButton("Registro de Mozos")
+        self.toggle_view_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 150px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+        """
+        )
+        self.toggle_view_button.clicked.connect(self.toggle_mozo_view)
+        mozos_layout.addWidget(self.toggle_view_button)
+
+        # Tabla de Mozos
         self.mozos_table = QTableWidget(0, 4)
         self.mozos_table.setHorizontalHeaderLabels(
-            ["#", "Nombre", "Código", "Acciones"]
+            ["ID", "Nombre", "Código", "Acciones"]
         )
         self.mozos_table.setStyleSheet(
             """
@@ -528,17 +549,14 @@ class RestaurantInterface(QMainWindow):
         """
         )
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
-        self.mozos_table.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.Stretch
-        )  # Stretch the Name column
-        self.mozos_table.verticalHeader().setDefaultSectionSize(
-            40
-        )  # Increase row height
+        self.mozos_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.mozos_table.verticalHeader().setDefaultSectionSize(40)
+        self.mozos_table.setMinimumHeight(300)  # Establecer una altura mínima
         mozos_layout.addWidget(self.mozos_table)
 
-        # Refresh button
-        refresh_button = QPushButton("Actualizar Lista")
-        refresh_button.setStyleSheet(
+        # Modificar el botón de actualizar
+        self.refresh_button = QPushButton("Actualizar Lista")
+        self.refresh_button.setStyleSheet(
             """
             QPushButton {
                 background-color: #008CBA;
@@ -554,13 +572,71 @@ class RestaurantInterface(QMainWindow):
             }
         """
         )
-        refresh_button.clicked.connect(self.load_mozos)
-        mozos_layout.addWidget(refresh_button, alignment=Qt.AlignRight)
+        self.refresh_button.clicked.connect(self.update_current_view)
+        mozos_layout.addWidget(self.refresh_button, alignment=Qt.AlignRight)
 
         self.central_widget.addTab(mozos_widget, "Gestión de Mozos")
 
-        # Load initial data
+        # Cargar datos iniciales
         self.load_mozos()
+
+    def toggle_mozo_view(self):
+        if self.toggle_view_button.text() == "Registro de Mozos":
+            self.toggle_view_button.setText("Código de Mozos")
+            self.mozos_table.setColumnCount(4)
+            self.mozos_table.setHorizontalHeaderLabels(["Mozo", "Hora de entrada", "Hora de salida", "Mesas Totales"])
+            self.load_mozo_registry()
+        else:
+            self.toggle_view_button.setText("Registro de Mozos")
+            self.mozos_table.setColumnCount(4)
+            self.mozos_table.setHorizontalHeaderLabels(["ID", "Nombre", "Código", "Acciones"])
+            self.load_mozos()
+
+    def load_mozo_registry(self):
+        current_width = self.mozos_table.width()
+        current_height = self.mozos_table.height()
+        
+        self.mozos_table.setRowCount(0)  # Reinicia las filas
+        registry_file = os.path.join(base_dir, f"Docs/registro_mozos_{fecha_hoy}.json")
+        
+        if os.path.exists(registry_file):
+            with open(registry_file, "r", encoding="utf-8") as file:
+                datos_registro = json.load(file)
+                
+            for fila, registro in enumerate(datos_registro):
+                mozo = list(registro.keys())[0]  # Nombre del mozo
+                detalles = registro[mozo]        # Detalles del mozo
+
+                entrada = detalles.get("Horario_entrada", "")
+                salida = detalles.get("Horario_salida", "")
+                mesas_totales = str(detalles.get("Mesas totales", ""))
+
+                self.mozos_table.insertRow(fila)
+                self.mozos_table.setItem(fila, 0, QTableWidgetItem(mozo))
+                self.mozos_table.setItem(fila, 1, QTableWidgetItem(entrada))
+                self.mozos_table.setItem(fila, 2, QTableWidgetItem(salida))
+                self.mozos_table.setItem(fila, 3, QTableWidgetItem(mesas_totales))
+        else:
+            print(f"El archivo {registry_file} no existe.")
+
+        # Mantener el tamaño de la tabla
+        self.mozos_table.setFixedWidth(current_width)
+        self.mozos_table.setFixedHeight(current_height)
+        
+        # Ajustar el contenido después de establecer el tamaño fijo
+        self.mozos_table.resizeColumnsToContents()
+        self.mozos_table.resizeRowsToContents()
+
+    def update_current_view(self):
+        if self.toggle_view_button.text() == "Código de Mozos":
+            self.load_mozo_registry()
+        else:
+            self.load_mozos()
+        
+        # Asegurar que la tabla ocupe todo el espacio disponible
+        self.mozos_table.horizontalHeader().setStretchLastSection(True)
+        self.mozos_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
 
     def add_mozo(self):
         name = self.mozo_name_input.text()
