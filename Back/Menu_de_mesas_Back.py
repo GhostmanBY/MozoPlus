@@ -67,6 +67,8 @@ def crea_mesas_tmp():
         "cantidad_comensales": 0,
         "comensales_infantiles": [False, 0],
         "Mozo": {},
+        "Pagado": False,
+        "Metodo": "",
     }
 
 
@@ -83,6 +85,8 @@ def creas_mesas(cantidad):
             "cantidad_comensales": 0,
             "comensales_infantiles": [False, 0],
             "Mozo": [],
+            "Pagado": False,
+            "Metodo": "",
         }
         with open(
             os.path.join(base_dir, f"../Docs/mesas.json"), "w", encoding="utf-8"
@@ -147,6 +151,8 @@ async def abrir_mesa(mesa: int, mozo: str):
         "Mozo": mozo,
         "Hora": fecha,
         "Fecha": str(fecha_hoy),
+        "Pagado": False,
+        "Metodo": "",
     }
 
     try:
@@ -280,20 +286,21 @@ async def crear_comanda(mesa):
         data = json.load(file)
         mozo = data["Mozo"]
         productos = data["productos"]
+        pagado = data["Pagado"]
+        metodo = data["Metodo"]
         file.close()
     with open(
         os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8"
     ) as file:
         menu = json.load(file)
         file.close()
-    
 
-    for categoria in menu["menu"]:
+    for categoria in menu:
         for item in productos:
-            for plato in menu["menu"][categoria]:
+            for plato in menu[categoria]:
 
-                if item == plato["name"]:
-                    items.append([plato["name"], 1, plato["price"]])
+                if item == plato["Nombre"]:
+                    items.append([plato["Nombre"], 1, plato["Precio"]])
 
     # Generar un número único para la comanda
     numero_comanda = datetime.datetime.now().strftime("%d-%m-%Y-%H-%M")
@@ -372,5 +379,6 @@ def dividir_cuenta(mesa, cantidad):
 
 
 if __name__ == "__main__":
-    cantidad_de_mesas()
+    creas_mesas(10)
+    crea_mesas_tmp()
     

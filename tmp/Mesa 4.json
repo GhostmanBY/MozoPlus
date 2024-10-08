@@ -7,5 +7,7 @@
         false,
         0
     ],
-    "Mozo": []
+    "Mozo": [],
+    "Pagado": false,
+    "Metodo": ""
 }

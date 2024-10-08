@@ -8,7 +8,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 2": {
         "Mesa": 2,
@@ -19,7 +21,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 3": {
         "Mesa": 3,
@@ -30,7 +34,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 4": {
         "Mesa": 4,
@@ -41,7 +47,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 5": {
         "Mesa": 5,
@@ -52,7 +60,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 6": {
         "Mesa": 6,
@@ -63,7 +73,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 7": {
         "Mesa": 7,
@@ -74,7 +86,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 8": {
         "Mesa": 8,
@@ -85,7 +99,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 9": {
         "Mesa": 9,
@@ -96,7 +112,9 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     },
     "Mesa 10": {
         "Mesa": 10,
@@ -107,6 +125,8 @@
             false,
             0
         ],
-        "Mozo": []
+        "Mozo": [],
+        "Pagado": false,
+        "Metodo": ""
     }
 }
