@@ -8,13 +8,14 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
 Mozo_registro = {}
 
-fecha_hoy = datetime.datetime.now().date()
-fecha_txt = datetime.datetime.now()
-fecha = fecha_txt.strftime("%H:%M")
-
-ruta_registro = os.path.join(base_dir, f"../Docs/registro_mozos_{fecha_hoy}.json")
-
 async def verificar(code: str):
+    #bloque para la fecha y hora
+    fecha_hoy = datetime.datetime.now().date()
+    fecha_txt = datetime.datetime.now()
+    fecha = fecha_txt.strftime("%H:%M")
+    
+    ruta_registro = os.path.join(base_dir, f"../Docs/registro_mozos_{fecha_hoy}.json")
+
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
@@ -34,7 +35,8 @@ async def verificar(code: str):
                 Mozo_registro[f"{filas[1]}"]= {
                     "Horario_entrada": fecha,
                     "Horario_salida": None,
-                    "Mesas totales": None
+                    "Mesas totales": None,
+                    "Fecha": f"{fecha_hoy}"
                 }
 
                 # Cargar comandas existentes o iniciar lista vacía
@@ -59,7 +61,14 @@ async def verificar(code: str):
                 return data #code encontrado
     return 0
 
-def login_out(code: int):
+async def login_out(code: int):
+    #bloque para la fecha y hora
+    fecha_hoy = datetime.datetime.now().date()
+    fecha_txt = datetime.datetime.now()
+    fecha = fecha_txt.strftime("%H:%M")
+    
+    ruta_registro = os.path.join(base_dir, f"../Docs/registro_mozos_{fecha_hoy}.json")
+
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
@@ -77,7 +86,7 @@ def login_out(code: int):
             nombre_mozo = filas[1]
 
             # Abre el archivo JSON que contiene las mesas del mozo
-            with open(os.path.join(base_dir, f"Docs/{fecha_hoy}_{nombre_mozo}.json"), "r", encoding="utf-8") as file:
+            with open(os.path.join(base_dir, f"../Docs/Registro/{fecha_hoy}_{nombre_mozo}.json"), "r", encoding="utf-8") as file:
                 mesas = json.load(file)
 
             # Intenta cargar el archivo registro, si no existe, inicializa 'registro' como una lista vacía
@@ -86,26 +95,25 @@ def login_out(code: int):
                     registro = json.load(file)
                     print(registro)
             else:
-                registro = []  # Inicializa registro como lista vacía si no existe el archivo
+                return f"No se a cargado el sistem de login"
+                break
 
             # Verifica si 'registro' es una lista
             if isinstance(registro, list):
-                mozo_encontrado = None
-                for item in registro:
-                    if nombre_mozo in item:  # Verificar si el nombre del mozo es una clave
-                        mozo_encontrado = item
-                        print("nombre mozo: ", nombre_mozo)
-                        print("nombre mozo encontrado: ", mozo_encontrado)
-                        break
-
-                # Actualiza los datos del mozo encontrado
-                if mozo_encontrado:
-                    mozo_encontrado[nombre_mozo]['Horario_salida'] = fecha
-                    mozo_encontrado[nombre_mozo]['Mesas totales'] = len(mesas)
+                for i in range(len(registro)):
+                    for item in registro:
+                        if nombre_mozo in item:  # Verificar si el nombre del mozo es una clave
+                            print(registro)
+                            registro[i][nombre_mozo]['Horario_salida'] = fecha
+                            registro[i][nombre_mozo]['Mesas totales'] = len(mesas)
+                            break
 
                 # Guarda el diccionario actualizado en el archivo JSON
                 with open(ruta_registro, "w", encoding="utf-8") as file:
+                    print(nombre_mozo)
                     json.dump(registro, file, ensure_ascii=False, indent=4)
+        break
 
 if __name__ == "__main__":
-    login_out("ZNMC547")
+    verificar("admin")
+    login_out("admin")

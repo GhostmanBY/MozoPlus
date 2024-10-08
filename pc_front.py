@@ -583,8 +583,8 @@ class RestaurantInterface(QMainWindow):
     def toggle_mozo_view(self):
         if self.toggle_view_button.text() == "Registro de Mozos":
             self.toggle_view_button.setText("Código de Mozos")
-            self.mozos_table.setColumnCount(4)
-            self.mozos_table.setHorizontalHeaderLabels(["Mozo", "Hora de entrada", "Hora de salida", "Mesas Totales"])
+            self.mozos_table.setColumnCount(5)
+            self.mozos_table.setHorizontalHeaderLabels(["Mozo", "Hora de entrada", "Hora de salida", "Fecha", "Mesas Totales"])
             self.load_mozo_registry()
         else:
             self.toggle_view_button.setText("Registro de Mozos")
@@ -610,12 +610,28 @@ class RestaurantInterface(QMainWindow):
                 entrada = detalles.get("Horario_entrada", "")
                 salida = detalles.get("Horario_salida", "")
                 mesas_totales = str(detalles.get("Mesas totales", ""))
+                fecha_disc = detalles.get("Fecha", "")
 
                 self.mozos_table.insertRow(fila)
-                self.mozos_table.setItem(fila, 0, QTableWidgetItem(mozo))
-                self.mozos_table.setItem(fila, 1, QTableWidgetItem(entrada))
-                self.mozos_table.setItem(fila, 2, QTableWidgetItem(salida))
-                self.mozos_table.setItem(fila, 3, QTableWidgetItem(mesas_totales))
+                item_mozo = QTableWidgetItem(mozo)
+                item_mozo.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                self.mozos_table.setItem(fila, 0, item_mozo)
+
+                item_entrada = QTableWidgetItem(entrada)
+                item_entrada.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                self.mozos_table.setItem(fila, 1, item_entrada)
+
+                item_salida = QTableWidgetItem(salida)
+                item_salida.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                self.mozos_table.setItem(fila, 2, item_salida)
+
+                item_fecha_disc = QTableWidgetItem(fecha_disc)
+                item_fecha_disc.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                self.mozos_table.setItem(fila, 3, item_fecha_disc)
+
+                item_mesas_totales = QTableWidgetItem(mesas_totales)
+                item_mesas_totales.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                self.mozos_table.setItem(fila, 4, item_mesas_totales)
         else:
             print(f"El archivo {registry_file} no existe.")
 
