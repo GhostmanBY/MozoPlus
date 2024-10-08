@@ -499,32 +499,10 @@ class RestaurantInterface(QMainWindow):
         add_mozo_layout.addWidget(add_mozo_button, 1)
         mozos_layout.addLayout(add_mozo_layout)
 
-        # Botón para cambiar entre vistas
-        self.toggle_view_button = QPushButton("Registro de Mozos")
-        self.toggle_view_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2196F3;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 150px;
-            }
-            QPushButton:hover {
-                background-color: #1976D2;
-            }
-        """
-        )
-        self.toggle_view_button.clicked.connect(self.toggle_mozo_view)
-        mozos_layout.addWidget(self.toggle_view_button)
-
         # Tabla de Mozos
-        self.mozos_table = QTableWidget(0, 4)
-        self.mozos_table.setHorizontalHeaderLabels(
-            ["ID", "Nombre", "Código", "Acciones"]
-        )
+        self.mozos_table = QTableWidget(0, 7)
+        self.mozos_table.setHorizontalHeaderLabels(["Nombre", "Código", "Hora de entrada", "Hora de salida", "Fecha", "Mesas Totales", "Acciones",])
+
         self.mozos_table.setStyleSheet(
             """
             QTableWidget {
@@ -549,7 +527,6 @@ class RestaurantInterface(QMainWindow):
         """
         )
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
-        self.mozos_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.mozos_table.verticalHeader().setDefaultSectionSize(40)
         self.mozos_table.setMinimumHeight(300)  # Establecer una altura mínima
         mozos_layout.addWidget(self.mozos_table)
@@ -580,78 +557,11 @@ class RestaurantInterface(QMainWindow):
         # Cargar datos iniciales
         self.load_mozos()
 
-    def toggle_mozo_view(self):
-        if self.toggle_view_button.text() == "Registro de Mozos":
-            self.toggle_view_button.setText("Código de Mozos")
-            self.mozos_table.setColumnCount(5)
-            self.mozos_table.setHorizontalHeaderLabels(["Mozo", "Hora de entrada", "Hora de salida", "Fecha", "Mesas Totales"])
-            self.load_mozo_registry()
-        else:
-            self.toggle_view_button.setText("Registro de Mozos")
-            self.mozos_table.setColumnCount(4)
-            self.mozos_table.setHorizontalHeaderLabels(["ID", "Nombre", "Código", "Acciones"])
-            self.load_mozos()
-
-    def load_mozo_registry(self):
-        current_width = self.mozos_table.width()
-        current_height = self.mozos_table.height()
-        
-        self.mozos_table.setRowCount(0)  # Reinicia las filas
-        registry_file = os.path.join(base_dir, f"Docs/registro_mozos_{fecha_hoy}.json")
-        
-        if os.path.exists(registry_file):
-            with open(registry_file, "r", encoding="utf-8") as file:
-                datos_registro = json.load(file)
-                
-            for fila, registro in enumerate(datos_registro):
-                mozo = list(registro.keys())[0]  # Nombre del mozo
-                detalles = registro[mozo]        # Detalles del mozo
-
-                entrada = detalles.get("Horario_entrada", "")
-                salida = detalles.get("Horario_salida", "")
-                mesas_totales = str(detalles.get("Mesas totales", ""))
-                fecha_disc = detalles.get("Fecha", "")
-
-                self.mozos_table.insertRow(fila)
-                item_mozo = QTableWidgetItem(mozo)
-                item_mozo.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                self.mozos_table.setItem(fila, 0, item_mozo)
-
-                item_entrada = QTableWidgetItem(entrada)
-                item_entrada.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                self.mozos_table.setItem(fila, 1, item_entrada)
-
-                item_salida = QTableWidgetItem(salida)
-                item_salida.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                self.mozos_table.setItem(fila, 2, item_salida)
-
-                item_fecha_disc = QTableWidgetItem(fecha_disc)
-                item_fecha_disc.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                self.mozos_table.setItem(fila, 3, item_fecha_disc)
-
-                item_mesas_totales = QTableWidgetItem(mesas_totales)
-                item_mesas_totales.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                self.mozos_table.setItem(fila, 4, item_mesas_totales)
-        else:
-            print(f"El archivo {registry_file} no existe.")
-
-        # Mantener el tamaño de la tabla
-        self.mozos_table.setFixedWidth(current_width)
-        self.mozos_table.setFixedHeight(current_height)
-        
-        # Ajustar el contenido después de establecer el tamaño fijo
-        self.mozos_table.resizeColumnsToContents()
-        self.mozos_table.resizeRowsToContents()
-
     def update_current_view(self):
-        if self.toggle_view_button.text() == "Código de Mozos":
-            self.load_mozo_registry()
-        else:
-            self.load_mozos()
+        self.load_mozos()
         
         # Asegurar que la tabla ocupe todo el espacio disponible
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
-        self.mozos_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
 
     def add_mozo(self):
@@ -668,11 +578,23 @@ class RestaurantInterface(QMainWindow):
     def load_mozos(self):
         mozos = Mostrar_Mozos()
         self.mozos_table.setRowCount(0)
-        for row, mozo in enumerate(mozos):
+        registry_file = os.path.join(base_dir, f"Docs/registro_mozos_{fecha_hoy}.json")
+        
+        if os.path.exists(registry_file):
+            with open(registry_file, "r", encoding="utf-8") as file:
+                datos_registro = json.load(file)
+                #print(datos_registro)
+                
+        for row, Mozo in enumerate(mozos):
             self.mozos_table.insertRow(row)
-            self.mozos_table.setItem(row, 0, QTableWidgetItem(str(row + 1)))
-            self.mozos_table.setItem(row, 1, QTableWidgetItem(mozo[1]))
-            self.mozos_table.setItem(row, 2, QTableWidgetItem(mozo[2]))
+
+            item_mozo1 = QTableWidgetItem(Mozo[1])
+            item_mozo1.setTextAlignment(Qt.AlignCenter)
+            self.mozos_table.setItem(row, 0, item_mozo1)
+
+            item_mozo2 = QTableWidgetItem(Mozo[2])
+            item_mozo2.setTextAlignment(Qt.AlignCenter)
+            self.mozos_table.setItem(row, 1, item_mozo2)
 
             # Edit and Delete buttons
             button_widget = QWidget()
@@ -718,20 +640,46 @@ class RestaurantInterface(QMainWindow):
                 }
             """
             )
-            delete_button.clicked.connect(lambda _, n=mozo[1]: self.delete_mozo(n))
+            delete_button.clicked.connect(lambda _, n=Mozo[1]: self.delete_mozo(n))
 
             button_layout.addWidget(edit_button)
             button_layout.addWidget(delete_button)
             button_layout.addStretch()  # Add stretch to push buttons to the left
 
-            self.mozos_table.setCellWidget(row, 3, button_widget)
+            self.mozos_table.setCellWidget(row, 6, button_widget)
+
+            for filas, registro in enumerate(datos_registro):
+                mozo = list(registro.keys())[0]  # Nombre del mozo
+                detalles = registro[mozo]        # Detalles del mozo
+
+                if mozo == Mozo[1]:
+                    entrada = detalles.get("Horario_entrada", "")
+                    salida = detalles.get("Horario_salida", "")
+                    mesas_totales = str(detalles.get("Mesas totales", ""))
+                    fecha_disc = detalles.get("Fecha", "")
+
+                    item_entrada = QTableWidgetItem(entrada)
+                    item_entrada.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                    self.mozos_table.setItem(row, 2, item_entrada)
+
+                    item_salida = QTableWidgetItem(salida)
+                    item_salida.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                    self.mozos_table.setItem(row, 3, item_salida)
+
+                    item_fecha_disc = QTableWidgetItem(fecha_disc)
+                    item_fecha_disc.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                    self.mozos_table.setItem(row, 4, item_fecha_disc)
+
+                    item_mesas_totales = QTableWidgetItem(mesas_totales)
+                    item_mesas_totales.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
+                    self.mozos_table.setItem(row, 5, item_mesas_totales)
 
         self.mozos_table.resizeColumnsToContents()
         self.mozos_table.setColumnWidth(
-            0, 50
-        )  # Set a fixed width for the numbering column
+            0, 150
+        )
         self.mozos_table.setColumnWidth(
-            3, 200
+            3, 125
         )  # Set a fixed width for the action column
 
     def edit_mozo(self, row):
