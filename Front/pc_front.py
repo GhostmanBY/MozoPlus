@@ -1,7 +1,10 @@
 import sys
 import json
 import os
+import re
 import datetime
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5.QtWidgets import (
     QApplication,
@@ -23,7 +26,6 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QMessageBox,
     QDialog,
-    QComboBox,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
@@ -31,14 +33,10 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QFrame,
     QSizePolicy,
-    QSpacerItem,
-    QComboBox,
     QPushButton,
-    QCalendarWidget,
-    QProgressBar,
 )
 from PyQt5.QtGui import QFont, QColor, QPalette
-from PyQt5.QtCore import Qt, QDate
+from PyQt5.QtCore import Qt
 from datetime import datetime
 from Back.Panel_Admin_Back import (
     Eliminar_empleados,
@@ -199,28 +197,31 @@ class RestaurantInterface(QMainWindow):
 
     def get_summary_records(self):
         resumen = {}
-        docs_dir = os.path.join(base_dir, "Docs/Registro")
-        for filename in os.listdir(docs_dir):
-            if filename.endswith(".json"):
-                mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
-                date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
+        docs_dir = os.path.join(base_dir, "../Docs/Registro")
+        data = Mostrar_Mozos()
 
-                with open(
-                    os.path.join(docs_dir, filename), "r", encoding="utf-8"
-                ) as file:
-                    entries = json.load(file)
-                if date_str not in resumen:
-                    resumen[date_str] = []
-                for entry in entries:
-                    resumen[date_str].append(
-                        {
-                            "mozo": mozo_name,
-                            "mesa": entry["Mesa"],
-                            "hora": entry["Hora"],
-                            "hora_cierre": entry["Hora_cierre"],
-                            "productos": entry["productos"],
-                        }
-                    )
+        for filename in os.listdir(docs_dir):
+            for mozo in enumerate(data):
+                if filename == f"{fecha_hoy}_{mozo[1][1]}.json":
+                    if filename.endswith(".json"):
+                        mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
+                        date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
+                        
+                        with open(os.path.join(docs_dir, filename), "r", encoding="utf-8") as file:
+                            entries = json.load(file)
+
+                        if date_str not in resumen:
+                            resumen[date_str] = []
+                        for entry in entries:
+                            resumen[date_str].append(
+                                {
+                                    "mozo": mozo_name,
+                                    "mesa": entry["Mesa"],
+                                    "hora": entry["Hora"],
+                                    "hora_cierre": entry["Hora_cierre"],
+                                    "productos": entry["productos"],
+                                }
+                            )
         return resumen
 
     def setup_menu_tab(self):
@@ -304,6 +305,16 @@ class RestaurantInterface(QMainWindow):
         name = self.name_input.text()
         price = self.price_input.text()
 
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", category):
+            QMessageBox.warning(
+                self, "Error", "Porfavor, no ingrese caracteres invalido."
+            )
+            return
+        elif not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", name):
+            QMessageBox.warning(
+                self, "Error", "Porfavor, no ingrese caracteres invalido."
+            )
+            return
         if category and name and price:
             try:
                 price = float(price)
@@ -380,8 +391,8 @@ class RestaurantInterface(QMainWindow):
         Recargar_menu()  # Update the JSON file
 
     def edit_product(self, row):
-        name = self.menu_table.item(row, 1).text()
-        category = self.menu_table.item(row, 0).text()
+        name = self.menu_table.item(row, 0).text()
+        category = self.menu_table.item(row, 1).text()
         price = self.menu_table.item(row, 2).text()
 
         dialog = QDialog(self)
@@ -433,6 +444,16 @@ class RestaurantInterface(QMainWindow):
         dialog.exec_()
 
     def save_product_edit(self, old_name, new_category, new_name, new_price, dialog):
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", new_category):
+            QMessageBox.warning(
+                self, "Error", "Porfavor, no ingrese caracteres invalido."
+            )
+            return
+        elif not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", new_name):
+            QMessageBox.warning(
+                self, "Error", "Porfavor, no ingrese caracteres invalido."
+            )
+            return
         try:
             new_price = float(new_price)
             Modificar_Menu(old_name, "Categoria", f"'{new_category}'")
@@ -563,9 +584,13 @@ class RestaurantInterface(QMainWindow):
         # Asegurar que la tabla ocupe todo el espacio disponible
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
 
-
     def add_mozo(self):
         name = self.mozo_name_input.text()
+        if re.search(r'[^a-zA-Z ]', name):
+            QMessageBox.warning(
+                self, "Error", "Por favor, no Ingrese caracteres especiales."
+            )
+
         if name:
             Alta_Mozo(name)
             self.mozo_name_input.clear()
@@ -578,12 +603,15 @@ class RestaurantInterface(QMainWindow):
     def load_mozos(self):
         mozos = Mostrar_Mozos()
         self.mozos_table.setRowCount(0)
-        registry_file = os.path.join(base_dir, f"Docs/registro_mozos_{fecha_hoy}.json")
+        registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
         
         if os.path.exists(registry_file):
             with open(registry_file, "r", encoding="utf-8") as file:
                 datos_registro = json.load(file)
-                #print(datos_registro)
+        else:
+            datos_registro = []
+            with open(registry_file, 'w') as file:
+                json.dump(datos_registro, file)
                 
         for row, Mozo in enumerate(mozos):
             self.mozos_table.insertRow(row)
@@ -683,81 +711,91 @@ class RestaurantInterface(QMainWindow):
         )  # Set a fixed width for the action column
 
     def edit_mozo(self, row):
-        name = self.mozos_table.item(row, 1).text()
-        code = self.mozos_table.item(row, 0).text()
+        name = self.mozos_table.item(row, 0).text()
+        code = self.mozos_table.item(row, 1).text()
 
-        dialog = QDialog(self)
-        dialog.setWindowTitle(f"Editar Mozo: {name}")
-        dialog.setFixedSize(400, 250)
-        dialog.setStyleSheet(
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", name) :
+            QMessageBox.warning(
+                self, "Error", "Por favor, no Ingrese caracteres especiales."
+            )
+        else:
+            dialog = QDialog(self)
+            dialog.setWindowTitle(f"Editar Mozo: {name}")
+            dialog.setFixedSize(400, 250)
+            dialog.setStyleSheet(
+                """
+                QDialog {
+                    background-color: #f5f5f5;
+                    border-radius: 10px;
+                }
+                QLabel {
+                    font-size: 14px;
+                    color: #333;
+                    min-width: 60px;
+                }
+                QLineEdit {
+                    padding: 10px;
+                    font-size: 14px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    background-color: white;
+                }
+                QLineEdit:disabled {
+                    background-color: #e0e0e0;
+                }
+                QPushButton {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 5px;
+                    font-size: 16px;
+                }
+                QPushButton:hover {
+                    background-color: #45a049;
+                }
             """
-            QDialog {
-                background-color: #f5f5f5;
-                border-radius: 10px;
-            }
-            QLabel {
-                font-size: 14px;
-                color: #333;
-                min-width: 60px;
-            }
-            QLineEdit {
-                padding: 10px;
-                font-size: 14px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                background-color: white;
-            }
-            QLineEdit:disabled {
-                background-color: #e0e0e0;
-            }
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                font-size: 16px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-        """
-        )
+            )
 
-        layout = QVBoxLayout(dialog)
-        layout.setSpacing(20)
-        layout.setContentsMargins(20, 20, 20, 20)
+            layout = QVBoxLayout(dialog)
+            layout.setSpacing(20)
+            layout.setContentsMargins(20, 20, 20, 20)
 
-        code_layout = QHBoxLayout()
-        code_label = QLabel("Código:")
-        code_input = QLineEdit(code)
-        code_input.setDisabled(True)
-        code_layout.addWidget(code_label)
-        code_layout.addWidget(code_input)
-        layout.addLayout(code_layout)
+            code_layout = QHBoxLayout()
+            code_label = QLabel("Código:")
+            code_input = QLineEdit(code)
+            code_input.setDisabled(True)
+            code_layout.addWidget(code_label)
+            code_layout.addWidget(code_input)
+            layout.addLayout(code_layout)
 
-        name_layout = QHBoxLayout()
-        name_label = QLabel("Nombre:")
-        name_input = QLineEdit(name)
-        name_input.setPlaceholderText("Ingresa el nombre del mozo")
-        name_layout.addWidget(name_label)
-        name_layout.addWidget(name_input)
-        layout.addLayout(name_layout)
+            name_layout = QHBoxLayout()
+            name_label = QLabel("Nombre:")
+            name_input = QLineEdit(name)
+            name_input.setPlaceholderText("Ingresa el nombre del mozo")
+            name_layout.addWidget(name_label)
+            name_layout.addWidget(name_input)
+            layout.addLayout(name_layout)
 
-        save_button = QPushButton("Guardar")
-        save_button.clicked.connect(
-            lambda: self.save_mozo_edit(name, name_input.text(), dialog)
-        )
-        layout.addWidget(save_button, alignment=Qt.AlignCenter)
+            save_button = QPushButton("Guardar")
+            save_button.clicked.connect(
+                lambda: self.save_mozo_edit(name, name_input.text(), dialog)
+            )
+            layout.addWidget(save_button, alignment=Qt.AlignCenter)
 
-        dialog.setLayout(layout)
-        dialog.exec_()
+            dialog.setLayout(layout)
+            dialog.exec_()
 
     def save_mozo_edit(self, old_name, new_name, dialog):
         if old_name != new_name:
-            Editar_Mozo(old_name, "Nombre", new_name)
-            self.load_mozos()
-            dialog.close()
+            if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", new_name):
+                QMessageBox.warning(
+                    self, "Error", "Por favor, no Ingrese caracteres especiales."
+                )
+            else:
+                Editar_Mozo(old_name, "Nombre", new_name)
+                self.load_mozos()
+                dialog.close()
 
     def delete_mozo(self, name):
         reply = QMessageBox.question(
@@ -971,7 +1009,7 @@ class RestaurantInterface(QMainWindow):
         self.cargar_mesas()
 
     def cargar_mesas(self):
-        directorio_json = os.path.join(base_dir, "tmp")
+        directorio_json = os.path.join(base_dir, "../tmp")
         archivos_json = [f for f in os.listdir(directorio_json) if f.endswith(".json")]
         archivos_json_Final = sorted(
             archivos_json,
@@ -1044,7 +1082,7 @@ class RestaurantInterface(QMainWindow):
         self.cargar_json(mesa_num)
 
     def cargar_json(self, mesa_num):
-        ruta_archivo = os.path.join(base_dir, f"tmp/Mesa {mesa_num}.json")
+        ruta_archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
         try:
             with open(ruta_archivo, "r", encoding="utf-8") as f:
                 pedido_json = json.load(f)

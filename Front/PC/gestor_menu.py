@@ -164,8 +164,8 @@ def load_menu(self):
         self.menu_table.setCellWidget(row, 3, button_widget)
 
 def edit_product(self, row):
-    name = self.menu_table.item(row, 1).text()
-    category = self.menu_table.item(row, 0).text()
+    name = self.menu_table.item(row, 0).text()
+    category = self.menu_table.item(row, 1).text()
     price = self.menu_table.item(row, 2).text()
 
     if re.search(r'[^a-zA-Z ]', name) :

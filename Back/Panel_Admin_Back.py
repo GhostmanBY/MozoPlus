@@ -146,12 +146,12 @@ def Modificar_Menu(name, categoria, nuevo_valor):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"UPDATE Menu SET {categoria} = {nuevo_valor} WHERE Nombre like '{name}'"  # Actualiza los valores que se le indiquen en la base de datos por eso UPDATE
+    instruccion = f"UPDATE Menu SET {categoria} = {nuevo_valor} WHERE Nombre = '{name}'"  # Actualiza los valores que se le indiquen en la base de datos por eso UPDATE
     cursor.execute(instruccion)  # Ejecuta la accion
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
-
+    Recargar_menu()
 
 def Mostrar_Menu():
     # Se conecta a la base de datos y crea el cursor
@@ -220,10 +220,9 @@ def obtener_menu_en_json():
         return json.load(file)
 
 if __name__ == "__main__":
-    Eliminar_Producto("Tarta de chocolate")
-    #crear_tablas()
+    crear_tablas()
 
-    """# Bebidas
+    # Bebidas
     Cargar_Producto("Bebidas", "Café Expreso", 400)
     Cargar_Producto("Bebidas", "Café Americano", 450)
     Cargar_Producto("Bebidas", "Café con Leche", 500)
@@ -269,11 +268,12 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Crepes con Dulce de Leche", 1100)
     Cargar_Producto("Postres", "Tarta de Limón", 1150)
     Cargar_Producto("Postres", "Budín de Pan", 650)
-    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)"""
+    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
 
-    #Recargar_menu()
+    Recargar_menu()
 
-    """Alta_Mozo("Juan Pérez")
+    Alta_Mozo("Santiago Mono")
+    Alta_Mozo("Juan Pérez")
     Alta_Mozo("María García")
     Alta_Mozo("Carlos Rodríguez")
     Alta_Mozo("Lucía Fernández")
@@ -297,5 +297,5 @@ if __name__ == "__main__":
     Alta_Mozo("Elena Fuentes")
     Alta_Mozo("Rodrigo Aguirre")
     Alta_Mozo("Paula Navarro")
-    Alta_Mozo("Andrés Castro")"""
+    Alta_Mozo("Andrés Castro")
     

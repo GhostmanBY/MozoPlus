@@ -14,7 +14,7 @@ async def verificar(code: str):
     fecha_txt = datetime.datetime.now()
     fecha = fecha_txt.strftime("%H:%M")
     
-    ruta_registro = os.path.join(base_dir, f"../Docs/registro_mozos_{fecha_hoy}.json")
+    ruta_registro = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
 
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
@@ -48,11 +48,14 @@ async def verificar(code: str):
                             registro = []
                 else:
                     registro = []
-                
+
                 registro.append(Mozo_registro)
+                for i in range(len(registro)):
+                    print(f"Empleado: {registro[i]}\n")
 
                 with open(ruta_registro, "w", encoding="utf-8") as file:
                     json.dump(registro, file, ensure_ascii=False, indent=4)
+                    
                 data = {
                     "verificado": 1,
                     "ID": filas[0],
@@ -67,7 +70,7 @@ async def login_out(code: int):
     fecha_txt = datetime.datetime.now()
     fecha = fecha_txt.strftime("%H:%M")
     
-    ruta_registro = os.path.join(base_dir, f"../Docs/registro_mozos_{fecha_hoy}.json")
+    ruta_registro = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
 
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
