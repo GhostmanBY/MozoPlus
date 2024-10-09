@@ -18,7 +18,7 @@ python -m ensurepip
 pip --version
 
 # Instala las dependencias
-pip install -r requirements.txt
+pip install -r ./Docs/requirements.txt
 
 # Limpieza
 Remove-Item $installerPath
