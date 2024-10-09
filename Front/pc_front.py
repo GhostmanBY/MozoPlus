@@ -1091,7 +1091,7 @@ class RestaurantInterface(QMainWindow):
             print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
 
     def procesar_pedido_con_json(self, pedido_json):
-        with open(os.path.join(base_dir, "Docs/Menu.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
             menu = json.load(f)
 
         mesa = pedido_json.get("Mesa", "")

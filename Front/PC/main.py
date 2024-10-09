@@ -4,7 +4,7 @@ import socket
 
 if __name__ == "__main__":
     try:
-        subprocess.Popen(["python", "pc_front.py"])
+        subprocess.Popen(["python", "Front/pc_front.py"])
         subprocess.Popen(["python", "Back/Api.py"])
         
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
