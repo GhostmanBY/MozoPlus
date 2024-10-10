@@ -1,0 +1,26 @@
+[
+    {
+        "Juan Pérez": {
+            "Horario_entrada": "07:41",
+            "Horario_salida": null,
+            "Mesas totales": null,
+            "Fecha": "2024-10-10"
+        }
+    },
+    {
+        "Carlos Rodríguez": {
+            "Horario_entrada": "07:41",
+            "Horario_salida": null,
+            "Mesas totales": null,
+            "Fecha": "2024-10-10"
+        }
+    },
+    {
+        "Santiago Mono": {
+            "Horario_entrada": "07:41",
+            "Horario_salida": null,
+            "Mesas totales": null,
+            "Fecha": "2024-10-10"
+        }
+    }
+]
