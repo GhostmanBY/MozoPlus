@@ -70,8 +70,13 @@ def Alta_Mozo(name):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"INSERT INTO Usuario (nombre, codigo) VALUES (?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
-    cursor.execute(instruccion, (name, Generar_Codigo()))  # Ejecuta la accion
+    instruccion = f"SELECT * FROM Usuario WHERE nombre = ?"
+    cursor.execute(instruccion, (name,))
+
+    if cursor.fetchone() is None:
+        instruccion = f"INSERT INTO Usuario (nombre, codigo) VALUES (?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
+        cursor.execute(instruccion, (name, Generar_Codigo()))  # Ejecuta la accion
+    else: return "Mozo existente"
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
