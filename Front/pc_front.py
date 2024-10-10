@@ -595,7 +595,7 @@ class RestaurantInterface(QMainWindow):
             response =Alta_Mozo(name)
             if response:
                 QMessageBox.warning(
-                    self, "Mozo no agregado", "Nombre de Mozo duplicado, por favor intente on otro nombre"
+                    self, "Mozo no agregado", "Nombre de Mozo duplicado, por favor intente otro nombre"
                 )
             self.mozo_name_input.clear()
             self.load_mozos()
