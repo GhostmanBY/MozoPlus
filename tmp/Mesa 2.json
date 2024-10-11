@@ -1,13 +1,17 @@
 {
     "Mesa": 2,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": [
+        "Tarta de chocolate"
+    ],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": [],
+    "Mozo": "Santiago Mono",
+    "Hora": "15:35",
+    "Fecha": "2024-10-10",
     "Pagado": false,
     "Metodo": ""
 }

@@ -603,117 +603,112 @@ class RestaurantInterface(QMainWindow):
             QMessageBox.warning(
                 self, "Error", "Por favor, ingrese un nombre para el mozo."
             )
-
     def load_mozos(self):
         mozos = Mostrar_Mozos()
-        self.mozos_table.setRowCount(0)
-        registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
         
-        if os.path.exists(registry_file):
+        # Preparar datos del registro una sola vez
+        registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
+        try:
             with open(registry_file, "r", encoding="utf-8") as file:
                 datos_registro = json.load(file)
-        else:
+        except FileNotFoundError:
             datos_registro = []
             with open(registry_file, 'w') as file:
                 json.dump(datos_registro, file)
-                
-        for row, Mozo in enumerate(mozos):
-            self.mozos_table.insertRow(row)
-
-            item_mozo1 = QTableWidgetItem(Mozo[1])
-            item_mozo1.setTextAlignment(Qt.AlignCenter)
-            self.mozos_table.setItem(row, 0, item_mozo1)
-
-            item_mozo2 = QTableWidgetItem(Mozo[2])
-            item_mozo2.setTextAlignment(Qt.AlignCenter)
-            self.mozos_table.setItem(row, 1, item_mozo2)
-
-            # Edit and Delete buttons
+        
+        # Crear un diccionario para búsqueda rápida
+        registro_dict = {list(reg.keys())[0]: list(reg.values())[0] for reg in datos_registro}
+        
+        # Preparar todos los datos antes de actualizar la tabla
+        table_data = []
+        for Mozo in mozos:
+            row_data = []
+            # Datos básicos del mozo
+            nombre_mozo = Mozo[1]
+            row_data.extend([nombre_mozo, Mozo[2]])
+            
+            # Obtener datos del registro si existen
+            if nombre_mozo in registro_dict:
+                detalles = registro_dict[nombre_mozo]
+                row_data.extend([
+                    detalles.get("Horario_entrada", ""),
+                    detalles.get("Horario_salida", ""),
+                    detalles.get("Fecha", ""),
+                    str(detalles.get("Mesas totales", ""))
+                ])
+            else:
+                row_data.extend(["", "", "", ""])
+            
+            table_data.append(row_data)
+        
+        # Actualizar la tabla de una sola vez
+        self.mozos_table.setRowCount(len(table_data))
+        
+        # Crear los estilos de los botones una sola vez
+        edit_button_style = """
+            QPushButton {
+                background-color: #FFA500;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+                min-width: 80px;
+                max-width: 80px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #FF8C00;
+            }
+        """
+        
+        delete_button_style = """
+            QPushButton {
+                background-color: #f44336;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+                min-width: 80px;
+                max-width: 80px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #d32f2f;
+            }
+        """
+        
+        # Actualizar la tabla
+        for row, row_data in enumerate(table_data):
+            # Insertar datos en las columnas
+            for col, data in enumerate(row_data):
+                item = QTableWidgetItem(data)
+                item.setTextAlignment(Qt.AlignCenter)
+                self.mozos_table.setItem(row, col, item)
+            
+            # Crear widget de botones
             button_widget = QWidget()
             button_layout = QHBoxLayout(button_widget)
             button_layout.setContentsMargins(5, 2, 5, 2)
-            button_layout.setSpacing(10)  # Add space between buttons
-
+            button_layout.setSpacing(10)
+            
             edit_button = QPushButton("Editar")
-            edit_button.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #FFA500;
-                    color: white;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    min-width: 80px;
-                    max-width: 80px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #FF8C00;
-                }
-            """
-            )
+            edit_button.setStyleSheet(edit_button_style)
             edit_button.clicked.connect(lambda _, r=row: self.edit_mozo(r))
-
+            
             delete_button = QPushButton("Eliminar")
-            delete_button.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #f44336;
-                    color: white;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    min-width: 80px;
-                    max-width: 80px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #d32f2f;
-                }
-            """
-            )
-            delete_button.clicked.connect(lambda _, n=Mozo[1]: self.delete_mozo(n))
-
+            delete_button.setStyleSheet(delete_button_style)
+            delete_button.clicked.connect(lambda _, n=row_data[0]: self.delete_mozo(n))
+            
             button_layout.addWidget(edit_button)
             button_layout.addWidget(delete_button)
-            button_layout.addStretch()  # Add stretch to push buttons to the left
-
+            button_layout.addStretch()
+            
             self.mozos_table.setCellWidget(row, 6, button_widget)
-
-            for filas, registro in enumerate(datos_registro):
-                mozo = list(registro.keys())[0]  # Nombre del mozo
-                detalles = registro[mozo]        # Detalles del mozo
-
-                if mozo == Mozo[1]:
-                    entrada = detalles.get("Horario_entrada", "")
-                    salida = detalles.get("Horario_salida", "")
-                    mesas_totales = str(detalles.get("Mesas totales", ""))
-                    fecha_disc = detalles.get("Fecha", "")
-
-                    item_entrada = QTableWidgetItem(entrada)
-                    item_entrada.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                    self.mozos_table.setItem(row, 2, item_entrada)
-
-                    item_salida = QTableWidgetItem(salida)
-                    item_salida.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                    self.mozos_table.setItem(row, 3, item_salida)
-
-                    item_fecha_disc = QTableWidgetItem(fecha_disc)
-                    item_fecha_disc.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                    self.mozos_table.setItem(row, 4, item_fecha_disc)
-
-                    item_mesas_totales = QTableWidgetItem(mesas_totales)
-                    item_mesas_totales.setTextAlignment(Qt.AlignCenter)  # Alinea al centro
-                    self.mozos_table.setItem(row, 5, item_mesas_totales)
-
+        
+        # Ajustar tamaños de columnas una sola vez al final
         self.mozos_table.resizeColumnsToContents()
-        self.mozos_table.setColumnWidth(
-            0, 150
-        )
-        self.mozos_table.setColumnWidth(
-            3, 125
-        )  # Set a fixed width for the action column
-
+        self.mozos_table.setColumnWidth(0, 150)
+        self.mozos_table.setColumnWidth(3, 125)
     def edit_mozo(self, row):
         name = self.mozos_table.item(row, 0).text()
         code = self.mozos_table.item(row, 1).text()

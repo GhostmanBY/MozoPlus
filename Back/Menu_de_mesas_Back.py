@@ -334,7 +334,7 @@ Mozo: {mozo}
 
     # Guardar la comanda en un archivo
     with open(
-        os.path.join(base_dir, f"../Docs/comandas/comanda_{numero_comanda}.txt"),
+        os.path.join(base_dir, f"../Docs/Comandas/comanda_{numero_comanda}.txt"),
         "w",
         encoding="utf-8",
     ) as archivo:

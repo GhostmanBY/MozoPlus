@@ -1,13 +1,22 @@
 {
     "Mesa": 3,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": [
+        "Café expreso",
+        "Café expreso",
+        "Té negro",
+        "Brownie con helado",
+        "Muffin de arándanos",
+        "Sándwich de jamón y queso"
+    ],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": [],
+    "Mozo": "Santiago Mono",
+    "Hora": "15:35",
+    "Fecha": "2024-10-10",
     "Pagado": false,
     "Metodo": ""
 }
