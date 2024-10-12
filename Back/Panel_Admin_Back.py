@@ -82,13 +82,16 @@ def Alta_Mozo(name):
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-def Mostrar_Mozos():
-    # Se conecta a la base de datos y crea el cursor
+def Mostrar_Mozos(pagina):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * FROM Usuario"  # Captura todos los datos de la base de datos por eso SELECT
-    cursor.execute(instruccion)  # Ejecuta la accion
+    # Límite de mozos por página
+    limite = 25
+    offset = pagina * limite
+
+    # Consulta SQL con límite y desplazamiento
+    cursor.execute("SELECT * FROM Usuario LIMIT ? OFFSET ?", (limite, offset))  # Ejecuta la accion
 
     datos = cursor.fetchall()
 
@@ -158,17 +161,35 @@ def Modificar_Menu(name, categoria, nuevo_valor):
     conn.close()  # Cierra la coneccion con la base de datos
     Recargar_menu()
 
-def Mostrar_Menu():
-    # Se conecta a la base de datos y crea el cursor
+def Mostrar_Menu(pagina):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * FROM Menu"  # Captura todos los datos de la base de datos por eso SELECT
-    cursor.execute(instruccion)  # Ejecuta la accion
+    # Límite de platos por página
+    limite = 50
+    offset = pagina * limite
+
+    # Consulta SQL con límite y desplazamiento
+    cursor.execute("SELECT * FROM Menu LIMIT ? OFFSET ?", (limite, offset)) # Ejecuta la accion
 
     datos = (
         cursor.fetchall()
     )  # La variable datos pasa a tener todos los valores que tiene cursos, metiendo en una lista con sub indices
+
+    conn.commit()  # Guarda los cambios hechos a la base de datos
+    conn.close()  # Cierra la coneccion con la base de datos
+
+    return datos
+
+def Mostrar_menu_json():
+    # Se conecta a la base de datos y crea el cursor
+    conn = sqlite3.connect(ruta_db)
+    cursor = conn.cursor()
+
+    instruccion = f"SELECT * FROM Usuario"  # Captura todos los datos de la base de datos por eso SELECT
+    cursor.execute(instruccion)  # Ejecuta la accion
+
+    datos = cursor.fetchall()
 
     conn.commit()  # Guarda los cambios hechos a la base de datos
     conn.close()  # Cierra la coneccion con la base de datos
@@ -197,7 +218,7 @@ def Recargar_menu():
         data_disc = {"menu": {}}
 
     # Obtener los nuevos productos desde la base de datos
-    data = Mostrar_Menu()
+    data = Mostrar_menu_json()
 
     # Organizar los datos en el diccionario
     for item in data:
@@ -225,9 +246,9 @@ def obtener_menu_en_json():
         return json.load(file)
 
 if __name__ == "__main__":
-    crear_tablas()
+    #crear_tablas()
 
-    # Bebidas
+    """# Bebidas
     Cargar_Producto("Bebidas", "Café Expreso", 400)
     Cargar_Producto("Bebidas", "Café Americano", 450)
     Cargar_Producto("Bebidas", "Café con Leche", 500)
@@ -273,11 +294,11 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Crepes con Dulce de Leche", 1100)
     Cargar_Producto("Postres", "Tarta de Limón", 1150)
     Cargar_Producto("Postres", "Budín de Pan", 650)
-    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
+    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)"""
 
-    Recargar_menu()
+    #Recargar_menu()
 
-    Alta_Mozo("Santiago Mono")
+    """Alta_Mozo("Santiago Mono")
     Alta_Mozo("Juan Pérez")
     Alta_Mozo("María García")
     Alta_Mozo("Carlos Rodríguez")
@@ -302,5 +323,21 @@ if __name__ == "__main__":
     Alta_Mozo("Elena Fuentes")
     Alta_Mozo("Rodrigo Aguirre")
     Alta_Mozo("Paula Navarro")
-    Alta_Mozo("Andrés Castro")
+    Alta_Mozo("Andrés Castro")"""
+
+    names = [
+    "Carlos", "Ana", "Luis", "Marta", "Jorge", "Lucía", "Pedro", "María", "Miguel", "Laura",
+    "Roberto", "Carmen", "Ricardo", "Paula", "Andrés", "Sofía", "Manuel", "Elena", "José", "Sandra",
+    "Gabriel", "Patricia", "Fernando", "Raquel", "Adrián", "Natalia", "David", "Rosa", "Diego", "Clara",
+    "Juan", "Beatriz", "Sergio", "Cristina", "Javier", "Isabel", "Pablo", "Teresa", "Ramón", "Inés",
+    "Raúl", "Susana", "Iván", "Silvia", "Óscar", "Verónica", "Alberto", "Lorena", "Enrique", "Esther",
+    "Alfonso", "Eva", "Mario", "Alejandra", "Francisco", "Julia", "Emilio", "Noelia", "Álvaro", "Nuria",
+    "Agustín", "Mónica", "Vicente", "Marisol", "Ángel", "Sara", "Rubén", "Belén", "Tomás", "Marina",
+    "Santiago", "Irene", "Eduardo", "Alicia", "Hugo", "Rocío", "Cristóbal", "Olga", "Martín", "Jimena",
+    "Gonzalo", "Aurora", "Esteban", "Fátima", "Nicolás", "Amparo", "Ramiro", "Gloria", "Fabián", "Lidia",
+    "Rafael", "Bárbara", "Rodrigo", "Ariadna", "Jesús", "Mercedes", "Sebastián", "Alma", "Bruno", "Victoria"
+    ]
+    for i in range(len(names)):
+        Alta_Mozo(names[i])
+
     

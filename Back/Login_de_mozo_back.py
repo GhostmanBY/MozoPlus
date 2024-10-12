@@ -101,7 +101,6 @@ async def login_out(code: int):
                     print(registro)
             else:
                 return f"No se a cargado el sistem de login"
-                break
 
             # Verifica si 'registro' es una lista
             if isinstance(registro, list):

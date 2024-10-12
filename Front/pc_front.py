@@ -60,6 +60,8 @@ fecha = fecha_txt.strftime("%H:%M")
 class RestaurantInterface(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.pagina_mozos = 0
+        self.pagina_menu = 0
         self.setWindowTitle("Interfaz de Restaurante")
         self.ajustar_tamano_pantalla()
         self.set_style()
@@ -198,7 +200,7 @@ class RestaurantInterface(QMainWindow):
     def get_summary_records(self):
         resumen = {}
         docs_dir = os.path.join(base_dir, "../Docs/Registro")
-        data = Mostrar_Mozos()
+        data = Mostrar_Mozos(self.pagina_mozos)
 
         for filename in os.listdir(docs_dir):
             for mozo in enumerate(data):
@@ -274,6 +276,52 @@ class RestaurantInterface(QMainWindow):
         self.menu_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         menu_layout.addWidget(self.menu_table)
 
+        menu_pagination_layout = QHBoxLayout()
+        
+        self.btn_anterior_menu = QPushButton("Página Anterior", self)
+        self.btn_anterior_menu.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #007B9A;
+            }
+            """
+        )
+        self.btn_anterior_menu.clicked.connect(self.cargar_anterior_menu)
+        
+        self.btn_siguiente_menu = QPushButton("Siguiente Página", self)
+        self.btn_siguiente_menu.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #007B9A;
+            }
+            """
+        )
+        self.btn_siguiente_menu.clicked.connect(self.cargar_siguiente_menu)
+        
+        menu_pagination_layout.addWidget(self.btn_anterior_menu)
+        menu_pagination_layout.addWidget(self.btn_siguiente_menu)
+        menu_pagination_layout.addStretch()  # Esto empujará los botones hacia la izquierda
+        
+        menu_layout.addLayout(menu_pagination_layout)
+
         # Refresh button
         refresh_button = QPushButton("Actualizar Menu")
         refresh_button.clicked.connect(self.load_menu)
@@ -295,7 +343,21 @@ class RestaurantInterface(QMainWindow):
         )
         menu_layout.addWidget(refresh_button)
 
+        bottom_layout = QHBoxLayout()
+    
+        pagination_layout = QHBoxLayout()
+        pagination_layout.addWidget(self.btn_anterior_menu)
+        pagination_layout.addWidget(self.btn_siguiente_menu)
+        pagination_layout.addStretch()
+        
+        bottom_layout.addLayout(pagination_layout)
+        bottom_layout.addStretch()
+        bottom_layout.addWidget(refresh_button)
+        
+        menu_layout.addLayout(bottom_layout)
+
         self.central_widget.addTab(menu_widget, "Gestión de Menú")
+
 
         # Load initial menu data
         self.load_menu()
@@ -330,8 +392,18 @@ class RestaurantInterface(QMainWindow):
         else:
             QMessageBox.warning(self, "Error", "Por favor, complete todos los campos.")
 
+    def cargar_siguiente_menu(self):
+        self.pagina_menu += 1
+        self.load_menu()
+
+    def cargar_anterior_menu(self):
+        if self.pagina_menu > 0:
+            self.pagina_menu -= 1
+            self.load_menu()
+
+
     def load_menu(self):
-        menu_items = Mostrar_Menu()
+        menu_items = Mostrar_Menu(self.pagina_menu)
         self.menu_table.setRowCount(0)
         for row, item in enumerate(menu_items):
             self.menu_table.insertRow(row)
@@ -552,6 +624,52 @@ class RestaurantInterface(QMainWindow):
         self.mozos_table.setMinimumHeight(300)  # Establecer una altura mínima
         mozos_layout.addWidget(self.mozos_table)
 
+        pagination_layout = QHBoxLayout()
+    
+        self.btn_anterior_mozos = QPushButton("Página Anterior", self)
+        self.btn_anterior_mozos.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #007B9A;
+            }
+            """
+        )
+        self.btn_anterior_mozos.clicked.connect(self.cargar_anterior_mozos)
+        
+        self.btn_siguiente_mozos = QPushButton("Siguiente Página", self)
+        self.btn_siguiente_mozos.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #008CBA;
+                color: white;
+                padding: 5px 15px;
+                border: none;
+                border-radius: 3px;
+                font-size: 14px;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #007B9A;
+            }
+            """
+        )
+        self.btn_siguiente_mozos.clicked.connect(self.cargar_siguiente_mozos)
+        
+        pagination_layout.addWidget(self.btn_anterior_mozos)
+        pagination_layout.addWidget(self.btn_siguiente_mozos)
+        pagination_layout.addStretch()  # Esto empujará los botones hacia la izquierda
+        
+        mozos_layout.addLayout(pagination_layout)
+
         # Modificar el botón de actualizar
         self.refresh_button = QPushButton("Actualizar Lista")
         self.refresh_button.setStyleSheet(
@@ -572,6 +690,19 @@ class RestaurantInterface(QMainWindow):
         )
         self.refresh_button.clicked.connect(self.update_current_view)
         mozos_layout.addWidget(self.refresh_button, alignment=Qt.AlignRight)
+
+        bottom_layout = QHBoxLayout()
+    
+        pagination_layout = QHBoxLayout()
+        pagination_layout.addWidget(self.btn_anterior_mozos)
+        pagination_layout.addWidget(self.btn_siguiente_mozos)
+        pagination_layout.addStretch()
+        
+        bottom_layout.addLayout(pagination_layout)
+        bottom_layout.addStretch()
+        bottom_layout.addWidget(self.refresh_button)
+        
+        mozos_layout.addLayout(bottom_layout)
 
         self.central_widget.addTab(mozos_widget, "Gestión de Mozos")
 
@@ -604,8 +735,17 @@ class RestaurantInterface(QMainWindow):
                 self, "Error", "Por favor, ingrese un nombre para el mozo."
             )
 
+    def cargar_siguiente_mozos(self):
+        self.pagina_mozos += 1
+        self.load_mozos()
+
+    def cargar_anterior_mozos(self):
+        if self.pagina_mozos > 0:
+            self.pagina_mozos -= 1
+            self.load_mozos()
+
     def load_mozos(self):
-        mozos = Mostrar_Mozos()
+        mozos = Mostrar_Mozos(self.pagina_mozos)
         self.mozos_table.setRowCount(0)
         registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
         

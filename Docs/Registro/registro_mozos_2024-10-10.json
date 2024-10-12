@@ -22,5 +22,13 @@
             "Mesas totales": null,
             "Fecha": "2024-10-10"
         }
+    },
+    {
+        "Pablo González": {
+            "Horario_entrada": "10:12",
+            "Horario_salida": null,
+            "Mesas totales": null,
+            "Fecha": "2024-10-10"
+        }
     }
 ]
