@@ -128,6 +128,9 @@ class RestaurantInterface(QMainWindow):
         self.central_widget.addTab(info_widget, "Resumen")
 
     def load_summary(self):
+        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
+            menu = json.load(f)
+
         for i in reversed(range(self.scroll_layout.count())):
             widget = self.scroll_layout.itemAt(i).widget()
             if widget is not None:
@@ -192,6 +195,18 @@ class RestaurantInterface(QMainWindow):
                 productos_label.setWordWrap(True)
                 productos_label.setStyleSheet("color: #27ae60;")
                 entry_layout.addWidget(productos_label)
+
+                total_general = 0
+                for producto in entry['productos']:
+                    for categoria in menu["menu"]:
+                        for pedido in menu["menu"][categoria]:
+                            if producto == pedido["name"]:
+                                precio = pedido["price"]
+                                total = precio
+                                total_general += total
+                
+                Precio_total_label = QLabel(f"Total: ${total_general}")
+                entry_layout.addWidget(Precio_total_label)
 
                 fecha_layout.addWidget(entry_frame)
 
@@ -358,7 +373,6 @@ class RestaurantInterface(QMainWindow):
 
         self.central_widget.addTab(menu_widget, "Gestión de Menú")
 
-
         # Load initial menu data
         self.load_menu()
 
@@ -401,10 +415,10 @@ class RestaurantInterface(QMainWindow):
             self.pagina_menu -= 1
             self.load_menu()
 
-
     def load_menu(self):
         menu_items = Mostrar_Menu(self.pagina_menu)
         self.menu_table.setRowCount(0)
+        self.menu_table.setEditTriggers(QTableWidget.NoEditTriggers)
         for row, item in enumerate(menu_items):
             self.menu_table.insertRow(row)
             self.menu_table.setItem(row, 0, QTableWidgetItem(item[1]))  # Categoría
@@ -747,6 +761,7 @@ class RestaurantInterface(QMainWindow):
     def load_mozos(self):
         mozos = Mostrar_Mozos(self.pagina_mozos)
         self.mozos_table.setRowCount(0)
+        self.mozos_table.setEditTriggers(QTableWidget.NoEditTriggers)
         registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
         
         if os.path.exists(registry_file):
