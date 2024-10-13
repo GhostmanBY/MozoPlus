@@ -186,7 +186,7 @@ def Mostrar_menu_json():
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = f"SELECT * FROM Usuario"  # Captura todos los datos de la base de datos por eso SELECT
+    instruccion = f"SELECT * FROM Menu"  # Captura todos los datos de la base de datos por eso SELECT
     cursor.execute(instruccion)  # Ejecuta la accion
 
     datos = cursor.fetchall()
@@ -243,12 +243,15 @@ def obtener_menu_en_json():
     """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
         
+        print(json.load(file))
         return json.load(file)
+        
 
 if __name__ == "__main__":
     #crear_tablas()
-
-    """# Bebidas
+    #obtener_menu_en_json()
+    Recargar_menu()
+    # Bebidas
     Cargar_Producto("Bebidas", "Café Expreso", 400)
     Cargar_Producto("Bebidas", "Café Americano", 450)
     Cargar_Producto("Bebidas", "Café con Leche", 500)
@@ -294,7 +297,7 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Crepes con Dulce de Leche", 1100)
     Cargar_Producto("Postres", "Tarta de Limón", 1150)
     Cargar_Producto("Postres", "Budín de Pan", 650)
-    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)"""
+    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
 
     #Recargar_menu()
 
@@ -325,19 +328,19 @@ if __name__ == "__main__":
     Alta_Mozo("Paula Navarro")
     Alta_Mozo("Andrés Castro")"""
 
-    names = [
-    "Carlos", "Ana", "Luis", "Marta", "Jorge", "Lucía", "Pedro", "María", "Miguel", "Laura",
-    "Roberto", "Carmen", "Ricardo", "Paula", "Andrés", "Sofía", "Manuel", "Elena", "José", "Sandra",
-    "Gabriel", "Patricia", "Fernando", "Raquel", "Adrián", "Natalia", "David", "Rosa", "Diego", "Clara",
-    "Juan", "Beatriz", "Sergio", "Cristina", "Javier", "Isabel", "Pablo", "Teresa", "Ramón", "Inés",
-    "Raúl", "Susana", "Iván", "Silvia", "Óscar", "Verónica", "Alberto", "Lorena", "Enrique", "Esther",
-    "Alfonso", "Eva", "Mario", "Alejandra", "Francisco", "Julia", "Emilio", "Noelia", "Álvaro", "Nuria",
-    "Agustín", "Mónica", "Vicente", "Marisol", "Ángel", "Sara", "Rubén", "Belén", "Tomás", "Marina",
-    "Santiago", "Irene", "Eduardo", "Alicia", "Hugo", "Rocío", "Cristóbal", "Olga", "Martín", "Jimena",
-    "Gonzalo", "Aurora", "Esteban", "Fátima", "Nicolás", "Amparo", "Ramiro", "Gloria", "Fabián", "Lidia",
-    "Rafael", "Bárbara", "Rodrigo", "Ariadna", "Jesús", "Mercedes", "Sebastián", "Alma", "Bruno", "Victoria"
-    ]
-    for i in range(len(names)):
-        Alta_Mozo(names[i])
+    # names = [
+    # "Carlos", "Ana", "Luis", "Marta", "Jorge", "Lucía", "Pedro", "María", "Miguel", "Laura",
+    # "Roberto", "Carmen", "Ricardo", "Paula", "Andrés", "Sofía", "Manuel", "Elena", "José", "Sandra",
+    # "Gabriel", "Patricia", "Fernando", "Raquel", "Adrián", "Natalia", "David", "Rosa", "Diego", "Clara",
+    # "Juan", "Beatriz", "Sergio", "Cristina", "Javier", "Isabel", "Pablo", "Teresa", "Ramón", "Inés",
+    # "Raúl", "Susana", "Iván", "Silvia", "Óscar", "Verónica", "Alberto", "Lorena", "Enrique", "Esther",
+    # "Alfonso", "Eva", "Mario", "Alejandra", "Francisco", "Julia", "Emilio", "Noelia", "Álvaro", "Nuria",
+    # "Agustín", "Mónica", "Vicente", "Marisol", "Ángel", "Sara", "Rubén", "Belén", "Tomás", "Marina",
+    # "Santiago", "Irene", "Eduardo", "Alicia", "Hugo", "Rocío", "Cristóbal", "Olga", "Martín", "Jimena",
+    # "Gonzalo", "Aurora", "Esteban", "Fátima", "Nicolás", "Amparo", "Ramiro", "Gloria", "Fabián", "Lidia",
+    # "Rafael", "Bárbara", "Rodrigo", "Ariadna", "Jesús", "Mercedes", "Sebastián", "Alma", "Bruno", "Victoria"
+    # ]
+    # for i in range(len(names)):
+    #     Alta_Mozo(names[i])
 
     

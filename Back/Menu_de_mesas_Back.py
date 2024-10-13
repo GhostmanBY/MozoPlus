@@ -115,14 +115,17 @@ async def editar_mesa(mesa: int, input: ValorInput):
                 status_code=400,
             )
 
-        # Verifica que el tipo de datos sea una lista
-        if not isinstance(contenido[input.categoria], list):
-            return JSONResponse(
-                content=f"La categoría {input.categoria} no es una lista",
-                status_code=400,
-            )
+        # # Verifica que el tipo de datos sea una lista
+        # if not isinstance(contenido[input.categoria], list):
+        #     return JSONResponse(
+        #         content=f"La categoría {input.categoria} no es una lista",
+        #         status_code=400,
+        #     )
 
-        contenido[input.categoria].extend(input.valor)
+        if isinstance(input.categoria, list):
+            contenido[input.categoria].extend(input.valor)
+        else:
+            contenido[input.categoria] = input.valor
 
         with open(archivo, "w", encoding="utf-8") as file:
             json.dump(contenido, file, ensure_ascii=False, indent=4)

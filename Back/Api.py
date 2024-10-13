@@ -112,6 +112,14 @@ async def ruta_editar_mesa(mesa: int, input: ValorInput):
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
         
+        # Si la petición no es procesable, lanza un error 422 y un print.
+        if isinstance(result, dict) and "error" in result:
+            print(f"INFO:     {request.client.host}:{request.client.port} - {request.method} {request.url.path} {result['error']}")
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Error en la entidad {result['entity']}: {result['error']}"
+            )
+        
         # Devuelve el resultado de la edición.
         return result
     except HTTPException as http_exc:
@@ -189,6 +197,7 @@ async def ruta_menu():
         if not menu:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menú no encontrado.")
         
+        print(menu)
         # Devuelve el menú en formato JSON si todo es correcto.
         return menu
     except Exception as e:

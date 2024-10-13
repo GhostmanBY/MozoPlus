@@ -2,7 +2,9 @@
     "Mesa": 2,
     "Disponible": false,
     "productos": [
-        "Tarta de chocolate"
+        "Café con leche",
+        "Té negro",
+        "Café expreso"
     ],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
@@ -10,8 +12,8 @@
         0
     ],
     "Mozo": "Santiago Mono",
-    "Hora": "15:35",
-    "Fecha": "2024-10-10",
+    "Hora": "12:56",
+    "Fecha": "2024-10-13",
     "Pagado": false,
     "Metodo": ""
 }

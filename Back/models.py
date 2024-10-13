@@ -9,5 +9,5 @@ class Mesa(BaseModel):
 
 class ValorInput(BaseModel):
     categoria: str
-    valor: list[str]
+    valor: list[str] | str | int
 
