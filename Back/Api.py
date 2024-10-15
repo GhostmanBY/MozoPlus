@@ -52,19 +52,18 @@ async def ruta_verificar(code: str):
 
 # Ruta POST para cerrar sesión (logout) de un mozo.
 # Recibe un código de mozo y llama a la función 'login_out'.
-@app.post("/salir/{code}")
-async def ruta_login_out(code: str):
+@app.post("/salir/{name}")
+async def ruta_login_out(name: str):
     try:
         # Llama a la función 'login_out' con el código del mozo.
-        result = await login_out(code)
+        result = await login_out(name)
         
         # Si no se encuentra el mozo, lanza un error 404.
         if not result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Código de mozo no válido.")
+            return {"message": "Salida exitosa."} # Si la salida es exitosa, se devuelve un mensaje de éxito.
         elif "No se a cargado el sistem de login" in result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="mozo no logueado.")
-        # Si la salida es exitosa, se devuelve un mensaje de éxito.
-        return {"message": "Salida exitosa."}
+        
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
