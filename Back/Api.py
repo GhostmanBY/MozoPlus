@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models import ValorInput
@@ -9,7 +13,6 @@ from Menu_de_mesas_Back import (
     abrir_mesa,
     cerrar_mesa,
     crear_comanda,
-    restaurar_mesa,
 )
 from Panel_Admin_Back import obtener_menu_en_json
 
@@ -134,7 +137,7 @@ async def ruta_abrir_mesa(mesa: int, mozo: str):
     try:
         # Llama a la función 'abrir_mesa' con el número de mesa y el nombre del mozo.
         result = await abrir_mesa(mesa, mozo)
-        
+
         # Si no se encuentra la mesa o el mozo, lanza un error 404.
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa o mozo no encontrado.")
@@ -167,30 +170,11 @@ async def ruta_cerrar_mesa(mesa: int):
         raise http_exc
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
-# Ruta POST para resetear una mesa a su estado inicial.
-@app.post("/mesas/{mesa}/reset")
-async def ruta_reset(mesa: int):
-    try:
-        # Llama a la función 'restaurar_mesa' para resetear la mesa.
-        result = await restaurar_mesa(mesa)
-        
-        # Si no se encuentra la mesa, lanza un error 404.
-        if not result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
-        
-        # Devuelve un mensaje de éxito si la mesa fue reseteada correctamente.
-        return {"message": "Mesa reseteada exitosamente."}
-    except HTTPException as http_exc:
-        raise http_exc
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
+    
 # Ruta GET para obtener el menú en formato JSON.
 @app.get("/menu")
 async def ruta_menu():
-    try:
-        # Llama a la función 'obtener_menu_en_json' para obtener el menú.
+    # Llama a la función 'obtener_menu_en_json' para obtener el menú.
         menu = obtener_menu_en_json()
         
         # Si no se encuentra el menú, lanza un error 404.
@@ -200,8 +184,6 @@ async def ruta_menu():
         print(menu)
         # Devuelve el menú en formato JSON si todo es correcto.
         return menu
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 # Bloque principal para ejecutar la aplicación con Uvicorn.
 # Este código solo se ejecuta si el archivo se ejecuta directamente.

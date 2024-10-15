@@ -1,21 +1,11 @@
 {
     "Mesa": 1,
-    "Disponible": false,
-    "productos": [
-        "Café con leche",
-        "Café con leche",
-        "Café con leche",
-        "Café con leche",
-        "Café expreso",
-        "Té verde",
-        "Té verde",
-        "Té verde"
+    "Disponible": true,
+    "productos": [],
+    "cantidad_comensales": 0,
+    "comensales_infantiles": [
+        false,
+        0
     ],
-    "cantidad_comensales": 5,
-    "comensales_infantiles": 1,
-    "Mozo": "Santiago Mono",
-    "Hora": "12:56",
-    "Fecha": "2024-10-13",
-    "Pagado": false,
-    "Metodo": ""
+    "Mozo": []
 }

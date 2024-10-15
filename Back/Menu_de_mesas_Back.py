@@ -221,6 +221,19 @@ async def cerrar_mesa(mesa: int):
 
         with open(archivo, "w", encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
+        
+        # Actualizamos el estado de la mesa a disponible
+        mesa_data = {
+            "Mesa": mesa,
+            "Disponible": True,
+            "productos": [],
+            "cantidad_comensales": 0,
+            "comensales_infantiles": [False, 0],
+            "Mozo": [],
+        }
+        # Guardamos los cambios en el archivo de la mesa
+        with open(archivo, "w", encoding="utf-8") as file:
+            json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
         return JSONResponse(
             content=f"Mesa {mesa} cerrada", media_type="application/json"
@@ -239,24 +252,6 @@ async def cerrar_mesa(mesa: int):
         return JSONResponse(
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
-
-
-async def restaurar_mesa(mesa: int):
-    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
-
-    # Actualizamos el estado de la mesa a disponible
-    mesa_data = {
-        "Mesa": mesa,
-        "Disponible": True,
-        "productos": [],
-        "cantidad_comensales": 0,
-        "comensales_infantiles": [False, 0],
-        "Mozo": [],
-    }
-
-    # Guardamos los cambios en el archivo de la mesa
-    with open(archivo, "w", encoding="utf-8") as file:
-        json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
 
 def cantidad_de_mesas():
