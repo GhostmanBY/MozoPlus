@@ -417,64 +417,67 @@ class RestaurantInterface(QMainWindow):
 
     def load_menu(self):
         menu_items = Mostrar_Menu(self.pagina_menu)
-        self.menu_table.setRowCount(0)
-        self.menu_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        for row, item in enumerate(menu_items):
-            self.menu_table.insertRow(row)
-            self.menu_table.setItem(row, 0, QTableWidgetItem(item[1]))  # Categoría
-            self.menu_table.setItem(row, 1, QTableWidgetItem(item[0]))  # Nombre
-            self.menu_table.setItem(row, 2, QTableWidgetItem(str(item[2])))  # Precio
+        if menu_items != []:
+            self.menu_table.setRowCount(0)
+            self.menu_table.setEditTriggers(QTableWidget.NoEditTriggers)
+            for row, item in enumerate(menu_items):
+                self.menu_table.insertRow(row)
+                self.menu_table.setItem(row, 0, QTableWidgetItem(item[1]))  # Categoría
+                self.menu_table.setItem(row, 1, QTableWidgetItem(item[0]))  # Nombre
+                self.menu_table.setItem(row, 2, QTableWidgetItem(str(item[2])))  # Precio
 
-            # Edit and Delete buttons
-            button_widget = QWidget()
-            button_layout = QHBoxLayout(button_widget)
-            button_layout.setContentsMargins(0, 0, 0, 0)
+                # Edit and Delete buttons
+                button_widget = QWidget()
+                button_layout = QHBoxLayout(button_widget)
+                button_layout.setContentsMargins(0, 0, 0, 0)
 
-            edit_button = QPushButton("Editar")
-            edit_button.clicked.connect(lambda _, r=row: self.edit_product(r))
-            edit_button.setStyleSheet(
+                edit_button = QPushButton("Editar")
+                edit_button.clicked.connect(lambda _, r=row: self.edit_product(r))
+                edit_button.setStyleSheet(
+                    """
+                    QPushButton {
+                        background-color: #FFA500;
+                        color: white;
+                        border: none;
+                        padding: 5px 10px;
+                        border-radius: 3px;
+                        min-width: 80px;
+                        max-width: 80px;
+                        font-size: 12px;
+                    }
+                    QPushButton:hover {
+                        background-color: #FF8C00;
+                    }
                 """
-                QPushButton {
-                    background-color: #FFA500;
-                    color: white;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    min-width: 80px;
-                    max-width: 80px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #FF8C00;
-                }
-            """
-            )
-            delete_button = QPushButton("Eliminar")
-            delete_button.clicked.connect(lambda _, n=item[1]: self.delete_product(n))
-            delete_button.setStyleSheet(
+                )
+                delete_button = QPushButton("Eliminar")
+                delete_button.clicked.connect(lambda _, n=item[1]: self.delete_product(n))
+                delete_button.setStyleSheet(
+                    """
+                    QPushButton {
+                        background-color: #f44336;
+                        color: white;
+                        border: none;
+                        padding: 5px 10px;
+                        border-radius: 3px;
+                        min-width: 80px;
+                        max-width: 80px;
+                        font-size: 12px;
+                    }
+                    QPushButton:hover {
+                        background-color: #d32f2f;
+                    }
                 """
-                QPushButton {
-                    background-color: #f44336;
-                    color: white;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    min-width: 80px;
-                    max-width: 80px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #d32f2f;
-                }
-            """
-            )
+                )
 
-            button_layout.addWidget(edit_button)
-            button_layout.addWidget(delete_button)
+                button_layout.addWidget(edit_button)
+                button_layout.addWidget(delete_button)
 
-            self.menu_table.setCellWidget(row, 3, button_widget)
+                self.menu_table.setCellWidget(row, 3, button_widget)
 
-        Recargar_menu()  # Update the JSON file
+            Recargar_menu()  # Update the JSON file
+        else:
+            self.pagina_menu -= 1
 
     def edit_product(self, row):
         name = self.menu_table.item(row, 0).text()
@@ -760,113 +763,118 @@ class RestaurantInterface(QMainWindow):
 
     def load_mozos(self):
         mozos = Mostrar_Mozos(self.pagina_mozos)
-        self.mozos_table.setRowCount(0)
-        self.mozos_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
-        
-        # Preparar datos del registro una sola vez
-        registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
-        try:
-            with open(registry_file, "r", encoding="utf-8") as file:
-                datos_registro = json.load(file)
-        except FileNotFoundError:
-            datos_registro = []
-            with open(registry_file, 'w') as file:
-                json.dump(datos_registro, file)
-        
-        # Crear un diccionario para búsqueda rápida
-        registro_dict = {list(reg.keys())[0]: list(reg.values())[0] for reg in datos_registro}
-        
-        # Preparar todos los datos antes de actualizar la tabla
-        table_data = []
-        for Mozo in mozos:
-            row_data = []
-            # Datos básicos del mozo
-            nombre_mozo = Mozo[1]
-            row_data.extend([nombre_mozo, Mozo[2]])
+        print(mozos)
+        if mozos != []:
+            self.mozos_table.setRowCount(0)
+            self.mozos_table.setEditTriggers(QTableWidget.NoEditTriggers)
+            registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
             
-            # Obtener datos del registro si existen
-            if nombre_mozo in registro_dict:
-                detalles = registro_dict[nombre_mozo]
-                row_data.extend([
-                    detalles.get("Horario_entrada", ""),
-                    detalles.get("Horario_salida", ""),
-                    detalles.get("Fecha", ""),
-                    str(detalles.get("Mesas totales", ""))
-                ])
-            else:
-                row_data.extend(["", "", "", ""])
+            # Preparar datos del registro una sola vez
+            registry_file = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
+            try:
+                with open(registry_file, "r", encoding="utf-8") as file:
+                    datos_registro = json.load(file)
+            except FileNotFoundError:
+                datos_registro = []
+                with open(registry_file, 'w') as file:
+                    json.dump(datos_registro, file)
             
-            table_data.append(row_data)
-        
-        # Actualizar la tabla de una sola vez
-        self.mozos_table.setRowCount(len(table_data))
-        
-        # Crear los estilos de los botones una sola vez
-        edit_button_style = """
-            QPushButton {
-                background-color: #FFA500;
-                color: white;
-                border: none;
-                padding: 5px 10px;
-                border-radius: 3px;
-                min-width: 80px;
-                max-width: 80px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #FF8C00;
-            }
-        """
-        
-        delete_button_style = """
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                padding: 5px 10px;
-                border-radius: 3px;
-                min-width: 80px;
-                max-width: 80px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #d32f2f;
-            }
-        """
-        
-        # Actualizar la tabla
-        for row, row_data in enumerate(table_data):
-            # Insertar datos en las columnas
-            for col, data in enumerate(row_data):
-                item = QTableWidgetItem(data)
-                item.setTextAlignment(Qt.AlignCenter)
-                self.mozos_table.setItem(row, col, item)
+            # Crear un diccionario para búsqueda rápida
+            registro_dict = {list(reg.keys())[0]: list(reg.values())[0] for reg in datos_registro}
             
-            # Crear widget de botones
-            button_widget = QWidget()
-            button_layout = QHBoxLayout(button_widget)
-            button_layout.setContentsMargins(5, 2, 5, 2)
-            button_layout.setSpacing(10)
+            # Preparar todos los datos antes de actualizar la tabla
+            table_data = []
+            for Mozo in mozos:
+                row_data = []
+                # Datos básicos del mozo
+                nombre_mozo = Mozo[1]
+                row_data.extend([nombre_mozo, Mozo[2]])
+                
+                # Obtener datos del registro si existen
+                if nombre_mozo in registro_dict:
+                    detalles = registro_dict[nombre_mozo]
+                    row_data.extend([
+                        detalles.get("Horario_entrada", ""),
+                        detalles.get("Horario_salida", ""),
+                        detalles.get("Fecha", ""),
+                        str(detalles.get("Mesas totales", ""))
+                    ])
+                else:
+                    row_data.extend(["", "", "", ""])
+                
+                table_data.append(row_data)
             
-            edit_button = QPushButton("Editar")
-            edit_button.setStyleSheet(edit_button_style)
-            edit_button.clicked.connect(lambda _, r=row: self.edit_mozo(r))
+            # Actualizar la tabla de una sola vez
+            self.mozos_table.setRowCount(len(table_data))
             
-            delete_button = QPushButton("Eliminar")
-            delete_button.setStyleSheet(delete_button_style)
-            delete_button.clicked.connect(lambda _, n=row_data[0]: self.delete_mozo(n))
+            # Crear los estilos de los botones una sola vez
+            edit_button_style = """
+                QPushButton {
+                    background-color: #FFA500;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    min-width: 80px;
+                    max-width: 80px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #FF8C00;
+                }
+            """
             
-            button_layout.addWidget(edit_button)
-            button_layout.addWidget(delete_button)
-            button_layout.addStretch()
+            delete_button_style = """
+                QPushButton {
+                    background-color: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    min-width: 80px;
+                    max-width: 80px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #d32f2f;
+                }
+            """
             
-            self.mozos_table.setCellWidget(row, 6, button_widget)
-        
-        # Ajustar tamaños de columnas una sola vez al final
-        self.mozos_table.resizeColumnsToContents()
-        self.mozos_table.setColumnWidth(0, 150)
-        self.mozos_table.setColumnWidth(3, 125)
+            # Actualizar la tabla
+            for row, row_data in enumerate(table_data):
+                # Insertar datos en las columnas
+                for col, data in enumerate(row_data):
+                    item = QTableWidgetItem(data)
+                    item.setTextAlignment(Qt.AlignCenter)
+                    self.mozos_table.setItem(row, col, item)
+                
+                # Crear widget de botones
+                button_widget = QWidget()
+                button_layout = QHBoxLayout(button_widget)
+                button_layout.setContentsMargins(5, 2, 5, 2)
+                button_layout.setSpacing(10)
+                
+                edit_button = QPushButton("Editar")
+                edit_button.setStyleSheet(edit_button_style)
+                edit_button.clicked.connect(lambda _, r=row: self.edit_mozo(r))
+                
+                delete_button = QPushButton("Eliminar")
+                delete_button.setStyleSheet(delete_button_style)
+                delete_button.clicked.connect(lambda _, n=row_data[0]: self.delete_mozo(n))
+                
+                button_layout.addWidget(edit_button)
+                button_layout.addWidget(delete_button)
+                button_layout.addStretch()
+                
+                self.mozos_table.setCellWidget(row, 6, button_widget)
+            
+            # Ajustar tamaños de columnas una sola vez al final
+            self.mozos_table.resizeColumnsToContents()
+            self.mozos_table.setColumnWidth(0, 150)
+            self.mozos_table.setColumnWidth(3, 125)
+        else:
+            self.pagina_mozos -= 1
+
     def edit_mozo(self, row):
         name = self.mozos_table.item(row, 0).text()
         code = self.mozos_table.item(row, 1).text()
