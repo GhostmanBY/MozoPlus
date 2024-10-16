@@ -242,16 +242,14 @@ def obtener_menu_en_json():
     print(os.path.join(base_dir, "../Docs/Menu.json"))
     """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
-        
-        print(json.load(file))
         return json.load(file)
         
 
 if __name__ == "__main__":
     #crear_tablas()
-    #obtener_menu_en_json()
-    Recargar_menu()
-    # Bebidas
+    obtener_menu_en_json()
+    #Recargar_menu()
+    """# Bebidas
     Cargar_Producto("Bebidas", "Café Expreso", 400)
     Cargar_Producto("Bebidas", "Café Americano", 450)
     Cargar_Producto("Bebidas", "Café con Leche", 500)
@@ -297,7 +295,7 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Crepes con Dulce de Leche", 1100)
     Cargar_Producto("Postres", "Tarta de Limón", 1150)
     Cargar_Producto("Postres", "Budín de Pan", 650)
-    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)
+    Cargar_Producto("Postres", "Helado de Dulce de Leche", 700)"""
 
     #Recargar_menu()
 
