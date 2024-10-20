@@ -2,10 +2,10 @@
     "Mesa": 1,
     "Disponible": false,
     "productos": [
-        "Cafe expreso",
+        "Café expreso",
         "Medialuna"
     ],
-    "cantidad_comensales": 1,
+    "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0

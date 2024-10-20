@@ -1,11 +1,18 @@
 {
     "Mesa": 1,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": [
+        "Café expreso",
+        "Medialuna"
+    ],
     "cantidad_comensales": 0,
     "comensales_infantiles": [
         false,
         0
     ],
-    "Mozo": []
+    "Mozo": "Nahuel",
+    "Hora": "23:15",
+    "Fecha": "2024-10-16",
+    "Pagado": false,
+    "Metodo": ""
 }
