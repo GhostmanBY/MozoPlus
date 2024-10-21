@@ -1,0 +1,60 @@
+[
+    {
+        "Mesa": 5,
+        "Disponible": false,
+        "productos": [
+            "Gaseosa",
+            "Quilmes lata",
+            "Spaghetti a la putanesca 1/2",
+            "Papas fritas 1/2"
+        ],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ],
+        "Mozo": "Santiago Mono",
+        "Hora": "18:19",
+        "Fecha": "2024-10-20",
+        "Pagado": false,
+        "Metodo": "",
+        "Hora_cierre": "18:19"
+    },
+    {
+        "Mesa": 5,
+        "Disponible": false,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ],
+        "Mozo": "Santiago Mono",
+        "Hora": "18:19",
+        "Fecha": "2024-10-20",
+        "Pagado": false,
+        "Metodo": "",
+        "Hora_cierre": "18:19"
+    },
+    {
+        "Mesa": 5,
+        "Disponible": false,
+        "productos": [
+            "Agua mineral",
+            "Agua mineral gasificada",
+            "Gaseosa",
+            "Agua saborizada"
+        ],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": [
+            false,
+            0
+        ],
+        "Mozo": "Santiago Mono",
+        "Hora": "19:04",
+        "Fecha": "2024-10-20",
+        "Pagado": false,
+        "Metodo": "",
+        "Hora_cierre": "19:04"
+    }
+]

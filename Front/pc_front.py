@@ -763,7 +763,6 @@ class RestaurantInterface(QMainWindow):
 
     def load_mozos(self):
         mozos = Mostrar_Mozos(self.pagina_mozos)
-        print(mozos)
         if mozos != []:
             self.mozos_table.setRowCount(0)
             self.mozos_table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -1265,7 +1264,7 @@ class RestaurantInterface(QMainWindow):
         mozo = pedido_json.get("Mozo", "")
         productos = pedido_json.get("productos", [])
         cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
-        comensales_infantiles = pedido_json.get("comensales_infantiles", [False, 0])
+        comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
 
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
@@ -1334,7 +1333,7 @@ class RestaurantInterface(QMainWindow):
                     <p><strong>Fecha:</strong> {fecha}</p>
                     <p><strong>Hora:</strong> {hora}</p>
                     <p><strong>Mozo:</strong> {mozo}</p>
-                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles[1]})</p>
+                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
                 </div>
 
                 <table>

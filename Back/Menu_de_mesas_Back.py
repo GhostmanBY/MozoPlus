@@ -65,7 +65,7 @@ def crea_mesas_tmp():
         "Disponible": True,
         "productos": [],
         "cantidad_comensales": 0,
-        "comensales_infantiles": [False, 0],
+        "comensales_infantiles": 0,
         "Mozo": {},
         "Pagado": False,
         "Metodo": "",
@@ -83,7 +83,7 @@ def creas_mesas(cantidad):
             "Disponible": True,
             "productos": [],
             "cantidad_comensales": 0,
-            "comensales_infantiles": [False, 0],
+            "comensales_infantiles": 0,
             "Mozo": [],
             "Pagado": False,
             "Metodo": "",
@@ -97,13 +97,11 @@ def creas_mesas(cantidad):
 # endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
 
 
-async def editar_mesa(mesa: int, input: ValorInput):
+async def guardar_mesa(mesa: int, input: ValorInput):
     """
     Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
     """
-    archivo = os.path.join(
-        base_dir, f"../tmp/Mesa {mesa}.json"
-    )  # Consistencia en el nombre del archivo
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")  # Consistencia en el nombre del archivo
     try:
         with open(archivo, "r", encoding="utf-8") as file:
             contenido = json.load(file)
@@ -137,6 +135,19 @@ async def editar_mesa(mesa: int, input: ValorInput):
     except Exception as e:
         return JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
 
+async def editar_mesa(mesa: int):
+
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
+
+    try:
+        with open(archivo, "r", encoding="utf-8") as file:
+            contenido = json.load(file)
+
+        return contenido
+
+    except Exception as e:
+        return JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
+
 
 async def abrir_mesa(mesa: int, mozo: str):
     """
@@ -150,7 +161,7 @@ async def abrir_mesa(mesa: int, mozo: str):
         "Disponible": False,
         "productos": [],
         "cantidad_comensales": 0,
-        "comensales_infantiles": [False, 0],
+        "comensales_infantiles": 0,
         "Mozo": mozo,
         "Hora": fecha,
         "Fecha": str(fecha_hoy),
@@ -192,6 +203,7 @@ async def cerrar_mesa(mesa: int):
                 status_code=400,
             )
 
+
         nombre_mozo = data["Mozo"]
 
         # Añade la hora de cierre al JSON de la mesa
@@ -228,7 +240,7 @@ async def cerrar_mesa(mesa: int):
             "Disponible": True,
             "productos": [],
             "cantidad_comensales": 0,
-            "comensales_infantiles": [False, 0],
+            "comensales_infantiles": 0,
             "Mozo": [],
         }
         # Guardamos los cambios en el archivo de la mesa
