@@ -1,18 +1,1 @@
-[
-    {
-        "Santiago Mono": {
-            "Horario_entrada": "01:44",
-            "Horario_salida": "09:51",
-            "Mesas totales": 7,
-            "Fecha": "2024-10-21"
-        }
-    },
-    {
-        "Santiago Mono": {
-            "Horario_entrada": "09:50",
-            "Horario_salida": null,
-            "Mesas totales": null,
-            "Fecha": "2024-10-21"
-        }
-    }
-]
+[]

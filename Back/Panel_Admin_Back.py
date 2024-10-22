@@ -243,11 +243,12 @@ def obtener_menu_en_json():
     """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
         return json.load(file)
-        
 
 if __name__ == "__main__":
     crear_tablas()
-    # Bebidas
+    Recargar_menu()
+
+    """# Bebidas
     Cargar_Producto("Bebidas", "Agua Mineral", 340)
     Cargar_Producto("Bebidas", "Agua Mineral Gasificada", 340)
     Cargar_Producto("Bebidas", "Gaseosa", 340)
@@ -390,8 +391,7 @@ if __name__ == "__main__":
     Cargar_Producto("Postres", "Ensalada de Frutas", 890)
     Cargar_Producto("Postres", "Porción de Crema o Dulce de Leche", 210)
     Cargar_Producto("Postres", "Copa Chichilo", 1080)
-
-    Recargar_menu()
+"""
 
     """Alta_Mozo("Santiago Mono")
     Alta_Mozo("Juan Pérez")
