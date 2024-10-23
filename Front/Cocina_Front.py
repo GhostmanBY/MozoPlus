@@ -1,24 +1,25 @@
 import sys
-import sqlite3
+import os
+import json
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QLabel, QFrame, QScrollArea, QGridLayout, QPushButton, QComboBox,
-                             QGraphicsDropShadowEffect)
+                             QGraphicsDropShadowEffect, QMessageBox, QDialog, QLineEdit, QSpinBox,
+                             QCheckBox, QDialogButtonBox, QListWidget, QListWidgetItem, QInputDialog)
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt, QTimer
-import random
-from datetime import datetime, timedelta
 
-class StyledButton(QPushButton):
-    def __init__(self, text, parent=None):
-        super().__init__(text, parent)
+class BotonEstilizado(QPushButton):
+    def __init__(self, texto, padre=None):
+        super().__init__(texto, padre)
         self.setStyleSheet("""
             QPushButton {
                 background-color: #4a90e2;
                 color: white;
                 border: none;
-                padding: 5px 15px;
+                padding: 10px 20px;
                 border-radius: 5px;
                 font-weight: bold;
+                font-size: 16px;
             }
             QPushButton:hover {
                 background-color: #357abd;
@@ -27,96 +28,255 @@ class StyledButton(QPushButton):
                 background-color: #2a5d8f;
             }
         """)
-        
 
-class ComandaWidget(QFrame):
-    def __init__(self, comanda, parent=None):
-        super().__init__(parent)
+class WidgetMesa(QFrame):
+    def __init__(self, datos_mesa, padre=None):
+        super().__init__(padre)
+        self.datos_mesa = datos_mesa
         self.setFrameStyle(QFrame.Box | QFrame.Raised)
         self.setLineWidth(0)
         self.setMidLineWidth(0)
         self.setAutoFillBackground(True)
         self.setStyleSheet("""
-            ComandaWidget {
+            WidgetMesa {
                 background-color: white;
                 border-radius: 10px;
                 margin: 5px;
             }
         """)
 
-        # Add drop shadow effect
-        self.setGraphicsEffect(self.create_shadow_effect())
+        self.setGraphicsEffect(self.crear_efecto_sombra())
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(15, 15, 15, 15)
+        disposicion = QVBoxLayout(self)
+        disposicion.setContentsMargins(15, 15, 15, 15)
+
+        # Encabezado de la mesa
+        disposicion_encabezado = QHBoxLayout()
+        etiqueta_mesa = QLabel(f"Mesa: {datos_mesa.get('Mesa', 'N/A')}")
+        etiqueta_mesa.setStyleSheet("font-weight: bold; color: #333; font-size: 18px;")
+        disposicion_encabezado.addWidget(etiqueta_mesa)
         
+        etiqueta_fecha_hora = QLabel(f"{datos_mesa.get('Fecha', 'N/A')} {datos_mesa.get('Hora', 'N/A')}")
+        etiqueta_fecha_hora.setStyleSheet("color: #666; font-size: 14px;")
+        disposicion_encabezado.addWidget(etiqueta_fecha_hora)
+        
+        disposicion.addLayout(disposicion_encabezado)
 
-        # Comanda header
-        header_layout = QHBoxLayout()
-        for key, value in comanda["datos"].items():
-            label = QLabel(f"{key}: {value}")
-            label.setStyleSheet("font-weight: bold; color: #333;")
-            header_layout.addWidget(label)
-        layout.addLayout(header_layout)
+        # Mozo
+        etiqueta_mozo = QLabel(f"Mozo: {datos_mesa.get('Mozo', 'N/A')}")
+        etiqueta_mozo.setStyleSheet("font-size: 16px; margin-top: 5px;")
+        disposicion.addWidget(etiqueta_mozo)
 
-        # Status indicator
-        self.status_label = QLabel(f"Status: {comanda['status']}")
-        self.status_label.setStyleSheet("font-weight: bold; font-size: 14px; margin-top: 5px; margin-bottom: 5px;")
-        layout.addWidget(self.status_label)
+        # Botón de alternancia para disponibilidad
+        self.boton_disponibilidad = QPushButton("Disponible" if datos_mesa.get('Disponible', True) else "No Disponible")
+        self.boton_disponibilidad.setCheckable(True)
+        self.boton_disponibilidad.setChecked(datos_mesa.get('Disponible', True))
+        self.boton_disponibilidad.clicked.connect(self.alternar_disponibilidad)
+        self.boton_disponibilidad.setStyleSheet("""
+            QPushButton {
+                background-color: #2ecc71;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+            QPushButton:checked {
+                background-color: #e74c3c;
+            }
+        """)
+        disposicion.addWidget(self.boton_disponibilidad)
 
-        # Comanda items
-        for item in comanda["items"]:
-            item_layout = QHBoxLayout()
-            item_layout.addWidget(QLabel(item["item"]))
-            item_layout.addWidget(QLabel(f"Cantidad: {item['cantidad']}"))
-            item_layout.addWidget(QLabel(f"Precio: ${item['precio_unitario']}"))
-            layout.addLayout(item_layout)
+        # Estado del pedido
+        self.etiqueta_estado = QLabel(f"Estado: {datos_mesa.get('Estado', 'Pendiente')}")
+        self.etiqueta_estado.setStyleSheet("font-size: 16px; font-weight: bold;")
+        disposicion.addWidget(self.etiqueta_estado)
 
-        # Total
-        total = sum(item["cantidad"] * item["precio_unitario"] for item in comanda["items"])
-        total_label = QLabel(f"Total: ${total}")
-        total_label.setAlignment(Qt.AlignRight)
-        total_label.setFont(QFont("Arial", 12, QFont.Bold))
-        total_label.setStyleSheet("color: #2c3e50; margin-top: 10px;")
-        layout.addWidget(total_label)
+        self.boton_cambiar_estado = BotonEstilizado("Cambiar Estado")
+        self.boton_cambiar_estado.clicked.connect(self.cambiar_estado)
+        disposicion.addWidget(self.boton_cambiar_estado)
 
-        # Update status button
-        self.update_button = StyledButton("Update Status")
-        self.update_button.clicked.connect(self.cycle_status)
-        layout.addWidget(self.update_button)
+        # Productos
+        if datos_mesa.get('productos'):
+            etiqueta_productos = QLabel("Productos:")
+            etiqueta_productos.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 10px;")
+            disposicion.addWidget(etiqueta_productos)
+            for producto in datos_mesa['productos']:
+                etiqueta_producto = QLabel(f"- {producto}")
+                etiqueta_producto.setStyleSheet("font-size: 16px;")
+                disposicion.addWidget(etiqueta_producto)
 
-        self.set_status_color(comanda['status'])
+        # Información de comensales
+        info_comensales = QLabel(f"Comensales: {datos_mesa.get('cantidad_comensales', 0)}")
+        info_comensales.setStyleSheet("font-size: 16px; margin-top: 10px;")
+        disposicion.addWidget(info_comensales)
 
-    def create_shadow_effect(self):
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(15)
-        shadow.setXOffset(0)
-        shadow.setYOffset(5)
-        shadow.setColor(QColor(0, 0, 0, 50))
-        return shadow
+        comensales_infantiles = datos_mesa.get('comensales_infantiles', [False, 0])
+        if comensales_infantiles[0]:
+            info_infantiles = QLabel(f"Comensales infantiles: {comensales_infantiles[1]}")
+            info_infantiles.setStyleSheet("font-size: 16px;")
+            disposicion.addWidget(info_infantiles)
 
-    def cycle_status(self):
-        current_status = self.status_label.text().split(": ")[1]
-        statuses = ["New", "In Progress", "Ready"]
-        next_status = statuses[(statuses.index(current_status) + 1) % len(statuses)]
-        self.status_label.setText(f"Status: {next_status}")
-        self.set_status_color(next_status)
+    def crear_efecto_sombra(self):
+        sombra = QGraphicsDropShadowEffect(self)
+        sombra.setBlurRadius(15)
+        sombra.setXOffset(0)
+        sombra.setYOffset(5)
+        sombra.setColor(QColor(0, 0, 0, 50))
+        return sombra
 
-    def set_status_color(self, status):
-        color = self.get_status_color(status)
-        self.status_label.setStyleSheet(f"font-weight: bold; font-size: 14px; color: {color}; margin-top: 5px; margin-bottom: 5px;")
+    def alternar_disponibilidad(self):
+        self.datos_mesa['Disponible'] = self.boton_disponibilidad.isChecked()
+        self.boton_disponibilidad.setText("Disponible" if self.datos_mesa['Disponible'] else "No Disponible")
+        self.actualizar_archivo_json()
 
-    def get_status_color(self, status):
+    def cambiar_estado(self):
+        estados = ["Pendiente", "En preparación", "Listo"]
+        estado_actual = self.etiqueta_estado.text().split(": ")[1]
+        nuevo_estado = estados[(estados.index(estado_actual) + 1) % len(estados)]
+        self.etiqueta_estado.setText(f"Estado: {nuevo_estado}")
+        self.datos_mesa['Estado'] = nuevo_estado
+        self.actualizar_archivo_json()
+
+    def actualizar_archivo_json(self):
+        ruta_archivo = os.path.join('tmp', 'procesados', f"mesa_{self.datos_mesa['Mesa']}.json")
+        try:
+            with open(ruta_archivo, 'w') as f:
+                json.dump(self.datos_mesa, f, indent=2)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"No se pudo actualizar el archivo JSON: {str(e)}")
+
+class DialogoConfiguracion(QDialog):
+    def __init__(self, mesa=None, padre=None):
+        super().__init__(padre)
+        self.mesa = mesa
+        self.setWindowTitle("Configuración de Mesa")
+        self.setModal(True)
+        self.productos = self.cargar_productos()
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+
+        self.numero_mesa = QSpinBox(self)
+        self.numero_mesa.setRange(1, 100)
+        layout.addWidget(QLabel("Número de Mesa:"))
+        layout.addWidget(self.numero_mesa)
+
+        self.disponible = QCheckBox("Disponible", self)
+        layout.addWidget(self.disponible)
+
+        self.mozo = QLineEdit(self)
+        layout.addWidget(QLabel("Mozo:"))
+        layout.addWidget(self.mozo)
+
+        self.cantidad_comensales = QSpinBox(self)
+        self.cantidad_comensales.setRange(1, 20)
+        layout.addWidget(QLabel("Cantidad de Comensales:"))
+        layout.addWidget(self.cantidad_comensales)
+
+        self.comensales_infantiles = QCheckBox("Comensales Infantiles", self)
+        layout.addWidget(self.comensales_infantiles)
+
+        self.cantidad_infantiles = QSpinBox(self)
+        self.cantidad_infantiles.setRange(0, 10)
+        layout.addWidget(QLabel("Cantidad de Comensales Infantiles:"))
+        layout.addWidget(self.cantidad_infantiles)
+
+        # Lista de productos
+        self.lista_productos = QListWidget(self)
+        layout.addWidget(QLabel("Productos:"))
+        layout.addWidget(self.lista_productos)
+
+        # Botones para editar, eliminar y añadir productos
+        layout_botones = QHBoxLayout()
+        self.boton_editar = QPushButton("Editar", self)
+        self.boton_eliminar = QPushButton("Eliminar", self)
+        self.boton_anadir = QPushButton("Añadir", self)
+        layout_botones.addWidget(self.boton_editar)
+        layout_botones.addWidget(self.boton_eliminar)
+        layout_botones.addWidget(self.boton_anadir)
+        layout.addLayout(layout_botones)
+
+        self.boton_editar.clicked.connect(self.editar_producto)
+        self.boton_eliminar.clicked.connect(self.eliminar_producto)
+        self.boton_anadir.clicked.connect(self.anadir_producto)
+
+        botones = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        botones.accepted.connect(self.accept)
+        botones.rejected.connect(self.reject)
+        layout.addWidget(botones)
+
+        if self.mesa:
+            self.cargar_datos_mesa()
+
+    def cargar_productos(self):
+        try:
+            with open('Front/productos.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            productos = []
+            for categoria in ['comidas', 'bebidas', 'postres']:
+                if categoria in data:
+                    productos.extend([item['nombre'] for item in data[categoria]])
+            return productos
+        except Exception as e:
+            print(f"Error al cargar productos: {str(e)}")
+            return []
+
+    def cargar_datos_mesa(self):
+        self.numero_mesa.setValue(self.mesa.get('Mesa', 1))
+        self.disponible.setChecked(self.mesa.get('Disponible', True))
+        self.mozo.setText(self.mesa.get('Mozo', ''))
+        self.cantidad_comensales.setValue(self.mesa.get('cantidad_comensales', 1))
+        comensales_infantiles = self.mesa.get('comensales_infantiles', [False, 0])
+        self.comensales_infantiles.setChecked(comensales_infantiles[0])
+        self.cantidad_infantiles.setValue(comensales_infantiles[1])
+        
+        # Cargar productos de la mesa
+        self.lista_productos.clear()
+        for producto in self.mesa.get('productos', []):
+            self.lista_productos.addItem(producto)
+
+    def obtener_datos(self):
         return {
-            "New": "#e74c3c",
-            "In Progress": "#f39c12",
-            "Ready": "#2ecc71"
-        }.get(status, "#000000")
+            'Mesa': self.numero_mesa.value(),
+            'Disponible': self.disponible.isChecked(),
+            'Mozo': self.mozo.text(),
+            'cantidad_comensales': self.cantidad_comensales.value(),
+            'comensales_infantiles': [self.comensales_infantiles.isChecked(), self.cantidad_infantiles.value()],
+            'productos': [self.lista_productos.item(i).text() for i in range(self.lista_productos.count())],
+            'Hora': '',
+            'Fecha': '',
+            'Pagado': False,
+            'Metodo': ''
+        }
 
-class Cocina(QMainWindow):
+    def editar_producto(self):
+        item_seleccionado = self.lista_productos.currentItem()
+        if item_seleccionado:
+            producto_actual = item_seleccionado.text()
+            nuevo_producto, ok = QInputDialog.getItem(self, "Editar Producto", 
+                                                      "Seleccione el nuevo producto:",
+                                                      self.productos, 0, False)
+            if ok and nuevo_producto:
+                item_seleccionado.setText(nuevo_producto)
+
+    def eliminar_producto(self):
+        item_seleccionado = self.lista_productos.currentRow()
+        if item_seleccionado != -1:
+            self.lista_productos.takeItem(item_seleccionado)
+
+    def anadir_producto(self):
+        nuevo_producto, ok = QInputDialog.getItem(self, "Añadir Producto", 
+                                                  "Seleccione el producto a añadir:",
+                                                  self.productos, 0, False)
+        if ok and nuevo_producto:
+            self.lista_productos.addItem(nuevo_producto)
+
+class Restaurante(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Cocina - Sistema de Comandas")
+        self.setWindowTitle("Gestión de Restaurante")
         self.setGeometry(100, 100, 1200, 800)
         self.setStyleSheet("""
             QMainWindow {
@@ -124,42 +284,45 @@ class Cocina(QMainWindow):
             }
         """)
 
-        # Initialize database
-        self.init_db()
+        # Widget y disposición principal
+        widget_principal = QWidget()
+        self.setCentralWidget(widget_principal)
+        disposicion_principal = QVBoxLayout(widget_principal)
 
-        # Main widget and layout
-        main_widget = QWidget()
-        self.setCentralWidget(main_widget)
-        main_layout = QVBoxLayout(main_widget)
-
-        # Title frame
-        title_frame = QFrame()
-        title_frame.setStyleSheet("""
+        # Marco del título
+        marco_titulo = QFrame()
+        marco_titulo.setStyleSheet("""
             QFrame {
                 background-color: #34495e;
                 border-radius: 10px;
                 margin: 10px;
             }
         """)
-        title_layout = QHBoxLayout(title_frame)
-        title_label = QLabel("Sistema de Comandas")
-        title_label.setStyleSheet("color: white; font-size: 24px; font-weight: bold;")
-        title_layout.addWidget(title_label)
+        disposicion_titulo = QHBoxLayout(marco_titulo)
+        etiqueta_titulo = QLabel("Sistema de Mesas")
+        etiqueta_titulo.setStyleSheet("color: white; font-size: 28px; font-weight: bold;")
+        disposicion_titulo.addWidget(etiqueta_titulo)
 
-        # Add refresh button
-        refresh_button = StyledButton("Refresh")
-        refresh_button.clicked.connect(self.refresh_comandas)
-        title_layout.addWidget(refresh_button)
+        # Botón de actualizar
+        boton_actualizar = BotonEstilizado("Actualizar")
+        boton_actualizar.clicked.connect(self.actualizar_mesas)
+        disposicion_titulo.addWidget(boton_actualizar)
 
-        # Add sorting dropdown
-        self.sort_combo = QComboBox()
-        self.sort_combo.addItems(["Time", "Table", "Status"])
-        self.sort_combo.setStyleSheet("""
+        # Botón de configuración
+        boton_configuracion = BotonEstilizado("Configuración")
+        boton_configuracion.clicked.connect(self.abrir_configuracion)
+        disposicion_titulo.addWidget(boton_configuracion)
+
+        # Menú desplegable de ordenación
+        self.combo_ordenar = QComboBox()
+        self.combo_ordenar.addItems(["Hora", "Mesa", "Disponibilidad"])
+        self.combo_ordenar.setStyleSheet("""
             QComboBox {
                 background-color: white;
                 border: 1px solid #bdc3c7;
                 border-radius: 5px;
                 padding: 5px;
+                font-size: 14px;
             }
             QComboBox::drop-down {
                 border: none;
@@ -170,164 +333,111 @@ class Cocina(QMainWindow):
                 height: 12px;
             }
         """)
-        self.sort_combo.currentTextChanged.connect(self.sort_comandas)
-        title_layout.addWidget(self.sort_combo)
+        self.combo_ordenar.currentTextChanged.connect(self.ordenar_mesas)
+        disposicion_titulo.addWidget(self.combo_ordenar)
 
-        main_layout.addWidget(title_frame)
+        disposicion_principal.addWidget(marco_titulo)
 
-        # Scroll area for comandas
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setStyleSheet("""
+        # Área de desplazamiento para las mesas
+        self.area_desplazamiento = QScrollArea()
+        self.area_desplazamiento.setWidgetResizable(True)
+        self.area_desplazamiento.setStyleSheet("""
             QScrollArea {
                 border: none;
                 background-color: transparent;
             }
         """)
-        self.scroll_content = QWidget()
-        self.scroll_layout = QGridLayout(self.scroll_content)
-        self.scroll_layout.setSpacing(20)
-        self.scroll_area.setWidget(self.scroll_content)
-        main_layout.addWidget(self.scroll_area)
+        self.contenido_desplazamiento = QWidget()
+        self.disposicion_desplazamiento = QGridLayout(self.contenido_desplazamiento)
+        self.disposicion_desplazamiento.setSpacing(20)
+        self.area_desplazamiento.setWidget(self.contenido_desplazamiento)
+        disposicion_principal.addWidget(self.area_desplazamiento)
 
-        # Fetch comandas from database
-        self.comandas = self.fetch_comandas_from_db()
+        # Obtener mesas de los archivos JSON
+        self.mesas = self.obtener_mesas_de_json()
 
-        # Display comandas
-        self.display_comandas()
+        # Mostrar mesas
+        self.mostrar_mesas()
 
-        # Set up auto-refresh timer
-        self.refresh_timer = QTimer(self)
-        self.refresh_timer.timeout.connect(self.refresh_comandas)
-        self.refresh_timer.start(5000)  # Refresh every 5 seconds
+        # Configurar temporizador de actualización automática
+        self.temporizador_actualizacion = QTimer(self)
+        self.temporizador_actualizacion.timeout.connect(self.actualizar_mesas)
+        self.temporizador_actualizacion.start(5000)  # Actualizar cada 5 segundos
 
-    def init_db(self):
-        self.conn = sqlite3.connect('comandas.db')
-        self.cursor = self.conn.cursor()
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS comandas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                fecha TEXT,
-                hora TEXT,
-                mesa TEXT,
-                mozo TEXT,
-                items TEXT,
-                status TEXT
-            )
-        ''')
-        self.conn.commit()
+    def obtener_mesas_de_json(self):
+        mesas = []
+        carpeta_procesados = os.path.join('tmp', 'procesados')
+        try:
+            archivos_actuales = set(os.listdir(carpeta_procesados))
+        except FileNotFoundError:
+            QMessageBox.warning(self, "Error", f"No se encontró la carpeta: {carpeta_procesados}")
+            return mesas
 
-        # Check if the table is empty
-        self.cursor.execute("SELECT COUNT(*) FROM comandas")
-        count = self.cursor.fetchone()[0]
+        # Detectar nuevos archivos
+        nuevos_archivos = archivos_actuales - set(getattr(self, 'archivos_anteriores', set()))
+        if nuevos_archivos:
+            print(f"Nuevos archivos detectados: {nuevos_archivos}")
+        
+        for archivo in archivos_actuales:
+            if archivo.endswith('.json'):
+                ruta_archivo = os.path.join(carpeta_procesados, archivo)
+                try:
+                    with open(ruta_archivo, 'r') as f:
+                        datos_mesa = json.load(f)
+                        mesas.append(datos_mesa)
+                except json.JSONDecodeError:
+                    print(f"Error al decodificar JSON en el archivo: {archivo}")
+                except Exception as e:
+                    print(f"Error al leer el archivo {archivo}: {str(e)}")
+        
+        self.archivos_anteriores = archivos_actuales
+        return mesas
 
-        # If the table is empty, add pre-loaded orders
-        if count == 0:
-            self.add_preloaded_orders()
+    def mostrar_mesas(self):
+        # Limpiar widgets existentes
+        for i in reversed(range(self.disposicion_desplazamiento.count())): 
+            self.disposicion_desplazamiento.itemAt(i).widget().setParent(None)
 
-    def add_preloaded_orders(self):
-        items = [
-            [{"item": "Hamburguesa", "cantidad": 1, "precio_unitario": 500},
-             {"item": "Papas fritas", "cantidad": 1, "precio_unitario": 200}],
-            [{"item": "Pizza", "cantidad": 1, "precio_unitario": 600}],
-            [{"item": "Ensalada Caesar", "cantidad": 1, "precio_unitario": 400},
-             {"item": "Agua mineral", "cantidad": 1, "precio_unitario": 100}],
-            [{"item": "Spaghetti Bolognese", "cantidad": 1, "precio_unitario": 450},
-             {"item": "Vino tinto", "cantidad": 1, "precio_unitario": 300}],
-            [{"item": "Pollo a la parrilla", "cantidad": 1, "precio_unitario": 550},
-             {"item": "Ensalada mixta", "cantidad": 1, "precio_unitario": 250}],
-            [{"item": "Tacos de carne", "cantidad": 3, "precio_unitario": 200},
-             {"item": "Guacamole", "cantidad": 1, "precio_unitario": 150}],
-            [{"item": "Sushi variado", "cantidad": 1, "precio_unitario": 700},
-             {"item": "Sake", "cantidad": 1, "precio_unitario": 350}],
-            [{"item": "Paella", "cantidad": 2, "precio_unitario": 400},
-             {"item": "Sangría", "cantidad": 1, "precio_unitario": 300}],
-            [{"item": "Lasagna", "cantidad": 1, "precio_unitario": 480},
-             {"item": "Tiramisú", "cantidad": 1, "precio_unitario": 200}],
-            [{"item": "Churrasco", "cantidad": 1, "precio_unitario": 600},
-             {"item": "Papas al horno", "cantidad": 1, "precio_unitario": 180}]
-        ]
+        for i, mesa in enumerate(self.mesas):
+            widget_mesa = WidgetMesa(mesa)
+            fila = i // 3
+            columna = i % 3
+            self.disposicion_desplazamiento.addWidget(widget_mesa, fila, columna)
 
-        mozos = ["Juan", "Maria", "Carlos", "Ana", "Pedro"]
-        statuses = ["New", "In Progress", "Ready"]
+    def actualizar_mesas(self):
+        nuevas_mesas = self.obtener_mesas_de_json()
+        if nuevas_mesas != self.mesas:
+            self.mesas = nuevas_mesas
+            self.mostrar_mesas()
 
-        base_time = datetime.now() - timedelta(hours=2)  # Start 2 hours ago
+    def ordenar_mesas(self, criterio):
+        if criterio == "Hora":
+            self.mesas.sort(key=lambda x: x.get("Hora", ""), reverse=True)
+        elif criterio == "Mesa":
+            self.mesas.sort(key=lambda x: x.get("Mesa", 0))
+        elif criterio == "Disponibilidad":
+            self.mesas.sort(key=lambda x: x.get("Disponible", True), reverse=True)
+        self.mostrar_mesas()
 
-        for i in range(10):
-            fecha = (base_time + timedelta(minutes=i*15)).strftime("%d/%m/%Y")
-            hora = (base_time + timedelta(minutes=i*15)).strftime("%H:%M")
-            mesa = str(random.randint(1, 20))
-            mozo = random.choice(mozos)
-            order_items = items[i]
-            status = random.choice(statuses)
+    def abrir_configuracion(self):
+        dialogo = DialogoConfiguracion(padre=self)
+        if dialogo.exec_():
+            nueva_mesa = dialogo.obtener_datos()
+            self.agregar_mesa(nueva_mesa)
 
-            self.cursor.execute('''
-                INSERT INTO comandas (fecha, hora, mesa, mozo, items, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (fecha, hora, mesa, mozo, str(order_items), status))
-
-        self.conn.commit()
-
-    def fetch_comandas_from_db(self):
-        self.cursor.execute('''
-            SELECT * FROM comandas ORDER BY id DESC LIMIT ?
-        ''', (self.get_max_visible_comandas(),))
-        rows = self.cursor.fetchall()
-        comandas = []
-        for row in rows:
-            comanda = {
-                "id": row[0],
-                "datos": {
-                    "Fecha": row[1],
-                    "Hora": row[2],
-                    "Mesa": row[3],
-                    "Mozo": row[4]
-                },
-                "items": eval(row[5]),  # Convert string representation of list to actual list
-                "status": row[6]
-            }
-            comandas.append(comanda)
-        return comandas
-
-    def get_max_visible_comandas(self):
-        # Calculate how many comandas can fit on the screen
-        # This is a simple estimation and might need adjustment
-        available_height = self.height() - 100  # Subtract some height for margins and title
-        comanda_height = 200  # Estimated height of a comanda widget
-        return (available_height // comanda_height) * 3  # Multiply by 3 for 3 columns
-
-    def display_comandas(self):
-        # Clear existing widgets
-        for i in reversed(range(self.scroll_layout.count())): 
-            self.scroll_layout.itemAt(i).widget().setParent(None)
-
-        for i, comanda in enumerate(self.comandas):
-            comanda_widget = ComandaWidget(comanda)
-            row = i // 3
-            col = i % 3
-            self.scroll_layout.addWidget(comanda_widget, row, col)
-
-    def refresh_comandas(self):
-        self.comandas = self.fetch_comandas_from_db()
-        self.display_comandas()
-
-    def sort_comandas(self, sort_by):
-        if sort_by == "Time":
-            self.comandas.sort(key=lambda x: x["datos"]["Hora"], reverse=True)
-        elif sort_by == "Table":
-            self.comandas.sort(key=lambda x: int(x["datos"]["Mesa"]))
-        elif sort_by == "Status":
-            self.comandas.sort(key=lambda x: x["status"])
-        self.display_comandas()
-
-    def closeEvent(self, event):
-        self.conn.close()
-        super().closeEvent(event)
+    def agregar_mesa(self, datos_mesa):
+        ruta_archivo = os.path.join('tmp', 'procesados', f"mesa_{datos_mesa['Mesa']}.json")
+        try:
+            with open(ruta_archivo, 'w') as f:
+                json.dump(datos_mesa, f, indent=2)
+            self.actualizar_mesas()
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"No se pudo agregar la mesa: {str(e)}")
 
 def main():
     app = QApplication(sys.argv)
-    window = Cocina()
-    window.show()
+    ventana = Restaurante()
+    ventana.show()
     sys.exit(app.exec_())
 
 if __name__ == "__main__":

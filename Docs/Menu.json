@@ -2,170 +2,550 @@
     "menu": {
         "Bebidas": [
             {
-                "name": "Café expreso",
-                "price": 400
+                "name": "Agua mineral",
+                "price": 340
             },
             {
-                "name": "Café americano",
-                "price": 450
+                "name": "Agua mineral gasificada",
+                "price": 340
             },
             {
-                "name": "Café con leche",
+                "name": "Gaseosa",
+                "price": 340
+            },
+            {
+                "name": "Agua saborizada",
+                "price": 340
+            }
+        ],
+        "Bebidas C/A": [
+            {
+                "name": "Andes origin lata",
                 "price": 500
             },
             {
-                "name": "Té negro",
-                "price": 350
+                "name": "Andes origin 1l",
+                "price": 960
             },
             {
-                "name": "Té verde",
-                "price": 350
-            },
-            {
-                "name": "Limonada",
-                "price": 500
-            },
-            {
-                "name": "Jugo de naranja natural",
+                "name": "Corona porron",
                 "price": 600
             },
             {
-                "name": "Chocolate caliente",
-                "price": 550
+                "name": "Corono 1l",
+                "price": 960
             },
             {
-                "name": "Batido de fresa",
-                "price": 700
-            },
-            {
-                "name": "Agua mineral",
-                "price": 300
-            }
-        ],
-        "Dulces": [
-            {
-                "name": "Tarta de chocolate",
-                "price": 1200
-            },
-            {
-                "name": "Brownie con helado",
-                "price": 1300
-            },
-            {
-                "name": "Cheesecake de frutilla",
-                "price": 1100
-            },
-            {
-                "name": "Croissant con mermelada",
-                "price": 700
-            },
-            {
-                "name": "Muffin de arándanos",
-                "price": 800
-            },
-            {
-                "name": "Medialuna",
-                "price": 500
-            },
-            {
-                "name": "Churros con dulce de leche",
-                "price": 900
-            },
-            {
-                "name": "Helado de vainilla",
-                "price": 700
-            },
-            {
-                "name": "Pastel de manzana",
-                "price": 1000
-            },
-            {
-                "name": "Alfajor de maicena",
+                "name": "Quilmes lata",
                 "price": 450
+            },
+            {
+                "name": "Quilmes 1l",
+                "price": 840
+            },
+            {
+                "name": "Stella artois lata",
+                "price": 540
+            },
+            {
+                "name": "Stella artois 1l",
+                "price": 1020
             }
         ],
-        "Salados": [
+        "Vinos B": [
             {
-                "name": "Sándwich de jamón y queso",
-                "price": 900
+                "name": "Norton clásico 375",
+                "price": 770
             },
             {
-                "name": "Medialuna con jamón y queso",
-                "price": 800
+                "name": "Norton clásico 750",
+                "price": 1030
             },
             {
-                "name": "Empanada de carne",
-                "price": 700
+                "name": "Lopez 375",
+                "price": 770
             },
             {
-                "name": "Empanada de pollo",
-                "price": 700
+                "name": "Lopez 750",
+                "price": 1030
             },
             {
-                "name": "Pizza margarita",
-                "price": 1200
+                "name": "Killka",
+                "price": 1750
             },
             {
-                "name": "Tostado de jamón y queso",
-                "price": 950
+                "name": "Don valentin",
+                "price": 1240
             },
             {
-                "name": "Panini de pollo",
-                "price": 1100
+                "name": "Santa julia",
+                "price": 1550
             },
             {
-                "name": "Hamburguesa clásica",
+                "name": "Santa julia rose",
+                "price": 1550
+            },
+            {
+                "name": "Norton cosecha tardia",
+                "price": 1320
+            },
+            {
+                "name": "Aristides blend",
+                "price": 2160
+            }
+        ],
+        "Vinos T": [
+            {
+                "name": "Norton clásico 375",
+                "price": 770
+            },
+            {
+                "name": "Norton clásico 750",
+                "price": 7030
+            },
+            {
+                "name": "Lopez 375",
+                "price": 770
+            },
+            {
+                "name": "Lopez 750",
+                "price": 1030
+            },
+            {
+                "name": "Killka 375",
                 "price": 1500
             },
             {
-                "name": "Wrap de pollo",
+                "name": "Killka 750",
+                "price": 1960
+            },
+            {
+                "name": "Don valentin",
+                "price": 1240
+            },
+            {
+                "name": "Sant julia",
+                "price": 1680
+            },
+            {
+                "name": "Vasco viejo",
+                "price": 720
+            },
+            {
+                "name": "Aristides malbec",
+                "price": 2160
+            }
+        ],
+        "Entradas Frias": [
+            {
+                "name": "Mejillones pelados a la provenzal 1/2",
+                "price": 2050
+            },
+            {
+                "name": "Mejillones pelados a la provenzal (porcion)",
+                "price": 2950
+            },
+            {
+                "name": "Calamares a la provenzal 1/2",
+                "price": 1800
+            },
+            {
+                "name": "Calamares a la provenzal (porcion)",
+                "price": 2600
+            },
+            {
+                "name": "Langostinos 1/2",
+                "price": 2200
+            },
+            {
+                "name": "Langostinos (porcion)",
+                "price": 3100
+            },
+            {
+                "name": "Ensalada de mariscos 1/2",
+                "price": 2400
+            },
+            {
+                "name": "Ensalada de mariscos (porcion)",
+                "price": 3400
+            },
+            {
+                "name": "Pulpo a la provenzal",
+                "price": 5450
+            },
+            {
+                "name": "Mayonesa de atún 1/2",
+                "price": 1700
+            },
+            {
+                "name": "Mayonesa de atún (porcion)",
+                "price": 2450
+            },
+            {
+                "name": "Kanikama 1/2",
+                "price": 1700
+            },
+            {
+                "name": "Kanikama (porcion)",
+                "price": 2450
+            }
+        ],
+        "Frituras": [
+            {
+                "name": "Calamares 1/2",
+                "price": 1950
+            },
+            {
+                "name": "Calamares (porcion)",
+                "price": 2800
+            },
+            {
+                "name": "Cornalitos 1/2",
+                "price": 1300
+            },
+            {
+                "name": "Cornalitos (porcion)",
+                "price": 1900
+            },
+            {
+                "name": "Rabas 1/2",
+                "price": 1750
+            },
+            {
+                "name": "Rabas (porcion)",
+                "price": 2500
+            },
+            {
+                "name": "Fritura de mar 1/2",
+                "price": 1850
+            },
+            {
+                "name": "Fritura de mar (porcion)",
+                "price": 2700
+            },
+            {
+                "name": "Soufflé de lenguado 1/2",
+                "price": 1250
+            },
+            {
+                "name": "Soufflé de lenguado (porcion)",
+                "price": 1800
+            },
+            {
+                "name": "Soufflé de algas 1/2",
+                "price": 1100
+            },
+            {
+                "name": "Soufflé de algas (porcion)",
+                "price": 1600
+            },
+            {
+                "name": "Empanada de salmón",
+                "price": 250
+            },
+            {
+                "name": "Empanada de atún",
+                "price": 280
+            },
+            {
+                "name": "Filet de merluza a la romana 1/2",
+                "price": 1600
+            },
+            {
+                "name": "Filet de merluza a la romana (porcion)",
+                "price": 220
+            },
+            {
+                "name": "Filet de merluza apanado 1/2",
+                "price": 1650
+            },
+            {
+                "name": "Filet de merluza apanado (porcion)",
+                "price": 2200
+            },
+            {
+                "name": "Langostinos apanados 1/2",
+                "price": 2400
+            },
+            {
+                "name": "Langostinos apanados (porcion)",
+                "price": 3400
+            }
+        ],
+        "Pastas": [
+            {
+                "name": "Spaghetti con crema de langostinos 1/2",
+                "price": 1900
+            },
+            {
+                "name": "Spaghetti con crema de langostinos (porcion)",
+                "price": 2700
+            },
+            {
+                "name": "Spaghetti con tomate y langostinos 1/2",
+                "price": 1950
+            },
+            {
+                "name": "Spaghetti con tomate y langostinos (porcion)",
+                "price": 2800
+            },
+            {
+                "name": "Spaghetti a la putanesca 1/2",
                 "price": 1200
             },
             {
-                "name": "Tarta de verduras",
-                "price": 900
+                "name": "Spaghetti a la putanesca (porcion)",
+                "price": 2300
+            },
+            {
+                "name": "Spaghetti con mariscos 1/2",
+                "price": 1950
+            },
+            {
+                "name": "Spaghetti con mariscos (porcion)",
+                "price": 2800
+            },
+            {
+                "name": "Spaghetti con mejillones",
+                "price": 1900
+            },
+            {
+                "name": "Spaghetti con mejillones (porcion)",
+                "price": 2700
+            }
+        ],
+        "Pescados y Mariscos": [
+            {
+                "name": "Paella 1/2",
+                "price": 1900
+            },
+            {
+                "name": "Paella (porcion)",
+                "price": 2750
+            },
+            {
+                "name": "Cazuela de mariscos 1/2",
+                "price": 2250
+            },
+            {
+                "name": "Cazuela de mariscos (porcion)",
+                "price": 3200
+            },
+            {
+                "name": "Mejillones con cáscara a la provenzal",
+                "price": 2550
+            },
+            {
+                "name": "Calamares a la leonesa 1/2",
+                "price": 2200
+            },
+            {
+                "name": "Calamares a la leonesa (porcion)",
+                "price": 3100
+            },
+            {
+                "name": "Gambas al ajillo 1/2",
+                "price": 2400
+            },
+            {
+                "name": "Gambas al ajillo (porcion)",
+                "price": 3400
+            },
+            {
+                "name": "Pescado al roquefort 1/2",
+                "price": 2400
+            },
+            {
+                "name": "Pescado al roquefort (porcion)",
+                "price": 3400
+            },
+            {
+                "name": "Pulpo a la gallega",
+                "price": 5500
+            },
+            {
+                "name": "Mejillones al graten 1/2",
+                "price": 2400
+            },
+            {
+                "name": "Mejillones al graten (porcion)",
+                "price": 3400
+            },
+            {
+                "name": "Caracoles a la bordelesa 1/2",
+                "price": 1550
+            },
+            {
+                "name": "Caracoles a la bordelesa (porcion)",
+                "price": 2200
+            },
+            {
+                "name": "Chipirones a la plancha 1/2",
+                "price": 2200
+            },
+            {
+                "name": "Chipirones a la plancha (porcion)",
+                "price": 3100
+            },
+            {
+                "name": "Arroz con mejillones 1/2",
+                "price": 2050
+            },
+            {
+                "name": "Arroz con mejillones (porcion)",
+                "price": 2900
+            },
+            {
+                "name": "Arroz con langostinos 1/2",
+                "price": 2250
+            },
+            {
+                "name": "Arroz con langostinos (porcion)",
+                "price": 3300
+            }
+        ],
+        "Grille": [
+            {
+                "name": "Gambas grilladas 1/2",
+                "price": 2400
+            },
+            {
+                "name": "Gambas grilladas (porcion)",
+                "price": 3400
+            },
+            {
+                "name": "Pescado de estación a la pizza 1/2",
+                "price": 2150
+            },
+            {
+                "name": "Pescado de estación a la pizza (porcion)",
+                "price": 3050
+            },
+            {
+                "name": "Salmon rosado",
+                "price": 4500
+            },
+            {
+                "name": "Pesca del día 1/2",
+                "price": 1700
+            },
+            {
+                "name": "Pesca del día (porcion)",
+                "price": 2400
+            }
+        ],
+        "Especial": [
+            {
+                "name": "Milanesa de ternera",
+                "price": 2150
+            },
+            {
+                "name": "Milanesa napolitana de ternera",
+                "price": 2800
+            },
+            {
+                "name": "Spaghetti",
+                "price": 1300
+            },
+            {
+                "name": "Ñoquis",
+                "price": 1300
+            },
+            {
+                "name": "Ravioles",
+                "price": 1300
+            },
+            {
+                "name": "Bocaditos de pollo con guarnición",
+                "price": 1650
+            },
+            {
+                "name": "Picada chichilo (chica)",
+                "price": 4550
+            },
+            {
+                "name": "Picada chichilo (grande)",
+                "price": 6500
+            },
+            {
+                "name": "Tarta individual",
+                "price": 1560
+            }
+        ],
+        "Guarniciones": [
+            {
+                "name": "Ensaladas",
+                "price": 1080
+            },
+            {
+                "name": "Arroz",
+                "price": 490
+            },
+            {
+                "name": "Papas fritas 1/2",
+                "price": 760
+            },
+            {
+                "name": "Papas fritas (porcion)",
+                "price": 1080
+            },
+            {
+                "name": "Papas al natural",
+                "price": 490
+            },
+            {
+                "name": "Puré de papas 1/2",
+                "price": 760
+            },
+            {
+                "name": "Puré de papas (porcion )",
+                "price": 1080
+            },
+            {
+                "name": "Huevos duros o a la plancha",
+                "price": 490
+            },
+            {
+                "name": "Papas a caballo",
+                "price": 1200
+            },
+            {
+                "name": "Rusa 1/2",
+                "price": 850
+            },
+            {
+                "name": "Rusa (porcion)",
+                "price": 1200
             }
         ],
         "Postres": [
             {
+                "name": "Mousse de chocolate",
+                "price": 890
+            },
+            {
+                "name": "Bocha de helado",
+                "price": 300
+            },
+            {
                 "name": "Flan casero",
-                "price": 600
+                "price": 890
             },
             {
                 "name": "Tiramisú",
-                "price": 1000
+                "price": 890
             },
             {
-                "name": "Frutillas con crema",
-                "price": 900
+                "name": "Ensalada de frutas",
+                "price": 890
             },
             {
-                "name": "Mousse de chocolate",
-                "price": 850
+                "name": "Porción de crema o dulce de leche",
+                "price": 210
             },
             {
-                "name": "Helado de chocolate",
-                "price": 700
-            },
-            {
-                "name": "Torta de zanahoria",
-                "price": 1200
-            },
-            {
-                "name": "Crepes con dulce de leche",
-                "price": 1100
-            },
-            {
-                "name": "Tarta de limón",
-                "price": 1150
-            },
-            {
-                "name": "Budín de pan",
-                "price": 650
-            },
-            {
-                "name": "Helado de dulce de leche",
-                "price": 700
+                "name": "Copa chichilo",
+                "price": 1080
             }
         ]
     }

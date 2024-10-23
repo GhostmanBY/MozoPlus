@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import requests
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models import ValorInput
@@ -9,6 +10,7 @@ from Login_de_mozo_back import verificar, login_out
 from Menu_de_mesas_Back import (
     ver_mesas,
     cantidad_de_mesas,
+    guardar_mesa,
     editar_mesa,
     abrir_mesa,
     cerrar_mesa,
@@ -98,7 +100,7 @@ async def ruta_cantidad_mesas():
 # Ruta PUT para editar una mesa.
 # Recibe el número de la mesa y un JSON con los valores que se van a editar.
 @app.put("/mesas/{mesa}")
-async def ruta_editar_mesa(mesa: int, input: ValorInput):
+async def ruta_guardar_mesa(mesa: int, input: ValorInput):
     """
     Ejemplo del JSON enviado en la petición:
     {
@@ -108,7 +110,7 @@ async def ruta_editar_mesa(mesa: int, input: ValorInput):
     """
     try:
         # Llama a la función 'editar_mesa' con el número de mesa y los nuevos valores.
-        result = await editar_mesa(mesa, input)
+        result = await guardar_mesa(mesa, input)
         
         # Si la mesa no se encuentra, lanza un error 404.
         if not result:
@@ -116,7 +118,7 @@ async def ruta_editar_mesa(mesa: int, input: ValorInput):
         
         # Si la petición no es procesable, lanza un error 422 y un print.
         if isinstance(result, dict) and "error" in result:
-            print(f"INFO:     {request.client.host}:{request.client.port} - {request.method} {request.url.path} {result['error']}")
+            print(f"INFO:    {request.client.host}:{request.client.port} - {request.method} {request.url.path} {result['error']}")
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"Error en la entidad {result['entity']}: {result['error']}"
@@ -129,6 +131,21 @@ async def ruta_editar_mesa(mesa: int, input: ValorInput):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
+@app.get("/mesas/{mesa}")
+async def ruta_editar_mesa(mesa: int):
+    try:
+        # Llama a la función 'editar_mesa' con el número de mesa y los nuevos valores.
+        result = await editar_mesa(mesa)
+        
+        # Si la mesa no se encuentra, lanza un error 404.
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
+        
+        return result
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 # Ruta POST para abrir una mesa.
 # Recibe el número de mesa y el nombre del mozo.
 @app.post("/mesas/{mesa}/{mozo}/abrir")

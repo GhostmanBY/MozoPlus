@@ -3,11 +3,6 @@
     "Disponible": true,
     "productos": [],
     "cantidad_comensales": 0,
-    "comensales_infantiles": [
-        false,
-        0
-    ],
-    "Mozo": [],
-    "Pagado": false,
-    "Metodo": ""
+    "comensales_infantiles": 0,
+    "Mozo": []
 }

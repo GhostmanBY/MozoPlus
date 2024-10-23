@@ -2,6 +2,7 @@ import sys
 import json
 import os
 import re
+import socket
 import datetime
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -36,7 +37,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
 )
 from PyQt5.QtGui import QFont, QColor, QPalette
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from datetime import datetime
 from Back.Panel_Admin_Back import (
     Eliminar_empleados,
@@ -84,6 +85,24 @@ class RestaurantInterface(QMainWindow):
         self.setup_mozos_tab()
         self.setup_menu_tab()
         self.setup_info_tab()
+
+        # Configurar el temporizador para actualización automática
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.cargar_mesas)
+        self.timer.start(5000)  # Actualizar cada 5 segundos (5000 ms)
+
+    def closeEvent(self, event):
+        """Sobrescribe el evento de cierre de la ventana"""
+        # Enviar una señal para que main.py cierre los procesos
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(("localhost", 9999))  # Conectar al servidor en main.py
+            s.sendall(b"CLOSE")  # Enviar el mensaje de cierre
+            s.close()
+        except Exception as e:
+            print(f"Error al enviar la señal de cierre: {e}")
+        finally:
+            event.accept()  # Aceptar el cierre de la ventana
 
     def setup_info_tab(self):
         info_widget = QWidget()
@@ -204,7 +223,7 @@ class RestaurantInterface(QMainWindow):
                                 precio = pedido["price"]
                                 total = precio
                                 total_general += total
-                
+                               
                 Precio_total_label = QLabel(f"Total: ${total_general}")
                 entry_layout.addWidget(Precio_total_label)
 
@@ -763,7 +782,6 @@ class RestaurantInterface(QMainWindow):
 
     def load_mozos(self):
         mozos = Mostrar_Mozos(self.pagina_mozos)
-        print(mozos)
         if mozos != []:
             self.mozos_table.setRowCount(0)
             self.mozos_table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -1130,29 +1148,6 @@ class RestaurantInterface(QMainWindow):
         self.json_input.setReadOnly(True)
         pedidos_layout.addWidget(self.json_input)
 
-        procesar_button = QPushButton("Actualizar Registro")
-        procesar_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                padding: 10px 20px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #3d8b40;
-            }
-        """
-        )
-        procesar_button.clicked.connect(self.cargar_mesas)
-        pedidos_layout.addWidget(procesar_button)
-
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(pedidos_widget)
         right_layout.addWidget(splitter)
@@ -1174,6 +1169,10 @@ class RestaurantInterface(QMainWindow):
         self.cargar_mesas()
 
     def cargar_mesas(self):
+        # Limpiar el layout de mesas existente
+        for i in reversed(range(self.mesas_layout.count())): 
+            self.mesas_layout.itemAt(i).widget().setParent(None)
+        
         directorio_json = os.path.join(base_dir, "../tmp")
         archivos_json = [f for f in os.listdir(directorio_json) if f.endswith(".json")]
         archivos_json_Final = sorted(
@@ -1244,16 +1243,19 @@ class RestaurantInterface(QMainWindow):
                 print(f"Error: El nombre del archivo '{archivo}' no es válido")
 
     def mesa_clicked(self, mesa_num):
+        print(f"Clic en mesa {mesa_num}")
         self.cargar_json(mesa_num)
 
     def cargar_json(self, mesa_num):
+        print(f"Cargando JSON para mesa {mesa_num}")
         ruta_archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
+        print(f"Ruta del archivo: {ruta_archivo}")
         try:
             with open(ruta_archivo, "r", encoding="utf-8") as f:
                 pedido_json = json.load(f)
                 self.procesar_pedido_con_json(pedido_json)
-        except (json.JSONDecodeError, FileNotFoundError):
-            print(f"Error: No se pudo cargar el archivo JSON para la Mesa {mesa_num}")
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            print(f"Error al cargar JSON para Mesa {mesa_num}: {e}")
 
     def procesar_pedido_con_json(self, pedido_json):
         with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
@@ -1265,11 +1267,11 @@ class RestaurantInterface(QMainWindow):
         mozo = pedido_json.get("Mozo", "")
         productos = pedido_json.get("productos", [])
         cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
-        comensales_infantiles = pedido_json.get("comensales_infantiles", [False, 0])
+        comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
 
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
-        if productos or cantidad_comensales > 0 or any(comensales_infantiles):
+        if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
             fecha_formateada = self.formatear_fecha(fecha)
             comanda_texto = f"""
             <style>
@@ -1334,7 +1336,7 @@ class RestaurantInterface(QMainWindow):
                     <p><strong>Fecha:</strong> {fecha}</p>
                     <p><strong>Hora:</strong> {hora}</p>
                     <p><strong>Mozo:</strong> {mozo}</p>
-                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles[1]})</p>
+                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
                 </div>
 
                 <table>
@@ -1459,6 +1461,15 @@ class RestaurantInterface(QMainWindow):
 
 
 if __name__ == "__main__":
+    def exception_hook(exctype, value, traceback):
+        print(f"Excepción no manejada: {exctype}, {value}")
+        print("Traceback:")
+        print("".join(traceback.format_tb(traceback)))
+        sys.__excepthook__(exctype, value, traceback)
+        sys.exit(1)
+
+    sys.excepthook = exception_hook
+
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     app.setStyleSheet(
