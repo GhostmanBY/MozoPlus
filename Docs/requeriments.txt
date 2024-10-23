@@ -2,3 +2,4 @@ fastapi
 fpdf
 pydantic
 PyQt5
+uvicorn

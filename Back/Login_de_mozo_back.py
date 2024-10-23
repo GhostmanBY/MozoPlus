@@ -72,8 +72,11 @@ async def login_out(name: str):
     fecha_txt = datetime.datetime.now()
     fecha = fecha_txt.strftime("%H:%M")
     
-    ruta_registro = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
-
+    ruta_registro_check = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
+    i = 1
+    while os.path.exists(ruta_registro_check):
+        
+        ruta_registro = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}_{i+1}.json")
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
@@ -105,7 +108,7 @@ async def login_out(name: str):
                 with open(ruta_registro, "r", encoding="utf-8") as file:
                     registro = json.load(file)
             else:
-                return f"No se a cargado el sistem de login"
+                return f"No se a cargado el sistema de login"
 
             # Verifica si 'registro' es una lista
             i = 0

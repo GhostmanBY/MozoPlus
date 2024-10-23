@@ -1,0 +1,18 @@
+[
+    {
+        "Santiago Mono": {
+            "Horario_entrada": "20:18",
+            "Horario_salida": null,
+            "Mesas totales": null,
+            "Fecha": "2024-10-22"
+        }
+    },
+    {
+        "Juan Pérez": {
+            "Horario_entrada": "20:40",
+            "Horario_salida": null,
+            "Mesas totales": null,
+            "Fecha": "2024-10-22"
+        }
+    }
+]

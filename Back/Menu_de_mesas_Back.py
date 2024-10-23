@@ -47,6 +47,11 @@ async def ver_mesas():
 
 
 def crea_mesas_tmp():
+    print("creando mess tmp")
+    for i in os.listdir("tmp/"):
+        if os.path.isfile(i):
+            os.remove(i)
+            print(f"archivo eliminado: {i}")
     """
     Crea mesas con los valores por defecto en el directorio 'tmp'.
     """
