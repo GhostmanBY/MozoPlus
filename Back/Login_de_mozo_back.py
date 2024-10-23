@@ -6,7 +6,6 @@ import datetime
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
-Mozo_registro = {}
 
 async def verificar(code: str):
     # Bloque para la fecha y hora
@@ -20,50 +19,48 @@ async def verificar(code: str):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
 
-    instruccion = "SELECT * FROM Usuario"
-    cursor.execute(instruccion)
+    instruccion = "SELECT * FROM Usuario WHERE codigo = ?"
+    cursor.execute(instruccion, (code,))
 
-    datos = cursor.fetchall()
-    conn.commit()
+    fila = cursor.fetchone()
     conn.close()
 
-    for filas in datos:
-        if datos:  # Comprobación si tiene datos o no
-            if code == filas[2]:
-                Mozo_registro = {
-                    f"{filas[1]}": {
-                        "Horario_entrada": fecha,
-                        "Horario_salida": None,
-                        "Mesas totales": None,
-                        "Fecha": f"{fecha_hoy}"
-                    }
-                }
-
-                # Cargar comandas existentes o iniciar lista vacía
-                if os.path.exists(ruta_registro):
-                    with open(ruta_registro, "r", encoding="utf-8") as file:
-                        try:
-                            registro = json.load(file)
-                        except json.JSONDecodeError:
-                            registro = []
-                else:
+    if fila:
+        nombre_mozo = fila[1]
+        
+        # Cargar registro existente o iniciar lista vacía
+        if os.path.exists(ruta_registro):
+            with open(ruta_registro, "r", encoding="utf-8") as file:
+                try:
+                    registro = json.load(file)
+                except json.JSONDecodeError:
                     registro = []
+        else:
+            registro = []
 
-                # Verificar si el mozo ya está registrado para evitar duplicados
-                mozo_existente = any(Mozo_registro.keys() == mozo for mozo in registro)
+        # Verificar si el mozo ya está registrado
+        mozo_existente = any(nombre_mozo in mozo for mozo in registro)
 
-                if not mozo_existente:
-                    registro.append(Mozo_registro)
-
-                with open(ruta_registro, "w", encoding="utf-8") as file:
-                    json.dump(registro, file, ensure_ascii=False, indent=4)
-
-                data = {
-                    "verificado": 1,
-                    "ID": filas[0],
-                    "Nombre": filas[1]
+        if not mozo_existente:
+            Mozo_registro = {
+                nombre_mozo: {
+                    "Horario_entrada": fecha,
+                    "Horario_salida": None,
+                    "Mesas totales": None,
+                    "Fecha": f"{fecha_hoy}"
                 }
-                return data  # Code encontrado
+            }
+            registro.append(Mozo_registro)
+
+            with open(ruta_registro, "w", encoding="utf-8") as file:
+                json.dump(registro, file, ensure_ascii=False, indent=4)
+
+        data = {
+            "verificado": 1,
+            "ID": fila[0],
+            "Nombre": nombre_mozo
+        }
+        return data  # Code encontrado y procesado
     return 0  # Code no encontrado
 
 async def login_out(name: str):
@@ -106,7 +103,10 @@ async def login_out(name: str):
             # Intenta cargar el archivo registro, si no existe, inicializa 'registro' como una lista vacía
             if os.path.exists(ruta_registro):
                 with open(ruta_registro, "r", encoding="utf-8") as file:
+                    
                     registro = json.load(file)
+                    if name in registro:
+                        registro['Horario_salida'] = fecha
             else:
                 return f"No se a cargado el sistema de login"
 

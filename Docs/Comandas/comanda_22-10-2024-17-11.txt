@@ -1,0 +1,27 @@
+
+=======================================
+      COMANDA #22-10-2024-17-11
+=======================================
+Fecha: 22/10/2024 17:11:45
+Mesa: 2
+Mozo: Santiago Mono
+
+--------------------------------------------------
+Item                 Cant.     Precio      Total
+--------------------------------------------------
+Agua mineral             1    $340.00    $340.00
+Agua mineral             1    $340.00    $340.00
+Agua mineral             1    $340.00    $340.00
+Agua mineral gasificada     1    $340.00    $340.00
+Agua mineral gasificada     1    $340.00    $340.00
+Gaseosa                  1    $340.00    $340.00
+Agua saborizada          1    $340.00    $340.00
+Agua mineral gasificada     1    $340.00    $340.00
+Agua mineral gasificada     1    $340.00    $340.00
+Mejillones pelados a la provenzal 1/2     1  $2,050.00  $2,050.00
+Mejillones pelados a la provenzal (porcion)     1  $2,950.00  $2,950.00
+Mejillones pelados a la provenzal (porcion)     1  $2,950.00  $2,950.00
+
+---------------------------------------------------
+TOTAL:                               $11,010.00
+===================================================

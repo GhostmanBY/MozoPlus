@@ -1,86 +1,45 @@
-import os
-import platform
 import subprocess
-import re
 import sys
 
+def configurar_ip_estatica(ip, mascara, puerta_enlace, interfaz):
+    try:
+        # Comando para establecer la IP estática
+        comando = f"netsh interface ip set address {interfaz} static {ip} {mascara} {puerta_enlace}"
+        subprocess.run(comando, shell=True, check=True)
 
-# Función para obtener el sistema operativo
-def get_os():
-    return platform.system()
+        print(f"IP {ip} configurada exitosamente en la interfaz {interfaz}.")
+    except subprocess.CalledProcessError as e:
+        print(f"Ocurrió un error al configurar la IP: {e}")
 
-# Función para detectar la interfaz de red automáticamente en Linux
-def get_linux_interface():
-    result = subprocess.run(['ip', 'link', 'show'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    interfaces = re.findall(r'\d+: (\w+): <BROADCAST,MULTICAST,UP', result)
-    return interfaces[0] if interfaces else None
+def obtener_interfaz_wifi():
+    # Lista de interfaces de red WiFi comunes
+    interfaces_wifi = ["Wi-Fi", "Ethernet", "Conexión de área local"]
 
-# Función para detectar la interfaz de red automáticamente en Windows
-def get_windows_interface():
-    result = subprocess.run(['netsh', 'interface', 'show', 'interface'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    interfaces = re.findall(r'([A-Za-z0-9\s]+)\s+Enabled', result)
-    return interfaces[0].strip() if interfaces else None
+    # Intentar cada interfaz de red WiFi
+    for interfaz in interfaces_wifi:
+        try:
+            # Verificar si la interfaz existe
+            comando = f"netsh interface ip show config {interfaz}"
+            subprocess.run(comando, shell=True, check=True)
+            return interfaz
+        except subprocess.CalledProcessError:
+            pass
 
-# Función para detectar el gateway automáticamente en Linux
-def get_linux_gateway():
-    result = subprocess.run(['ip', 'route', 'show', 'default'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    match = re.search(r'default via (\S+)', result)
-    return match.group(1) if match else None
+    # Si no se encuentra ninguna interfaz WiFi, devolver None
+    return None
 
-# Función para detectar el gateway automáticamente en Windows
-def get_windows_gateway():
-    result = subprocess.run(['netsh', 'interface', 'ipv4', 'show', 'config'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    match = re.search(r'Default Gateway:\s+(\S+)', result)
-    return match.group(1) if match else None
-
-# Función para configurar IP estática en Linux
-def set_static_ip_linux(interface, ip_address, gateway, dns):
-    commands = [
-        f"sudo ip addr flush dev {interface}",  # Eliminar todas las IPs actuales de la interfaz
-        f"sudo ip addr add {ip_address}/24 dev {interface}",  # Añadir la nueva IP
-        f"sudo ip route add default via {gateway}",  # Añadir la ruta por defecto (gateway)
-        f"echo 'nameserver {dns}' | sudo tee /etc/resolv.conf > /dev/null"  # Configurar DNS
-    ]
-    for cmd in commands:
-        os.system(cmd)
-
-# Función para configurar IP estática en Windows
-def set_static_ip_windows(interface, ip_address, gateway, dns):
-    commands = [
-        f"netsh interface ip set address name=\"{interface}\" static {ip_address} 255.255.255.0 {gateway}",
-        f"netsh interface ip set dns name=\"{interface}\" static {dns}"
-    ]
-    for cmd in commands:
-        subprocess.run(cmd, shell=True)
-
-# Función principal para detectar y configurar IP automáticamente
-def set_static_ip(ip_address, dns):
-    current_os = get_os()
-    if current_os == "Linux":
-        interface = get_linux_interface()
-        gateway = get_linux_gateway()
-        if interface and gateway:
-            set_static_ip_linux(interface, ip_address, gateway, dns)
-        else:
-            print("No se pudo detectar la interfaz de red o el gateway en Linux")
-    elif current_os == "Windows":
-        interface = get_windows_interface()
-        gateway = get_windows_gateway()
-        if interface and gateway:
-            set_static_ip_windows(interface, ip_address, gateway, dns)
-        else:
-            print("No se pudo detectar la interfaz de red o el gateway en Windows")
-    else:
-        print("Sistema operativo no soportado")
-
-# Comprobar que se ha pasado una IP como argumento
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Por favor, introduce una dirección IP como argumento.")
+    if len(sys.argv) != 4:
+        print("Uso: python script.py <ip_estatica> <mascara_de_subred> <puerta_de_enlace>")
         sys.exit(1)
 
-    ip_address = sys.argv[1]  # IP proporcionada por el usuario
-    dns = "8.8.8.8"  # Servidor DNS
+    ip_estatica = sys.argv[1]
+    mascara_de_subred = sys.argv[2]
+    puerta_de_enlace = sys.argv[3]
+    interfaz_wifi = obtener_interfaz_wifi()
 
-    # Establecer la IP estática
-    set_static_ip(ip_address, dns)
+    if interfaz_wifi is None:
+        print("No se encontró ninguna interfaz de red WiFi.")
+        sys.exit(1)
+
+    configurar_ip_estatica(ip_estatica, mascara_de_subred, puerta_de_enlace, interfaz_wifi)

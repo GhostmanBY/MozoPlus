@@ -118,7 +118,7 @@ async def ruta_guardar_mesa(mesa: int, input: ValorInput):
         
         # Si la petición no es procesable, lanza un error 422 y un print.
         if isinstance(result, dict) and "error" in result:
-            print(f"INFO:    {request.client.host}:{request.client.port} - {request.method} {request.url.path} {result['error']}")
+            print(f"INFO:    {requests.client.host}:{requests.client.port} - {requests.method} {requests.url.path} {result['error']}")
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"Error en la entidad {result['entity']}: {result['error']}"
