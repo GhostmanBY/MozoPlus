@@ -3,7 +3,6 @@
     "Disponible": true,
     "productos": [],
     "cantidad_comensales": 0,
-<<<<<<< HEAD
     "comensales_infantiles": [
         false,
         0
@@ -11,8 +10,4 @@
     "Mozo": [],
     "Pagado": false,
     "Metodo": ""
-=======
-    "comensales_infantiles": 0,
-    "Mozo": []
->>>>>>> bbec6640c82c64249d575e45e565b97f05e81512
 }
