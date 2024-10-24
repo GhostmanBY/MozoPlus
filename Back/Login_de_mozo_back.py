@@ -39,7 +39,12 @@ async def verificar(code: str):
             registro = []
 
         # Verificar si el mozo ya está registrado
-        mozo_existente = any(nombre_mozo in mozo for mozo in registro)
+        mozo_existente = False
+        for item in registro:
+            if nombre_mozo in item:
+                mozo_existente = True
+                item[nombre_mozo]["Horario_entrada"] = fecha
+                break
 
         if not mozo_existente:
             Mozo_registro = {
@@ -52,8 +57,8 @@ async def verificar(code: str):
             }
             registro.append(Mozo_registro)
 
-            with open(ruta_registro, "w", encoding="utf-8") as file:
-                json.dump(registro, file, ensure_ascii=False, indent=4)
+        with open(ruta_registro, "w", encoding="utf-8") as file:
+            json.dump(registro, file, ensure_ascii=False, indent=4)
 
         data = {
             "verificado": 1,
@@ -64,16 +69,13 @@ async def verificar(code: str):
     return 0  # Code no encontrado
 
 async def login_out(name: str):
-    #bloque para la fecha y hora
+    # Bloque para la fecha y hora
     fecha_hoy = datetime.datetime.now().date()
     fecha_txt = datetime.datetime.now()
     fecha = fecha_txt.strftime("%H:%M")
     
-    ruta_registro_check = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
-    i = 1
-    while os.path.exists(ruta_registro_check):
-        
-        ruta_registro = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}_{i+1}.json")
+    ruta_registro = os.path.join(base_dir, f"../Docs/Registro/registro_mozos_{fecha_hoy}.json")
+
     # Se conecta a la base de datos y crea el cursor
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
@@ -88,7 +90,6 @@ async def login_out(name: str):
 
     for filas in datos:
         if name == filas[1]:
-            print("a")
             nombre_mozo = filas[1]
 
             ruta_mesas = os.path.join(base_dir, f"../Docs/Registro/{fecha_hoy}_{nombre_mozo}.json")
@@ -100,31 +101,29 @@ async def login_out(name: str):
             else:
                 mesas = []
 
-            # Intenta cargar el archivo registro, si no existe, inicializa 'registro' como una lista vacía
+            # Intenta cargar el archivo registro
             if os.path.exists(ruta_registro):
                 with open(ruta_registro, "r", encoding="utf-8") as file:
-                    
                     registro = json.load(file)
-                    if name in registro:
-                        registro['Horario_salida'] = fecha
             else:
-                return f"No se a cargado el sistema de login"
+                return "No se ha cargado el sistema de login"
 
-            # Verifica si 'registro' es una lista
-            i = 0
-            if isinstance(registro, list):
-                for item in registro:
-                    if nombre_mozo in item:  # Verificar si el nombre del mozo es una clave
-                        registro[i][nombre_mozo]['Horario_salida'] = fecha
-                        registro[i][nombre_mozo]['Mesas totales'] = len(mesas)
-                        break
-                    i += 1
+            # Busca el registro del mozo y actualiza la hora de salida
+            for item in registro:
+                if nombre_mozo in item:
+                    item[nombre_mozo]['Horario_salida'] = fecha
+                    item[nombre_mozo]['Mesas totales'] = len(mesas)
+                    break
+            else:
+                return f"No se encontró el registro para el mozo {nombre_mozo}"
 
-                # Guarda el diccionario actualizado en el archivo JSON
-                with open(ruta_registro, "w", encoding="utf-8") as file:
-                    print(nombre_mozo)
-                    json.dump(registro, file, ensure_ascii=False, indent=4)
-        
+            # Guarda el registro actualizado en el archivo JSON
+            with open(ruta_registro, "w", encoding="utf-8") as file:
+                json.dump(registro, file, ensure_ascii=False, indent=4)
+            
+            return f"Salida registrada para {nombre_mozo}"
+
+    return f"No se encontró el mozo {name}"
 
 if __name__ == "__main__":
     #verificar("admin")
