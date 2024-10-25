@@ -1268,6 +1268,7 @@ class RestaurantInterface(QMainWindow):
         productos = pedido_json.get("productos", [])
         cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
         comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
+        aclaraciones = pedido_json.get("Extra", "")
 
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
@@ -1306,6 +1307,14 @@ class RestaurantInterface(QMainWindow):
                     margin: 5px 0;
                     flex: 1 1 40%;
                 }}
+                .aclaraciones {{
+                    background-color: #FFF3E0;
+                    border-left: 5px solid #FF9800;
+                    padding: 10px;
+                    margin-top: 10px;
+                    border-radius: 5px;
+                    font-style: italic;
+                }}
                 table {{
                     border-collapse: collapse;
                     width: 100%;
@@ -1337,6 +1346,9 @@ class RestaurantInterface(QMainWindow):
                     <p><strong>Hora:</strong> {hora}</p>
                     <p><strong>Mozo:</strong> {mozo}</p>
                     <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
+                </div>
+                <div class="aclaraciones">
+                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
                 </div>
 
                 <table>
@@ -1413,6 +1425,15 @@ class RestaurantInterface(QMainWindow):
                     color: {('#4CAF50' if estado == 'Disponible' else '#F44336')};
                     margin-top: 20px;
                 }}
+                .aclaraciones {{
+                    background-color: #FFF3E0;
+                    border-left: 5px solid #FF9800;
+                    padding: 10px;
+                    margin-top: 20px;
+                    border-radius: 5px;
+                    text-align: left;
+                    font-style: italic;
+                }}
             </style>
             <div class="comanda-vacia">
                 <h2>MESA {mesa}</h2>
@@ -1420,6 +1441,9 @@ class RestaurantInterface(QMainWindow):
                 <p>No hay pedidos registrados para esta mesa.</p>
                 <p>Esta mesa está actualmente:</p>
                 <p class="estado">{estado.upper()}</p>
+                <div class="aclaraciones">
+                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
+                </div>
             </div>
             """
 

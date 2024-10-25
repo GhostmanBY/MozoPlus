@@ -50,5 +50,18 @@
         "Pagado": false,
         "Metodo": "",
         "Hora_cierre": "22:37"
+    },
+    {
+        "Mesa": 1,
+        "Disponible": false,
+        "productos": [],
+        "cantidad_comensales": 0,
+        "comensales_infantiles": 0,
+        "Mozo": "Juan Pérez",
+        "Hora": "22:37",
+        "Fecha": "2024-10-24",
+        "Pagado": false,
+        "Metodo": "",
+        "Hora_cierre": "22:37"
     }
 ]

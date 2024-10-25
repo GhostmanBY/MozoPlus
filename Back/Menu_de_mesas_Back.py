@@ -74,6 +74,7 @@ def crea_mesas_tmp():
         "Mozo": {},
         "Pagado": False,
         "Metodo": "",
+        "Extra": None,
     }
 
 
@@ -92,6 +93,7 @@ def creas_mesas(cantidad):
             "Mozo": [],
             "Pagado": False,
             "Metodo": "",
+            "Extra": None,
         }
         with open(
             os.path.join(base_dir, f"../Docs/mesas.json"), "w", encoding="utf-8"
@@ -239,6 +241,7 @@ async def cerrar_mesa(mesa: int):
             "cantidad_comensales": 0,
             "comensales_infantiles": 0,
             "Mozo": [],
+            "Extra": None,
         }
         # Guardamos los cambios en el archivo de la mesa
         with open(archivo, "w", encoding="utf-8") as file:

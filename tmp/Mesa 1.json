@@ -1,15 +1,11 @@
 {
     "Mesa": 1,
     "Disponible": false,
-    "productos": [
-        "vino",
-        "sorrentino"
-    ],
-    "cantidad_comensales": 0,
-    "comensales_infantiles": 0,
-    "Mozo": "TestMozo",
-    "Hora": "22:37",
-    "Fecha": "2024-10-24",
-    "Pagado": false,
-    "Metodo": ""
+    "productos": ["Bocha de helado", "Bocha de helado", "Bocha de helado", "Bocha de helado"],
+    "cantidad_comensales": 4,
+    "comensales_infantiles": 3,
+    "Mozo": "Marcos",
+    "Pagado": true,
+    "Metodo": "efectivo",
+    "Extra": "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
 }

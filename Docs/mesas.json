@@ -7,7 +7,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 2": {
         "Mesa": 2,
@@ -17,7 +18,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 3": {
         "Mesa": 3,
@@ -27,7 +29,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 4": {
         "Mesa": 4,
@@ -37,7 +40,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 5": {
         "Mesa": 5,
@@ -47,7 +51,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 6": {
         "Mesa": 6,
@@ -57,7 +62,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 7": {
         "Mesa": 7,
@@ -67,7 +73,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 8": {
         "Mesa": 8,
@@ -77,7 +84,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 9": {
         "Mesa": 9,
@@ -87,7 +95,8 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     },
     "Mesa 10": {
         "Mesa": 10,
@@ -97,6 +106,7 @@
         "comensales_infantiles": 0,
         "Mozo": [],
         "Pagado": false,
-        "Metodo": ""
+        "Metodo": "",
+        "Extra": null
     }
 }
