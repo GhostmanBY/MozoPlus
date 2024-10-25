@@ -26,15 +26,10 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QHeaderView,
     QMessageBox,
-    QDialog,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QScrollArea,
+    QDialog,  # Asegúrate de que QTabBar esté importado
+    QSizePolicy,  # Asegúrate de que QSizePolicy esté importado
     QFrame,
-    QSizePolicy,
-    QPushButton,
+    QComboBox
 )
 from PyQt5.QtGui import QFont, QColor, QPalette
 from PyQt5.QtCore import Qt, QTimer
@@ -52,11 +47,6 @@ from Back.Panel_Admin_Back import (
 )
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
-
-fecha_hoy = datetime.now().date()
-fecha_txt = datetime.now()
-fecha = fecha_txt.strftime("%H:%M")
-
 
 class RestaurantInterface(QMainWindow):
     def __init__(self):
@@ -76,9 +66,17 @@ class RestaurantInterface(QMainWindow):
         self.scroll_layout = QVBoxLayout(self.scroll_content)
         self.scroll_area.setWidget(self.scroll_content)
 
-        # Inicializar atributos
-        # self.registro_table = None
         self.mozos_table = None
+        self.load_cubiertos_price()
+        self.load_mesas_count()
+
+        # Inicializar los atributos de entrada
+        self.cubiertos_input = QLineEdit()
+        self.cubiertos_input.setPlaceholderText(f"{self.load_cubiertos_price()}")
+        self.mesas_input = QLineEdit()
+        self.mesas_input.setPlaceholderText(f"{self.load_mesas_count()}")
+        self.idioma_input = QComboBox()
+
 
         # Configurar la interfaz principal
         self.setup_main_tab()
@@ -86,23 +84,14 @@ class RestaurantInterface(QMainWindow):
         self.setup_menu_tab()
         self.setup_info_tab()
 
+        # Añadir una pestaña de configuración
+        self.setup_config_tab()
+
         # Configurar el temporizador para actualización automática
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.cargar_mesas)
         self.timer.start(5000)  # Actualizar cada 5 segundos (5000 ms)
 
-    def closeEvent(self, event):
-        """Sobrescribe el evento de cierre de la ventana"""
-        # Enviar una señal para que main.py cierre los procesos
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(("localhost", 9999))  # Conectar al servidor en main.py
-            s.sendall(b"CLOSE")  # Enviar el mensaje de cierre
-            s.close()
-        except Exception as e:
-            print(f"Error al enviar la señal de cierre: {e}")
-        finally:
-            event.accept()  # Aceptar el cierre de la ventana
 
     def setup_info_tab(self):
         info_widget = QWidget()
@@ -224,6 +213,11 @@ class RestaurantInterface(QMainWindow):
                                 total = precio
                                 total_general += total
                                
+                with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
+                    config = json.load(f)
+                    precio_cubiertos = config[0].get("precio_cubiertos", 0)
+                total_general += int(precio_cubiertos)
+                
                 Precio_total_label = QLabel(f"Total: ${total_general}")
                 entry_layout.addWidget(Precio_total_label)
 
@@ -232,6 +226,10 @@ class RestaurantInterface(QMainWindow):
             self.scroll_layout.addWidget(fecha_frame)
 
     def get_summary_records(self):
+        fecha_hoy = datetime.now().date()
+        fecha_txt = datetime.now()
+        fecha = fecha_txt.strftime("%H:%M")
+
         resumen = {}
         docs_dir = os.path.join(base_dir, "../Docs/Registro")
         data = Mostrar_Mozos(self.pagina_mozos)
@@ -780,7 +778,11 @@ class RestaurantInterface(QMainWindow):
             self.pagina_mozos -= 1
             self.load_mozos()
 
-    def load_mozos(self):
+    def load_mozos(self):   
+        fecha_hoy = datetime.now().date()
+        fecha_txt = datetime.now()
+        fecha = fecha_txt.strftime("%H:%M")
+
         mozos = Mostrar_Mozos(self.pagina_mozos)
         if mozos != []:
             self.mozos_table.setRowCount(0)
@@ -1463,26 +1465,174 @@ class RestaurantInterface(QMainWindow):
         except ValueError:
             return fecha_str
 
-    # def agregar_a_registro(self, info):
-    #     if self.registro_table is None:
-    #         print("Error: registro_table no está inicializado")
-    #         return
+    def setup_config_tab(self):
+        """Configura la pestaña de configuración con opciones."""
+        config_widget = QWidget()
+        config_layout = QGridLayout(config_widget)  # Usar QGridLayout para disposición en cuadrícula
 
-    #     row = self.registro_table.rowCount()
-    #     self.registro_table.insertRow(row)
-    #     for col, (clave, valor) in enumerate(info.items()):
-    #         item = QTableWidgetItem(str(valor))
-    #         item.setTextAlignment(Qt.AlignCenter)
-    #         if clave == "Estado":
-    #             if valor == "Disponible":
-    #                 item.setBackground(QColor("#E8F5E9"))  # Verde claro
-    #             else:
-    #                 item.setBackground(QColor("#FFEBEE"))  # Rojo claro
-    #         self.registro_table.setItem(row, col, item)
+        # Crear cartas dinámicamente
+        self.create_config_card(
+            config_layout,
+            "💰",
+            "Precio de cubiertos",
+            self.cubiertos_input,
+            None,
+            self.save_config,
+            0, 0  # Posición en la cuadrícula
+        )
 
-    #     # Ajustar el ancho de las columnas para que se ajusten al contenido
-    #     self.registro_table.resizeColumnsToContents()
+        self.create_config_card(
+            config_layout,
+            "🍽️",
+            "Cantidad de mesas",
+            self.mesas_input,
+            None,
+            self.save_config,
+            0, 1  # Posición en la cuadrícula
+        )
+        self.central_widget.addTab(config_widget, "Configuración")
 
+    def create_config_card(self, layout, emoji, label_text, input_ref, lista_items, save_callback, row, col):
+        """Crea una carta de configuración."""
+        card = QFrame()
+        card.setStyleSheet(
+            """
+            QFrame {
+                background-color: #FFFFFF;
+                border-radius: 10px;
+                padding: 10px;
+                margin: 5px;
+                min-height: 150px;
+            }
+            """
+        )
+        card_layout = QVBoxLayout(card)
+
+        emoji_label = QLabel(emoji)
+        emoji_label.setAlignment(Qt.AlignCenter)
+        emoji_label.setStyleSheet("font-size: 64px;")
+        card_layout.addWidget(emoji_label)
+
+        label = QLabel(label_text)
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        card_layout.addWidget(label)
+
+        if isinstance(input_ref, QComboBox):
+            input_ref.addItems(lista_items)  # Ejemplo de opciones
+            input_ref.setStyleSheet(
+                """
+                QComboBox {
+                    border: 2px solid #4CAF50;
+                    border-radius: 10px;
+                    padding: 12px;
+                    font-size: 18px;
+                    background-color: #FFFFFF;
+                }
+                QComboBox:hover {
+                    background-color: #4CAF50;
+                }
+                QComboBox::drop-down {
+                    border: none;
+                    background-color: #4CAF50;
+                    width: 25px;
+                }
+                QComboBox QAbstractItemView {
+                    font-size: 18px;
+                    font-weight: bold;
+                    background-color: #4CAF50;
+                    color: #000000;
+                    selection-background-color: #4CAF50;
+                    selection-color: #45a049;
+                    border-radius: 10px;
+                    border: 1px solid #4CAF50;
+                }
+                """
+            )
+        else:
+            input_ref.setStyleSheet(
+                """
+                QLineEdit {
+                    border: 2px solid #4CAF50;
+                    border-radius: 10px;
+                    padding: 12px;
+                    font-size: 18px;
+                }
+                """
+            )
+        card_layout.addWidget(input_ref)
+
+        save_button = QPushButton("Guardar cambios")
+        save_button.clicked.connect(lambda: save_callback(label_text))
+        save_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            """
+        )
+        card_layout.addWidget(save_button)
+
+        layout.addWidget(card, row, col)  # Añadir la carta a la posición especificada en la cuadrícula
+
+    def save_config(self, text_input):
+        """Guarda las configuraciones ingresadas por el usuario."""
+        try:
+            precio_cubiertos = self.cubiertos_input.text()
+            cantidad_mesas = self.mesas_input.text()
+            if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
+                with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
+                    config = json.load(f)
+            else:
+                config = [
+                    {"precio_cubiertos": 0},
+                    {"cantidad_mesas": 0},
+                ]
+            print(text_input)   
+
+            if text_input == "Precio de cubiertos":
+                config[0]["precio_cubiertos"] = str(precio_cubiertos)
+            elif text_input == "Cantidad de mesas":
+                config[1]["cantidad_mesas"] = int(cantidad_mesas)
+
+                self.update_mesas_count(int(cantidad_mesas))
+
+            with open(os.path.join(base_dir, "../Docs/Config.json"), "w", encoding="utf-8") as f:
+                json.dump(config, f, indent=4)
+
+            QMessageBox.information(self, "Configuración Guardada", "Las configuraciones han sido guardadas exitosamente.")
+        except ValueError:
+            QMessageBox.warning(self, "Error", "Por favor, ingrese valores válidos para las configuraciones.")
+    
+    def update_mesas_count(self, new_count):
+        # Actualizar la cantidad de mesas en el sistema
+        from Back.Menu_de_mesas_Back import creas_mesas, crea_mesas_tmp
+        creas_mesas(new_count)  # Asegúrate de que esta función esté correctamente implementada en la API
+        crea_mesas_tmp()  # Asegúrate de que esta función también esté correctamente implementada
+        self.cargar_mesas()  # Recargar las mesas en la interfaz
+
+    def load_cubiertos_price(self):
+        try:
+            with open(os.path.join(base_dir, "../Docs/config.json"), "r") as f:
+                config = json.load(f)
+                return config[0].get("precio_cubiertos", 0)
+        except FileNotFoundError:
+            return 0
+    def load_mesas_count(self):
+        try:
+            with open(os.path.join(base_dir, "../Docs/config.json"), "r") as f:
+                config = json.load(f)
+                return config[1].get("cantidad_mesas", 1)
+        except FileNotFoundError:
+            return 1
 
 if __name__ == "__main__":
     def exception_hook(exctype, value, traceback):

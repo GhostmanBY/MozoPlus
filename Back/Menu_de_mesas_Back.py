@@ -5,14 +5,11 @@ import sqlite3
 import json
 import datetime
 from fastapi.responses import JSONResponse
-from models import Mesa, ValorInput
+from Back.models import Mesa, ValorInput
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Captura de la hora de cierre de la mesa y el día
-fecha_hoy = datetime.datetime.now().date()
-fecha_txt = datetime.datetime.now()
-fecha = fecha_txt.strftime("%H:%M")
+
 
 # MARK: MESAS
 
@@ -47,24 +44,23 @@ async def ver_mesas():
 
 
 def crea_mesas_tmp():
-    print("creando mess tmp")
-    for i in os.listdir("tmp/"):
-        if os.path.isfile(i):
-            os.remove(i)
-            print(f"archivo eliminado: {i}")
-    """
-    Crea mesas con los valores por defecto en el directorio 'tmp'.
-    """
-    with open(
-        os.path.join(base_dir, f"../Docs/mesas.json"), "r", encoding="utf-8"
-    ) as file:
+    print("Creando mesas temporales")
+    
+    # Borrar todas las mesas existentes en la carpeta tmp
+    tmp_dir = os.path.join(base_dir, "../tmp")
+    for archivo in os.listdir(tmp_dir):
+        ruta_archivo = os.path.join(tmp_dir, archivo)
+        if os.path.isfile(ruta_archivo):
+            os.remove(ruta_archivo)
+    
+    # Generar nuevas mesas
+    with open(os.path.join(base_dir, "../Docs/mesas.json"), "r", encoding="utf-8") as file:
         mesas = json.load(file)
 
     for mesa in mesas:
-        with open(
-            os.path.join(base_dir, f"../tmp/{mesa}.json"), "w", encoding="utf-8"
-        ) as file:
+        with open(os.path.join(tmp_dir, f"{mesa}.json"), "w", encoding="utf-8") as file:
             json.dump(mesas[mesa], file, ensure_ascii=False, indent=4)
+        print(f"Mesa creada: {mesa}")
 
     return {
         "Disponible": True,
@@ -149,6 +145,10 @@ async def editar_mesa(mesa: int):
 
 
 async def abrir_mesa(mesa: int, mozo: str):
+    # Captura de la hora de cierre de la mesa y el día
+    fecha_hoy = datetime.datetime.now().date()
+    fecha_txt = datetime.datetime.now()
+    fecha = fecha_txt.strftime("%H:%M")
     """
     Abre una mesa y actualiza su disponibilidad a False.
     """
@@ -184,6 +184,11 @@ async def abrir_mesa(mesa: int, mozo: str):
 
 
 async def cerrar_mesa(mesa: int):
+    # Captura de la hora de cierre de la mesa y el día
+    fecha_hoy = datetime.datetime.now().date()
+    fecha_txt = datetime.datetime.now()
+    fecha = fecha_txt.strftime("%H:%M")
+    
     """
     Cierra una mesa y actualiza su disponibilidad a True.
     """
