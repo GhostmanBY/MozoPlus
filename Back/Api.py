@@ -16,7 +16,7 @@ from Menu_de_mesas_Back import (
     cerrar_mesa,
     crear_comanda,
 )
-from Panel_Admin_Back import obtener_menu_en_json
+from Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
 app = FastAPI()
 
@@ -197,6 +197,15 @@ async def ruta_menu():
         print(menu)
         # Devuelve el menú en formato JSON si todo es correcto.
         return menu
+
+@app.get("/precio")
+async def ruta_cubierto():
+    precio_cubierto = obtener_cubiertos_json()
+
+    if not precio_cubierto:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Precio no encontrado")
+    
+    return precio_cubierto
 
 # Bloque principal para ejecutar la aplicación con Uvicorn.
 # Este código solo se ejecuta si el archivo se ejecuta directamente.

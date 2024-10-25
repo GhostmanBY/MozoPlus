@@ -239,10 +239,16 @@ def Recargar_menu():
         json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
 def obtener_menu_en_json():
-    print(os.path.join(base_dir, "../Docs/Menu.json"))
     """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
         return json.load(file)
+
+def obtener_cubiertos_json():
+    with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as file:
+        configuracion = json.load(file)
+        precio_cubierto = configuracion[0]['precio_cubiertos']
+        precio_cubiertos_fnal = float(precio_cubierto[1:])
+        return precio_cubiertos_fnal
 
 if __name__ == "__main__":
     crear_tablas()
