@@ -95,35 +95,31 @@ async def login_out(name: str):
             ruta_mesas = os.path.join(base_dir, f"../Docs/Registro/{fecha_hoy}_{nombre_mozo}.json")
 
             if os.path.exists(ruta_mesas):
-                # Abre el archivo JSON que contiene las mesas del mozo
                 with open(ruta_mesas, "r", encoding="utf-8") as file:
                     mesas = json.load(file)
             else:
                 mesas = []
 
-            # Intenta cargar el archivo registro
             if os.path.exists(ruta_registro):
                 with open(ruta_registro, "r", encoding="utf-8") as file:
                     registro = json.load(file)
             else:
-                return "No se ha cargado el sistema de login"
+                return {"message": "No se ha cargado el sistema de login"}
 
-            # Busca el registro del mozo y actualiza la hora de salida
             for item in registro:
                 if nombre_mozo in item:
                     item[nombre_mozo]['Horario_salida'] = fecha
                     item[nombre_mozo]['Mesas totales'] = len(mesas)
                     break
             else:
-                return f"No se encontró el registro para el mozo {nombre_mozo}"
+                return {"message": f"No se encontró el registro para el mozo {nombre_mozo}"}
 
-            # Guarda el registro actualizado en el archivo JSON
             with open(ruta_registro, "w", encoding="utf-8") as file:
                 json.dump(registro, file, ensure_ascii=False, indent=4)
             
-            return f"Salida registrada para {nombre_mozo}"
+            return {"message": f"Salida registrada para {nombre_mozo}"}
 
-    return f"No se encontró el mozo {name}"
+    return {"message": f"No se encontró el mozo {name}"}
 
 if __name__ == "__main__":
     #verificar("admin")

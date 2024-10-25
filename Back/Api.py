@@ -57,17 +57,12 @@ async def ruta_verificar(code: str):
 @app.post("/salir/{name}")
 async def ruta_login_out(name: str):
     try:
-        # Llama a la función 'login_out' con el código del mozo.
         result = await login_out(name)
         
-        # Si no se encuentra el mozo, lanza un error 404.
-        if not result:
-            return {"message": "Salida exitosa."} # Si la salida es exitosa, se devuelve un mensaje de éxito.
-        elif "No se a cargado el sistem de login" in result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="mozo no logueado.")
-        
-    except HTTPException as http_exc:
-        raise http_exc
+        if isinstance(result, dict) and "message" in result:
+            return result
+        else:
+            return {"message": "Salida exitosa."}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -92,10 +87,12 @@ async def ruta_ver_mesas():
 @app.get("/mesas/cantidad")
 async def ruta_cantidad_mesas():
     try:
-        # Llama a la función 'cantidad_de_mesas' y devuelve el resultado.
-        return cantidad_de_mesas()
+        result = cantidad_de_mesas()
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+        return result
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
 
 # Ruta PUT para editar una mesa.
 # Recibe el número de la mesa y un JSON con los valores que se van a editar.
@@ -205,4 +202,4 @@ async def ruta_menu():
 # Este código solo se ejecuta si el archivo se ejecuta directamente.
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

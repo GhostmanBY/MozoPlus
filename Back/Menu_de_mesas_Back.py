@@ -106,37 +106,29 @@ async def guardar_mesa(mesa: int, input: ValorInput):
     """
     Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
     """
-    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")  # Consistencia en el nombre del archivo
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa}.json")
     try:
         with open(archivo, "r", encoding="utf-8") as file:
             contenido = json.load(file)
-        if contenido["Disponible"] == "true" or contenido["Disponible"] == True:
-            return JSONResponse(content=f"Mesa {mesa} no disponible", status_code=400)
+        
+        if contenido["Disponible"] == True:
+            return JSONResponse(content=f"Mesa {mesa} no está ocupada", status_code=400)
+        
         if input.categoria not in contenido:
-            return JSONResponse(
-                content=f"Categoría {input.categoria} no existe en la mesa {mesa}",
-                status_code=400,
-            )
+            return JSONResponse(content=f"Categoría {input.categoria} no existe en la mesa {mesa}", status_code=400)
 
-        # # Verifica que el tipo de datos sea una lista
-        # if not isinstance(contenido[input.categoria], list):
-        #     return JSONResponse(
-        #         content=f"La categoría {input.categoria} no es una lista",
-        #         status_code=400,
-        #     )
-
-        if isinstance(input.categoria, list):
-            contenido[input.categoria].extend(input.valor)
+        if isinstance(input.valor, list):
+            if isinstance(contenido[input.categoria], list):
+                contenido[input.categoria].extend(input.valor)
+            else:
+                contenido[input.categoria] = input.valor
         else:
             contenido[input.categoria] = input.valor
 
         with open(archivo, "w", encoding="utf-8") as file:
             json.dump(contenido, file, ensure_ascii=False, indent=4)
 
-        return JSONResponse(
-            content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}",
-            media_type="application/json",
-        )
+        return JSONResponse(content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}", media_type="application/json")
     except Exception as e:
         return JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
 
@@ -276,15 +268,26 @@ def cantidad_de_mesas():
     Cuenta la cantidad de mesas totales.
     """
     cantidad = {"tables": []}
-
-
-    for i in range(len(os.listdir(os.path.join(base_dir, "../tmp")))):
-        with open(os.path.join(base_dir, f"../tmp/Mesa {i+1}.json"), "r", encoding="utf-8") as file:
-            mesa_tmp = json.load(file)
-        cantidad["tables"].append({"id": i + 1,"Dispo": mesa_tmp["Disponible"]})
-    return cantidad
-
-    # return cantidad
+    directorio_tmp = os.path.join(base_dir, "../tmp")
+    
+    try:
+        print(f"Directorio tmp: {directorio_tmp}")
+        archivos = sorted(os.listdir(directorio_tmp))
+        print(f"Archivos en tmp: {archivos}")
+        
+        for i, archivo in enumerate(archivos):
+            if archivo.startswith("Mesa") and archivo.endswith(".json"):
+                ruta_archivo = os.path.join(directorio_tmp, archivo)
+                print(f"Procesando archivo: {ruta_archivo}")
+                with open(ruta_archivo, "r", encoding="utf-8") as file:
+                    mesa_tmp = json.load(file)
+                cantidad["tables"].append({"id": i + 1, "Dispo": mesa_tmp["Disponible"]})
+        
+        print(f"Cantidad final: {cantidad}")
+        return cantidad
+    except Exception as e:
+        print(f"Error al procesar las mesas: {str(e)}")
+        return {"error": f"Error al procesar las mesas: {str(e)}"}
 
 
 async def crear_comanda(mesa):
@@ -397,3 +400,6 @@ if __name__ == "__main__":
     creas_mesas(10)
     crea_mesas_tmp()
     
+
+
+
