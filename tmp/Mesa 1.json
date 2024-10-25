@@ -1,15 +1,11 @@
 {
     "Mesa": 1,
-    "Disponible": false,
-    "productos": [
-        "vino",
-        "sorrentino"
-    ],
+    "Disponible": true,
+    "productos": [],
     "cantidad_comensales": 0,
     "comensales_infantiles": 0,
-    "Mozo": "TestMozo",
-    "Hora": "13:00",
-    "Fecha": "2024-10-25",
+    "Mozo": [],
     "Pagado": false,
-    "Metodo": ""
+    "Metodo": "",
+    "Extra": null
 }
