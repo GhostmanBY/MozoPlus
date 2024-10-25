@@ -949,7 +949,6 @@ class RestaurantInterface(QMainWindow):
             code_layout = QHBoxLayout()
             code_label = QLabel("Código:")
             code_input = QLineEdit(code)
-            code_input.setDisabled(True)
             code_layout.addWidget(code_label)
             code_layout.addWidget(code_input)
             layout.addLayout(code_layout)
@@ -964,14 +963,14 @@ class RestaurantInterface(QMainWindow):
 
             save_button = QPushButton("Guardar")
             save_button.clicked.connect(
-                lambda: self.save_mozo_edit(name, name_input.text(), dialog)
+                lambda: self.save_mozo_edit(name, name_input.text(), code, code_input.text(),dialog)
             )
             layout.addWidget(save_button, alignment=Qt.AlignCenter)
 
             dialog.setLayout(layout)
             dialog.exec_()
 
-    def save_mozo_edit(self, old_name, new_name, dialog):
+    def save_mozo_edit(self, old_name, new_name, code_old, code_new ,dialog):
         if old_name != new_name:
             if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", new_name):
                 QMessageBox.warning(
@@ -979,8 +978,15 @@ class RestaurantInterface(QMainWindow):
                 )
             else:
                 Editar_Mozo(old_name, "Nombre", new_name)
-                self.load_mozos()
-                dialog.close()
+
+        if old_name == new_name and code_old != code_new:
+            Editar_Mozo(old_name, "Codigo", code_new)
+        elif old_name != new_name and code_old != code_new:
+            Editar_Mozo(new_name, "Codigo", code_new)
+
+        self.load_mozos()
+        dialog.close()
+
 
     def delete_mozo(self, name):
         reply = QMessageBox.question(
