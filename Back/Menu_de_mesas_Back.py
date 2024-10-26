@@ -5,7 +5,7 @@ import sqlite3
 import json
 import datetime
 from fastapi.responses import JSONResponse
-from Back.models import Mesa, ValorInput
+from models import Mesa, ValorInput
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -117,7 +117,7 @@ async def guardar_mesa(mesa: int, input: ValorInput):
 
         if isinstance(input.valor, list):
             if isinstance(contenido[input.categoria], list):
-                contenido[input.categoria].extend(input.valor)
+                contenido[input.categoria] = input.valor
             else:
                 contenido[input.categoria] = input.valor
         else:

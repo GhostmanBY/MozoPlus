@@ -216,7 +216,7 @@ class RestaurantInterface(QMainWindow):
                 with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
                     config = json.load(f)
                     precio_cubiertos = config[0].get("precio_cubiertos", 0)
-                total_general += int(precio_cubiertos)
+                total_general += float(precio_cubiertos[1:])
                 
                 Precio_total_label = QLabel(f"Total: ${total_general}")
                 entry_layout.addWidget(Precio_total_label)
@@ -236,11 +236,12 @@ class RestaurantInterface(QMainWindow):
 
         for filename in os.listdir(docs_dir):
             for mozo in enumerate(data):
-                if filename == f"{fecha_hoy}_{mozo[1][1]}.json":
+               if os.path.join(docs_dir, filename) == os.path.join(docs_dir, f"{fecha_hoy}_{mozo[1][1]}.json"):
                     if filename.endswith(".json"):
                         mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
+                        print(mozo_name)
                         date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
-                        
+                        print(date_str)
                         with open(os.path.join(docs_dir, filename), "r", encoding="utf-8") as file:
                             entries = json.load(file)
 
@@ -253,7 +254,7 @@ class RestaurantInterface(QMainWindow):
                                     "mesa": entry["Mesa"],
                                     "hora": entry["Hora"],
                                     "hora_cierre": entry["Hora_cierre"],
-                                    "productos": entry["productos"],
+                                    "productos": entry["productos"][1:],
                                 }
                             )
         return resumen
@@ -1278,6 +1279,19 @@ class RestaurantInterface(QMainWindow):
         comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
         aclaraciones = pedido_json.get("Extra", "")
 
+        """producto_tmp = None
+        data = []
+        for producto in productos:
+            cantidad = 0
+            for categoria in menu["menu"]:
+                for pedido in menu["menu"][categoria]:
+                    if producto == pedido["name"]:
+                        if producto_tmp == None or producto != producto_tmp:    
+                            Precio_producto = pedido["price"]
+                            cantidad += productos.count(producto)
+                            producto_tmp = producto
+                            print(f"Producto: {producto}, Cantidad:{cantidad}, Precio: {Precio_producto}")"""
+                
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
         if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
@@ -1369,21 +1383,25 @@ class RestaurantInterface(QMainWindow):
             """
 
             total_general = 0
+            producto_tmp = []
             for producto in productos:
+                cantidad = 0
                 for categoria in menu["menu"]:
                     for pedido in menu["menu"][categoria]:
                         if producto == pedido["name"]:
-                            precio = pedido["price"]
-                            total = precio
-                            total_general += total
-                            comanda_texto += f"""
-                            <tr>
-                                <td>{producto}</td>
-                                <td>1</td>
-                                <td>${precio:.2f}</td>
-                                <td>${total:.2f}</td>
-                            </tr>
-                            """
+                            if producto not in producto_tmp:    
+                                cantidad += productos.count(producto)
+                                Precio_producto = pedido["price"]*cantidad 
+                                producto_tmp.append(producto)
+                                total_general += Precio_producto
+                                comanda_texto += f"""
+                                <tr>
+                                    <td>{producto}</td>
+                                    <td>{cantidad}</td>
+                                    <td>${Precio_producto:.2f}</td>
+                                    <td>${Precio_producto:.2f}</td>
+                                </tr>
+                                """
 
             comanda_texto += f"""
                 <tr class="total">
