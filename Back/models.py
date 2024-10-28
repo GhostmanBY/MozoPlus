@@ -5,6 +5,7 @@ class Mesa(BaseModel):
     productos: list
     cantidad_comensales: int
     comensales_infantiles: list
+    Extra: str
 
 
 class ValorInput(BaseModel):

@@ -1,11 +1,17 @@
 {
     "Mesa": 1,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": [
+        "Gaseosa",
+        "Agua mineral gasificada",
+        "Agua mineral"
+    ],
     "cantidad_comensales": 0,
     "comensales_infantiles": 0,
-    "Mozo": [],
+    "Mozo": "Santiago Mono",
+    "Hora": "16:52",
+    "Fecha": "2024-10-28",
     "Pagado": false,
     "Metodo": "",
-    "Extra": null
+    "Extra": "carne sin carne"
 }

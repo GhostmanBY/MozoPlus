@@ -166,6 +166,7 @@ async def abrir_mesa(mesa: int, mozo: str):
         "Fecha": str(fecha_hoy),
         "Pagado": False,
         "Metodo": "",
+        "Extra": None
     }
 
     try:
