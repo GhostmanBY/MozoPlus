@@ -29,9 +29,13 @@ from PyQt5.QtWidgets import (
     QDialog,  # Asegúrate de que QTabBar esté importado
     QSizePolicy,  # Asegúrate de que QSizePolicy esté importado
     QFrame,
-    QComboBox
+    QComboBox,
+    QToolBar,
+    QToolButton,
+    QMenu,
+    QAction
 )
-from PyQt5.QtGui import QFont, QColor, QPalette
+from PyQt5.QtGui import QFont, QColor, QPalette, QIcon
 from PyQt5.QtCore import Qt, QTimer
 from datetime import datetime
 from Back.Panel_Admin_Back import (
@@ -84,14 +88,13 @@ class RestaurantInterface(QMainWindow):
         self.setup_menu_tab()
         self.setup_info_tab()
 
-        # Añadir una pestaña de configuración
-        self.setup_config_tab()
-
         # Configurar el temporizador para actualización automática
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.cargar_mesas)
         self.timer.start(5000)  # Actualizar cada 5 segundos (5000 ms)
 
+        """Configura un menú desplegable para las opciones de configuración."""
+        self.setup_config_menu()
 
     def setup_info_tab(self):
         info_widget = QWidget()
@@ -159,7 +162,6 @@ class RestaurantInterface(QMainWindow):
             """
             )
             fecha_layout = QVBoxLayout(fecha_frame)
-
             fecha_label = QLabel(f"Fecha: {fecha}")
             fecha_label.setStyleSheet(
                 """
@@ -216,7 +218,7 @@ class RestaurantInterface(QMainWindow):
                 with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
                     config = json.load(f)
                     precio_cubiertos = config[0].get("precio_cubiertos", 0)
-                total_general += float(precio_cubiertos[1:])
+                total_general += int(precio_cubiertos)
                 
                 Precio_total_label = QLabel(f"Total: ${total_general}")
                 entry_layout.addWidget(Precio_total_label)
@@ -236,12 +238,11 @@ class RestaurantInterface(QMainWindow):
 
         for filename in os.listdir(docs_dir):
             for mozo in enumerate(data):
-               if os.path.join(docs_dir, filename) == os.path.join(docs_dir, f"{fecha_hoy}_{mozo[1][1]}.json"):
+                if filename == f"{fecha_hoy}_{mozo[1][1]}.json":
                     if filename.endswith(".json"):
                         mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
-                        print(mozo_name)
                         date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
-                        print(date_str)
+                        
                         with open(os.path.join(docs_dir, filename), "r", encoding="utf-8") as file:
                             entries = json.load(file)
 
@@ -254,7 +255,7 @@ class RestaurantInterface(QMainWindow):
                                     "mesa": entry["Mesa"],
                                     "hora": entry["Hora"],
                                     "hora_cierre": entry["Hora_cierre"],
-                                    "productos": entry["productos"][1:],
+                                    "productos": entry["productos"],
                                 }
                             )
         return resumen
@@ -404,7 +405,7 @@ class RestaurantInterface(QMainWindow):
                 self, "Error", "Porfavor, no ingrese caracteres invalido."
             )
             return
-        elif not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", name):
+        elif not re.match(r"^[a-zA-ZéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", name):
             QMessageBox.warning(
                 self, "Error", "Porfavor, no ingrese caracteres invalido."
             )
@@ -912,33 +913,41 @@ class RestaurantInterface(QMainWindow):
                 """
                 QDialog {
                     background-color: #f5f5f5;
-                    border-radius: 10px;
+                    border-radius: 15px;
+                    border: 1px solid #dcdcdc;
                 }
                 QLabel {
-                    font-size: 14px;
+                    font-size: 18px;
+                    font-weight: bold;
                     color: #333;
-                    min-width: 60px;
+                    margin-bottom: 10px;
                 }
                 QLineEdit {
-                    padding: 10px;
-                    font-size: 14px;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
+                    font-size: 16px;
+                    padding: 12px;
+                    border: 2px solid #4CAF50;
+                    border-radius: 8px;
                     background-color: white;
+                    color: #333;
                 }
-                QLineEdit:disabled {
-                    background-color: #e0e0e0;
+                QLineEdit:focus {
+                    border-color: #45a049;
                 }
                 QPushButton {
+                    font-size: 16px;
+                    font-weight: bold;
+                    padding: 12px 24px;
                     background-color: #4CAF50;
                     color: white;
-                    padding: 10px 20px;
                     border: none;
-                    border-radius: 5px;
-                    font-size: 16px;
+                    border-radius: 8px;
+                    margin-top: 20px;
                 }
                 QPushButton:hover {
                     background-color: #45a049;
+                }
+                QPushButton:pressed {
+                    background-color: #3d8b40;
                 }
             """
             )
@@ -950,6 +959,7 @@ class RestaurantInterface(QMainWindow):
             code_layout = QHBoxLayout()
             code_label = QLabel("Código:")
             code_input = QLineEdit(code)
+            code_input.setDisabled(True)
             code_layout.addWidget(code_label)
             code_layout.addWidget(code_input)
             layout.addLayout(code_layout)
@@ -964,14 +974,14 @@ class RestaurantInterface(QMainWindow):
 
             save_button = QPushButton("Guardar")
             save_button.clicked.connect(
-                lambda: self.save_mozo_edit(name, name_input.text(), code, code_input.text(),dialog)
+                lambda: self.save_mozo_edit(name, name_input.text(), dialog)
             )
             layout.addWidget(save_button, alignment=Qt.AlignCenter)
 
             dialog.setLayout(layout)
             dialog.exec_()
 
-    def save_mozo_edit(self, old_name, new_name, code_old, code_new ,dialog):
+    def save_mozo_edit(self, old_name, new_name, dialog):
         if old_name != new_name:
             if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", new_name):
                 QMessageBox.warning(
@@ -979,15 +989,8 @@ class RestaurantInterface(QMainWindow):
                 )
             else:
                 Editar_Mozo(old_name, "Nombre", new_name)
-
-        if old_name == new_name and code_old != code_new:
-            Editar_Mozo(old_name, "Codigo", code_new)
-        elif old_name != new_name and code_old != code_new:
-            Editar_Mozo(new_name, "Codigo", code_new)
-
-        self.load_mozos()
-        dialog.close()
-
+                self.load_mozos()
+                dialog.close()
 
     def delete_mozo(self, name):
         reply = QMessageBox.question(
@@ -1279,19 +1282,6 @@ class RestaurantInterface(QMainWindow):
         comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
         aclaraciones = pedido_json.get("Extra", "")
 
-        """producto_tmp = None
-        data = []
-        for producto in productos:
-            cantidad = 0
-            for categoria in menu["menu"]:
-                for pedido in menu["menu"][categoria]:
-                    if producto == pedido["name"]:
-                        if producto_tmp == None or producto != producto_tmp:    
-                            Precio_producto = pedido["price"]
-                            cantidad += productos.count(producto)
-                            producto_tmp = producto
-                            print(f"Producto: {producto}, Cantidad:{cantidad}, Precio: {Precio_producto}")"""
-                
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
         if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
@@ -1307,7 +1297,6 @@ class RestaurantInterface(QMainWindow):
                 .comanda {{
                     background-color: #ffffff;
                     border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                     padding: 30px;
                     width: 100%;
                     box-sizing: border-box;
@@ -1383,25 +1372,21 @@ class RestaurantInterface(QMainWindow):
             """
 
             total_general = 0
-            producto_tmp = []
             for producto in productos:
-                cantidad = 0
                 for categoria in menu["menu"]:
                     for pedido in menu["menu"][categoria]:
                         if producto == pedido["name"]:
-                            if producto not in producto_tmp:    
-                                cantidad += productos.count(producto)
-                                Precio_producto = pedido["price"]*cantidad 
-                                producto_tmp.append(producto)
-                                total_general += Precio_producto
-                                comanda_texto += f"""
-                                <tr>
-                                    <td>{producto}</td>
-                                    <td>{cantidad}</td>
-                                    <td>${Precio_producto:.2f}</td>
-                                    <td>${Precio_producto:.2f}</td>
-                                </tr>
-                                """
+                            precio = pedido["price"]
+                            total = precio
+                            total_general += total
+                            comanda_texto += f"""
+                            <tr>
+                                <td>{producto}</td>
+                                <td>1</td>
+                                <td>${precio:.2f}</td>
+                                <td>${total:.2f}</td>
+                            </tr>
+                            """
 
             comanda_texto += f"""
                 <tr class="total">
@@ -1423,7 +1408,6 @@ class RestaurantInterface(QMainWindow):
                 .comanda-vacia {{
                     background-color: #ffffff;
                     border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                     padding: 30px;
                     width: 100%;
                     box-sizing: border-box;
@@ -1489,153 +1473,175 @@ class RestaurantInterface(QMainWindow):
         except ValueError:
             return fecha_str
 
-    def setup_config_tab(self):
-        """Configura la pestaña de configuración con opciones."""
-        config_widget = QWidget()
-        config_layout = QGridLayout(config_widget)  # Usar QGridLayout para disposición en cuadrícula
-
-        # Crear cartas dinámicamente
-        self.create_config_card(
-            config_layout,
-            "💰",
-            "Precio de cubiertos",
-            self.cubiertos_input,
-            None,
-            self.save_config,
-            0, 0  # Posición en la cuadrícula
-        )
-
-        self.create_config_card(
-            config_layout,
-            "🍽️",
-            "Cantidad de mesas",
-            self.mesas_input,
-            None,
-            self.save_config,
-            0, 1  # Posición en la cuadrícula
-        )
-        self.central_widget.addTab(config_widget, "Configuración")
-
-    def create_config_card(self, layout, emoji, label_text, input_ref, lista_items, save_callback, row, col):
-        """Crea una carta de configuración."""
-        card = QFrame()
-        card.setStyleSheet(
+    def setup_config_menu(self):
+        self.config_button = QToolButton(self)
+        self.config_button.setText("⚙️")
+        self.config_button.setFont(QFont("Arial", 14))
+        self.config_button.setPopupMode(QToolButton.InstantPopup)
+        self.config_button.setStyleSheet(
             """
-            QFrame {
-                background-color: #FFFFFF;
-                border-radius: 10px;
-                padding: 10px;
-                margin: 5px;
-                min-height: 150px;
+            QToolButton {
+                color: #555555;
+                background-color: transparent;
+                border: none;
+                padding: 15px;  
+                margin: 30px;
+                margin-right: 0px;  
+            }
+            QToolButton:hover {
+                background-color: rgba(224, 224, 224, 0.5);
+                border-radius: 5px;
+            }
+            QToolButton:pressed {
+                background-color: rgba(200, 200, 200, 0.7);
+            }
+            QToolButton::menu-indicator {
+                image: none;
             }
             """
         )
-        card_layout = QVBoxLayout(card)
 
-        emoji_label = QLabel(emoji)
-        emoji_label.setAlignment(Qt.AlignCenter)
-        emoji_label.setStyleSheet("font-size: 64px;")
-        card_layout.addWidget(emoji_label)
-
-        label = QLabel(label_text)
-        label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        card_layout.addWidget(label)
-
-        if isinstance(input_ref, QComboBox):
-            input_ref.addItems(lista_items)  # Ejemplo de opciones
-            input_ref.setStyleSheet(
-                """
-                QComboBox {
-                    border: 2px solid #4CAF50;
-                    border-radius: 10px;
-                    padding: 12px;
-                    font-size: 18px;
-                    background-color: #FFFFFF;
-                }
-                QComboBox:hover {
-                    background-color: #4CAF50;
-                }
-                QComboBox::drop-down {
-                    border: none;
-                    background-color: #4CAF50;
-                    width: 25px;
-                }
-                QComboBox QAbstractItemView {
-                    font-size: 18px;
-                    font-weight: bold;
-                    background-color: #4CAF50;
-                    color: #000000;
-                    selection-background-color: #4CAF50;
-                    selection-color: #45a049;
-                    border-radius: 10px;
-                    border: 1px solid #4CAF50;
-                }
-                """
-            )
-        else:
-            input_ref.setStyleSheet(
-                """
-                QLineEdit {
-                    border: 2px solid #4CAF50;
-                    border-radius: 10px;
-                    padding: 12px;
-                    font-size: 18px;
-                }
-                """
-            )
-        card_layout.addWidget(input_ref)
-
-        save_button = QPushButton("Guardar cambios")
-        save_button.clicked.connect(lambda: save_callback(label_text))
-        save_button.setStyleSheet(
+        config_menu = QMenu(self)
+        config_menu.setStyleSheet(
             """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
+            QMenu {
+                background-color: white;
+                border: 1px solid #44dc4a;
+                padding: 8px;
+                border-radius: 12px;
+                font-size: 14px;
+            }
+            QMenu::item {
                 padding: 10px 20px;
-                border-radius: 10px;
+                border-radius: 8px;
+                background-color: #4caf50;
+                margin-bottom: 5px;
+            }
+            QMenu::item:selected {
+                background-color: #45A049;
+            }
+            QMenu::icon {
+                padding-right: 12px;
+            }
+            """
+        )
+
+        cubiertos_action = QAction("💰 Precio de cubiertos", self)
+        cubiertos_action.triggered.connect(lambda: self.show_config_dialog("Precio de cubiertos"))
+        config_menu.addAction(cubiertos_action)
+
+        mesas_action = QAction("🍽️ Cantidad de mesas", self)
+        mesas_action.triggered.connect(lambda: self.show_config_dialog("Cantidad de mesas"))
+        config_menu.addAction(mesas_action)
+
+        self.central_widget.setCornerWidget(self.config_button, Qt.TopRightCorner)
+        self.config_button.setMenu(config_menu)
+
+    def show_config_dialog(self, config_type):
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Configurar {config_type}")
+        dialog.setFixedSize(420, 270)
+        layout = QVBoxLayout(dialog)
+
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #f5f5f5;
+                border-radius: 18px;
+                border: 1px solid #d0d0d0;
+            }
+            QLabel {
                 font-size: 18px;
                 font-weight: bold;
+                color: #333;
+                margin-bottom: 12px;
+            }
+            QLineEdit {
+                font-size: 16px;
+                padding: 12px;
+                border: 2px solid #44dc4a;
+                border-radius: 10px;
+                background-color: white;
+                color: #333;
+            }
+            QLineEdit:focus {
+                border-color: #44dc4a;
+            }
+            QPushButton {
+                font-size: 16px;
+                font-weight: bold;
+                padding: 12px 24px;
+                background-color: #31b736;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                margin-top: 20px;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                background-color: #45A049;
             }
-            """
-        )
-        card_layout.addWidget(save_button)
+            QPushButton:pressed {
+                background-color: #2471a3;
+            }
+        """)
 
-        layout.addWidget(card, row, col)  # Añadir la carta a la posición especificada en la cuadrícula
+        icon_label = QLabel()
+        if config_type == "Precio de cubiertos":
+            icon_label.setText("💰")
+            input_widget = self.cubiertos_input
+        else:  # Cantidad de mesas
+            icon_label.setText("🍽️")
+            input_widget = self.mesas_input
 
-    def save_config(self, text_input):
-        """Guarda las configuraciones ingresadas por el usuario."""
+        icon_label.setStyleSheet("font-size: 48px; margin-right: 15px;")
+
+        header_layout = QHBoxLayout()
+        header_layout.addWidget(icon_label)
+        header_layout.addWidget(QLabel(f"{config_type}"))
+        layout.addLayout(header_layout)
+
+        input_widget.setPlaceholderText(f"Ingrese {config_type.lower()}")
+        layout.addWidget(input_widget)
+
+        save_button = QPushButton("Guardar")
+        save_button.clicked.connect(lambda: self.save_config(config_type, dialog))
+        layout.addWidget(save_button, alignment=Qt.AlignCenter)
+
+        layout.addStretch()
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+    def save_config(self, config_type, dialog):
         try:
-            precio_cubiertos = self.cubiertos_input.text()
-            cantidad_mesas = self.mesas_input.text()
-            if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
-                with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
-                    config = json.load(f)
-            else:
-                config = [
-                    {"precio_cubiertos": 0},
-                    {"cantidad_mesas": 0},
-                ]
-            print(text_input)   
-
-            if text_input == "Precio de cubiertos":
+            if config_type == "Precio de cubiertos":
+                precio_cubiertos = self.cubiertos_input.text()
+                if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
+                    with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
+                        config = json.load(f)
+                else:
+                    config = [{"precio_cubiertos": 0}, {"cantidad_mesas": 0}]
+                
                 config[0]["precio_cubiertos"] = str(precio_cubiertos)
-            elif text_input == "Cantidad de mesas":
-                config[1]["cantidad_mesas"] = int(cantidad_mesas)
-
-                self.update_mesas_count(int(cantidad_mesas))
+            
+            elif config_type == "Cantidad de mesas":
+                cantidad_mesas = int(self.mesas_input.text())
+                if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
+                    with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
+                        config = json.load(f)
+                else:
+                    config = [{"precio_cubiertos": 0}, {"cantidad_mesas": 0}]
+                
+                config[1]["cantidad_mesas"] = cantidad_mesas
+                self.update_mesas_count(cantidad_mesas)
 
             with open(os.path.join(base_dir, "../Docs/Config.json"), "w", encoding="utf-8") as f:
                 json.dump(config, f, indent=4)
 
-            QMessageBox.information(self, "Configuración Guardada", "Las configuraciones han sido guardadas exitosamente.")
+            QMessageBox.information(dialog, "Configuración Guardada", "La configuración ha sido guardada exitosamente.")
+            dialog.accept()
         except ValueError:
-            QMessageBox.warning(self, "Error", "Por favor, ingrese valores válidos para las configuraciones.")
-    
+            QMessageBox.warning(dialog, "Error", "Por favor, ingrese un valor válido.")
+
     def update_mesas_count(self, new_count):
         # Actualizar la cantidad de mesas en el sistema
         from Back.Menu_de_mesas_Back import creas_mesas, crea_mesas_tmp
@@ -1664,7 +1670,7 @@ if __name__ == "__main__":
         print("Traceback:")
         print("".join(traceback.format_tb(traceback)))
         sys.__excepthook__(exctype, value, traceback)
-        sys.exit(1)
+        sys.exit(1) 
 
     sys.excepthook = exception_hook
 
