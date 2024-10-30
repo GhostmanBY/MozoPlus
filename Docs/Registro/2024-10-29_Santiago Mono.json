@@ -5,7 +5,12 @@
         "productos": [
             "Agua mineral gasificada",
             "Gaseosa",
-            "Agua mineral"
+            "Agua mineral",
+            "Agua mineral gasificada",
+            "Agua mineral gasificada",
+            "Gaseosa",
+            "Agua mineral",
+            "Agua mineral gasificada"
         ],
         "cantidad_comensales": 2,
         "comensales_infantiles": 0,

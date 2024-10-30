@@ -1,12 +1,11 @@
 {
     "Mesa": 10,
-    "Disponible": false,
+    "Disponible": true,
     "productos": [],
     "cantidad_comensales": 0,
     "comensales_infantiles": 0,
-    "Mozo": "Santiago Mono",
-    "Hora": "16:34",
-    "Fecha": "2024-10-28",
+    "Mozo": [],
     "Pagado": false,
-    "Metodo": ""
+    "Metodo": "",
+    "Extra": null
 }

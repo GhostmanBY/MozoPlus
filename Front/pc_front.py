@@ -201,7 +201,22 @@ class RestaurantInterface(QMainWindow):
                 hora_cierre_label = QLabel(f"Hora Cierre: {entry['hora_cierre']}")
                 entry_layout.addWidget(hora_cierre_label)
 
-                productos_label = QLabel(f"Productos: {', '.join(entry['productos'])}")
+                pedido_tmp = []
+                pedido_final = []
+                for producto in entry['productos']:
+                    cantidad = 0
+                    if producto not in pedido_tmp:
+                        cantidad = entry['productos'].count(producto)
+                        pedido = f"{producto} {cantidad}X"
+                        pedido_final.append(pedido)
+                        pedido_tmp.append(producto)
+                    else:
+                        if producto not in pedido_tmp:
+                            pedido = f"{producto} 1X"
+                            pedido_final.append(pedido)
+                            pedido_tmp.append(producto)
+
+                productos_label = QLabel(f"Productos: {', '.join(pedido_final)}")
                 productos_label.setWordWrap(True)
                 productos_label.setStyleSheet("color: #27ae60;")
                 entry_layout.addWidget(productos_label)
@@ -218,7 +233,7 @@ class RestaurantInterface(QMainWindow):
                 with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
                     config = json.load(f)
                     precio_cubiertos = config[0].get("precio_cubiertos", 0)
-                total_general += int(precio_cubiertos)
+                total_general += float(precio_cubiertos[1:])
                 
                 Precio_total_label = QLabel(f"Total: ${total_general}")
                 entry_layout.addWidget(Precio_total_label)
@@ -1372,21 +1387,25 @@ class RestaurantInterface(QMainWindow):
             """
 
             total_general = 0
+            producto_tmp = []
             for producto in productos:
+                cantidad = 0
                 for categoria in menu["menu"]:
                     for pedido in menu["menu"][categoria]:
                         if producto == pedido["name"]:
-                            precio = pedido["price"]
-                            total = precio
-                            total_general += total
-                            comanda_texto += f"""
-                            <tr>
-                                <td>{producto}</td>
-                                <td>1</td>
-                                <td>${precio:.2f}</td>
-                                <td>${total:.2f}</td>
-                            </tr>
-                            """
+                             if producto not in producto_tmp:    
+                                cantidad += productos.count(producto)
+                                Precio_producto = pedido["price"]*cantidad 
+                                producto_tmp.append(producto)
+                                total_general += Precio_producto
+                                comanda_texto += f"""
+                                <tr>
+                                    <td>{producto}</td>
+                                    <td>{cantidad}</td>
+                                    <td>${Precio_producto:.2f}</td>
+                                    <td>${Precio_producto:.2f}</td>
+                                </tr>
+                                """
 
             comanda_texto += f"""
                 <tr class="total">
@@ -1516,6 +1535,7 @@ class RestaurantInterface(QMainWindow):
                 border-radius: 8px;
                 background-color: #4caf50;
                 margin-bottom: 5px;
+                color: white
             }
             QMenu::item:selected {
                 background-color: #45A049;
@@ -1533,6 +1553,10 @@ class RestaurantInterface(QMainWindow):
         mesas_action = QAction("🍽️ Cantidad de mesas", self)
         mesas_action.triggered.connect(lambda: self.show_config_dialog("Cantidad de mesas"))
         config_menu.addAction(mesas_action)
+
+        reset_action = QAction("🔄 Recargar mesas", self)
+        reset_action.triggered.connect(self.reset_mesas)
+        config_menu.addAction(reset_action)
 
         self.central_widget.setCornerWidget(self.config_button, Qt.TopRightCorner)
         self.config_button.setMenu(config_menu)
@@ -1588,7 +1612,7 @@ class RestaurantInterface(QMainWindow):
         if config_type == "Precio de cubiertos":
             icon_label.setText("💰")
             input_widget = self.cubiertos_input
-        else:  # Cantidad de mesas
+        elif config_type == "Cantidad de mesas":  # Cantidad de mesas
             icon_label.setText("🍽️")
             input_widget = self.mesas_input
 
@@ -1611,6 +1635,16 @@ class RestaurantInterface(QMainWindow):
         dialog.setLayout(layout)
         dialog.exec_()
 
+    def reset_mesas(self):
+        if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
+            with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
+                config = json.load(f)
+        else:
+            config = [{"precio_cubiertos": 0}, {"cantidad_mesas": 0}]
+        
+        self.update_mesas_count(config[1]['cantidad_mesas'])
+        
+    
     def save_config(self, config_type, dialog):
         try:
             if config_type == "Precio de cubiertos":
