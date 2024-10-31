@@ -4,6 +4,7 @@ import os
 import re
 import socket
 import datetime
+import requests
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -48,6 +49,7 @@ from Back.Panel_Admin_Back import (
     Cargar_Producto,
     Eliminar_Producto,
     Recargar_menu,
+    obtener_resumen_por_fecha,
 )
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -81,6 +83,11 @@ class RestaurantInterface(QMainWindow):
         self.mesas_input.setPlaceholderText(f"{self.load_mesas_count()}")
         self.idioma_input = QComboBox()
 
+        # Inicializar los atributos de entrada para la búsqueda
+        self.fecha_input = QLineEdit()
+        self.fecha_input.setPlaceholderText("YYYY-MM-DD")
+        self.mozo_input = QLineEdit()
+        self.mozo_input.setPlaceholderText("Nombre del Mozo")
 
         # Configurar la interfaz principal
         self.setup_main_tab()
@@ -99,6 +106,20 @@ class RestaurantInterface(QMainWindow):
     def setup_info_tab(self):
         info_widget = QWidget()
         info_layout = QVBoxLayout(info_widget)
+
+        # Añadir campos de entrada para la búsqueda
+        search_layout = QHBoxLayout()
+        search_layout.addWidget(QLabel("Fecha:"))
+        search_layout.addWidget(self.fecha_input)
+        search_layout.addWidget(QLabel("Mozo:"))
+        search_layout.addWidget(self.mozo_input)
+
+        # Botón de búsqueda
+        search_button = QPushButton("Buscar")
+        search_button.clicked.connect(self.buscar_resumen)
+        search_layout.addWidget(search_button)
+
+        info_layout.addLayout(search_layout)
 
         # Estilo para el widget de desplazamiento
         self.scroll_area.setStyleSheet(
@@ -137,6 +158,117 @@ class RestaurantInterface(QMainWindow):
         info_layout.addWidget(load_button)
 
         self.central_widget.addTab(info_widget, "Resumen")
+
+    def buscar_resumen(self):
+        fecha = self.fecha_input.text()
+        mozo = self.mozo_input.text() if self.mozo_input.text() else None
+
+        # Llamar a la función para obtener el resumen por fecha y mozo
+        resumen = obtener_resumen_por_fecha(fecha, mozo)
+        if resumen:
+            self.mostrar_resumen(resumen)
+        else:
+            QMessageBox.warning(self, "Búsqueda", "No se encontraron registros para los criterios especificados.")
+
+    def mostrar_resumen(self, registros):
+        # Limpiar el layout de scroll existente
+        for i in reversed(range(self.scroll_layout.count())):
+            widget = self.scroll_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.setParent(None)
+
+        for fecha, data in registros.items():
+            fecha_frame = QFrame()
+            fecha_frame.setStyleSheet(
+                """
+                QFrame {
+                    background-color: #ecf0f1;
+                    border-radius: 10px;
+                    margin: 10px;
+                    padding: 10px;
+                }
+            """
+            )
+            fecha_layout = QVBoxLayout(fecha_frame)
+            fecha_label = QLabel(f"Fecha: {fecha}")
+            fecha_label.setStyleSheet(
+                """
+                font-weight: bold;
+                font-size: 18px;
+                color: #2c3e50;
+                margin-bottom: 10px;
+            """
+            )
+            fecha_layout.addWidget(fecha_label)
+
+            for entry in data:
+                entry_frame = QFrame()
+                entry_frame.setStyleSheet(
+                    """
+                    QFrame {
+                        background-color: white;
+                        border: 1px solid #bdc3c7;
+                        border-radius: 5px;
+                        margin: 5px;
+                        padding: 10px;
+                    }
+                """
+                )
+                entry_layout = QVBoxLayout(entry_frame)
+
+                mozo_label = QLabel(f"Mozo: {entry['mozo']}")
+                mozo_label.setStyleSheet("font-weight: bold; color: #2980b9;")
+                entry_layout.addWidget(mozo_label)
+
+                mesa_label = QLabel(f"Mesa: {entry['mesa']}")
+                entry_layout.addWidget(mesa_label)
+
+                hora_label = QLabel(f"Hora Apertura: {entry['hora']}")
+                entry_layout.addWidget(hora_label)
+
+                hora_cierre_label = QLabel(f"Hora Cierre: {entry['hora_cierre']}")
+                entry_layout.addWidget(hora_cierre_label)
+
+                pedido_tmp = []
+                pedido_final = []
+                for producto in entry['productos']:
+                    cantidad = 0
+                    if producto not in pedido_tmp:
+                        cantidad = entry['productos'].count(producto)
+                        pedido = f"{producto} {cantidad}X"
+                        pedido_final.append(pedido)
+                        pedido_tmp.append(producto)
+                    else:
+                        if producto not in pedido_tmp:
+                            pedido = f"{producto} 1X"
+                            pedido_final.append(pedido)
+                            pedido_tmp.append(producto)
+
+                productos_label = QLabel(f"Productos: {', '.join(pedido_final)}")
+                productos_label.setWordWrap(True)
+                productos_label.setStyleSheet("color: #27ae60;")
+                entry_layout.addWidget(productos_label)
+
+                total_general = 0
+                for producto in entry['productos']:
+                    for categoria in menu["menu"]:
+                        for pedido in menu["menu"][categoria]:
+                            if producto == pedido["name"]:
+                                precio = pedido["price"]
+                                total = precio
+                                total_general += total
+                               
+                with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
+                    config = json.load(f)
+                    precio_cubiertos = config[0].get("precio_cubiertos", 0)
+                total_general += float(precio_cubiertos[1:])
+                
+                Precio_total_label = QLabel(f"Total: ${total_general}")
+                entry_layout.addWidget(Precio_total_label)
+
+                fecha_layout.addWidget(entry_frame)
+
+            self.scroll_layout.addWidget(fecha_frame)
 
     def load_summary(self):
         with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
@@ -1485,13 +1617,6 @@ class RestaurantInterface(QMainWindow):
         except ValueError:
             return fecha_str
 
-    def formatear_fecha(self, fecha_str):
-        try:
-            fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
-            return fecha_obj.strftime("%d/%m/%Y %H:%M")
-        except ValueError:
-            return fecha_str
-
     def setup_config_menu(self):
         self.config_button = QToolButton(self)
         self.config_button.setText("⚙️")
@@ -1717,7 +1842,10 @@ class RestaurantInterface(QMainWindow):
         except FileNotFoundError:
             return 1
 
+
 if __name__ == "__main__":
+    fecha = "2023-10-15"  # Cambia esto a la fecha que desees consultar
+    mozo = "Juan Pérez"  # Opcional, puedes dejarlo como None
     def exception_hook(exctype, value, traceback):
         print(f"Excepción no manejada: {exctype}, {value}")
         print("Traceback:")

@@ -2,12 +2,48 @@ import os
 import json
 import random
 import sqlite3
+from typing import Optional
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
 ruta_json = os.path.join(base_dir, "../Docs/mesas.json")
 
+def obtener_resumen_por_fecha(fecha: str, mozo: Optional[str] = None):
+    """
+    Busca archivos JSON de registro por fecha y opcionalmente por mozo.
+    """
+    directorio_registro = os.path.join(base_dir, "../Docs/Registro")
+    resumen = {}
+
+    try:
+        # Listar todos los archivos en el directorio de registros
+        archivos = os.listdir(directorio_registro)
+        
+        # Filtrar archivos por fecha y opcionalmente por mozo
+        for archivo in archivos:
+            if archivo.startswith(f"{fecha}_"):
+                if mozo and mozo not in archivo:
+                    continue
+                ruta_archivo = os.path.join(directorio_registro, archivo)
+                with open(ruta_archivo, "r", encoding="utf-8") as file:
+                    data = json.load(file)
+                    mozo_name = archivo.replace(f"{fecha}_", "").replace(".json", "")
+                    if fecha not in resumen:
+                        resumen[fecha] = []
+                    for entry in data:
+                        resumen[fecha].append({
+                            "mozo": mozo_name,
+                            "mesa": entry["Mesa"],
+                            "hora": entry["Hora"],
+                            "hora_cierre": entry["Hora_cierre"],
+                            "productos": entry["productos"],
+                        })
+        
+        return resumen
+    except Exception as e:
+        print(f"Error al obtener el resumen: {str(e)}")
+        return {"error": f"Error al obtener el resumen: {str(e)}"}
 
 # MARK: DB
 # Creacion de las tables
