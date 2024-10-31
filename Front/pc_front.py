@@ -100,8 +100,23 @@ class RestaurantInterface(QMainWindow):
         self.timer.timeout.connect(self.cargar_mesas)
         self.timer.start(5000)  # Actualizar cada 5 segundos (5000 ms)
 
+        self.device_ip = self.get_device_ip()  # Obtener la IP del dispositivo
+
         """Configura un menú desplegable para las opciones de configuración."""
         self.setup_config_menu()
+
+    def get_device_ip(self):
+        """Obtiene la dirección IP del dispositivo."""
+        try:
+            # Conectar a un servidor DNS público para obtener la IP local
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except Exception as e:
+            print(f"Error al obtener la IP: {e}")
+            return "IP no disponible"
 
     def setup_info_tab(self):
         info_widget = QWidget()
@@ -1048,7 +1063,7 @@ class RestaurantInterface(QMainWindow):
         name = self.mozos_table.item(row, 0).text()
         code = self.mozos_table.item(row, 1).text()
 
-        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", name) :
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöü��ËÏÖÜçÇ' ]+$", name) :
             QMessageBox.warning(
                 self, "Error", "Por favor, no Ingrese caracteres especiales."
             )
@@ -1682,6 +1697,12 @@ class RestaurantInterface(QMainWindow):
         reset_action = QAction("🔄 resetear mesas", self)
         reset_action.triggered.connect(self.reset_mesas)
         config_menu.addAction(reset_action)
+
+        config_menu.addSeparator()  # Separador para la IP
+
+        ip_action = QAction(f"IP del dispositivo: {self.device_ip}", self)
+        ip_action.setEnabled(False)  # Deshabilitar para que no sea clickeable
+        config_menu.addAction(ip_action)
 
         self.central_widget.setCornerWidget(self.config_button, Qt.TopRightCorner)
         self.config_button.setMenu(config_menu)
