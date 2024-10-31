@@ -1554,7 +1554,7 @@ class RestaurantInterface(QMainWindow):
         mesas_action.triggered.connect(lambda: self.show_config_dialog("Cantidad de mesas"))
         config_menu.addAction(mesas_action)
 
-        reset_action = QAction("🔄 Recargar mesas", self)
+        reset_action = QAction("🔄 resetear mesas", self)
         reset_action.triggered.connect(self.reset_mesas)
         config_menu.addAction(reset_action)
 
@@ -1636,14 +1636,33 @@ class RestaurantInterface(QMainWindow):
         dialog.exec_()
 
     def reset_mesas(self):
-        if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
-            with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
-                config = json.load(f)
-        else:
-            config = [{"precio_cubiertos": 0}, {"cantidad_mesas": 0}]
+                # Crear el cuadro de diálogo de advertencia
+        warning_message = QMessageBox(self)
+        warning_message.setIcon(QMessageBox.Warning)
+        warning_message.setWindowTitle("Advertencia")
+        warning_message.setText("si continua se borrara toda la informacion de las mesas")
+        warning_message.setInformativeText("¿Deseas continuar?")
         
-        self.update_mesas_count(config[1]['cantidad_mesas'])
+        # Agregar botones de continuar y cancelar
+        continue_button = warning_message.addButton("Continuar", QMessageBox.AcceptRole)
+        cancel_button = warning_message.addButton("Cancelar", QMessageBox.RejectRole)
         
+        # Mostrar el cuadro de diálogo y esperar respuesta
+        warning_message.exec_()
+
+        # Verificar cuál botón se presionó
+        if warning_message.clickedButton() == continue_button:
+            if os.path.exists(os.path.join(base_dir, "../Docs/Config.json")):
+                with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as f:
+                    config = json.load(f)
+            else:
+                config = [{"precio_cubiertos": 0}, {"cantidad_mesas": 0}]
+            
+            self.update_mesas_count(config[1]['cantidad_mesas'])
+            
+        elif warning_message.clickedButton() == cancel_button:
+            self.close()  # Cerrar el widget actual si se presiona "Cancelar"
+
     
     def save_config(self, config_type, dialog):
         try:
