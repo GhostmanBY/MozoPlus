@@ -57,6 +57,41 @@ from Back.Panel_Admin_Back import (
     Recargar_menu,
     obtener_resumen_por_fecha,
 )
+from CCS_Pc_Front import (
+    Paginas_atras,
+    Paginas_Adelante,
+    Recargar_Tablas,
+    Estilo_General,
+    Style_Scroll_Area,
+    Cargar_Resumen_boton,
+    Estilo_Fecha,
+    Estilo_fecha_label,
+    Estilo_Frame,
+    Agregar_Plato_boton,
+    boton_editar_Plato,
+    boton_eliminar_PLato,
+    Guardar_cambios_Plato,
+    Entry_name_mozo,
+    Agregar_Mozo,
+    Tabla_Mozo,
+    Boton_Editar_mozo,
+    Boton_eliminar_Mozo,
+    Ventanta_de_editar_Mozo,
+    Frame_Scroll_mesas,
+    right_widget_style,
+    pedidos_label_Style,
+    Placeholder_text_pedido,
+    splitter_style,
+    Mesas_True,
+    Mesas_False,
+    Ventana_de_historial_mesa,
+    Boton_Exportar_comadna,
+    Exportar_menu,
+    Config_Style_boton,
+    Config_Desplegable_Menu,
+    Ventanta_de_configuracion,
+    Estilo_app
+)
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -143,39 +178,13 @@ class RestaurantInterface(QMainWindow):
         info_layout.addLayout(search_layout)
 
         # Estilo para el widget de desplazamiento
-        self.scroll_area.setStyleSheet(
-            """
-            QScrollArea {
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
-                background-color: #f9f9f9;
-            }
-        """
-        )
+        self.scroll_area.setStyleSheet(Style_Scroll_Area)
         info_layout.addWidget(self.scroll_area)
 
         # Mejora del botón "Cargar resumen de registros"
         load_button = QPushButton("Cargar resumen de registros")
         load_button.clicked.connect(self.load_summary)
-        load_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #3498db;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #2980b9;
-            }
-            QPushButton:pressed {
-                background-color: #2573a7;
-            }
-        """
-        )
+        load_button.setStyleSheet(Cargar_Resumen_boton)
         info_layout.addWidget(load_button)
 
         self.central_widget.addTab(info_widget, "Resumen")
@@ -202,41 +211,15 @@ class RestaurantInterface(QMainWindow):
 
         for fecha, data in registros.items():
             fecha_frame = QFrame()
-            fecha_frame.setStyleSheet(
-                """
-                QFrame {
-                    background-color: #ecf0f1;
-                    border-radius: 10px;
-                    margin: 10px;
-                    padding: 10px;
-                }
-            """
-            )
+            fecha_frame.setStyleSheet(Estilo_Fecha)
             fecha_layout = QVBoxLayout(fecha_frame)
             fecha_label = QLabel(f"Fecha: {fecha}")
-            fecha_label.setStyleSheet(
-                """
-                font-weight: bold;
-                font-size: 18px;
-                color: #2c3e50;
-                margin-bottom: 10px;
-            """
-            )
+            fecha_label.setStyleSheet(Estilo_fecha_label)
             fecha_layout.addWidget(fecha_label)
 
             for entry in data:
                 entry_frame = QFrame()
-                entry_frame.setStyleSheet(
-                    """
-                    QFrame {
-                        background-color: white;
-                        border: 1px solid #bdc3c7;
-                        border-radius: 5px;
-                        margin: 5px;
-                        padding: 10px;
-                    }
-                """
-                )
+                entry_frame.setStyleSheet(Estilo_Frame)
                 entry_layout = QVBoxLayout(entry_frame)
 
                 mozo_label = QLabel(f"Mozo: {entry['mozo']}")
@@ -304,41 +287,15 @@ class RestaurantInterface(QMainWindow):
 
         for fecha, data in registros.items():
             fecha_frame = QFrame()
-            fecha_frame.setStyleSheet(
-                """
-                QFrame {
-                    background-color: #ecf0f1;
-                    border-radius: 10px;
-                    margin: 10px;
-                    padding: 10px;
-                }
-            """
-            )
+            fecha_frame.setStyleSheet(Estilo_Fecha)
             fecha_layout = QVBoxLayout(fecha_frame)
             fecha_label = QLabel(f"Fecha: {fecha}")
-            fecha_label.setStyleSheet(
-                """
-                font-weight: bold;
-                font-size: 18px;
-                color: #2c3e50;
-                margin-bottom: 10px;
-            """
-            )
+            fecha_label.setStyleSheet(Estilo_fecha_label)
             fecha_layout.addWidget(fecha_label)
 
             for entry in data:
                 entry_frame = QFrame()
-                entry_frame.setStyleSheet(
-                    """
-                    QFrame {
-                        background-color: white;
-                        border: 1px solid #bdc3c7;
-                        border-radius: 5px;
-                        margin: 5px;
-                        padding: 10px;
-                    }
-                """
-                )
+                entry_frame.setStyleSheet(Estilo_Frame)
                 entry_layout = QVBoxLayout(entry_frame)
 
                 mozo_label = QLabel(f"Mozo: {entry['mozo']}")
@@ -443,22 +400,7 @@ class RestaurantInterface(QMainWindow):
         self.price_input.setPlaceholderText("Precio")
         add_product_button = QPushButton("Agregar Producto")
         add_product_button.clicked.connect(self.add_product)
-        add_product_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 100px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-        """
-        )
+        add_product_button.setStyleSheet(Agregar_Plato_boton)
 
         add_product_layout.addWidget(QLabel("Categoría:"), 0, 0)
         add_product_layout.addWidget(self.category_input, 0, 1)
@@ -481,41 +423,11 @@ class RestaurantInterface(QMainWindow):
         menu_pagination_layout = QHBoxLayout()
         
         self.btn_anterior_menu = QPushButton("Página Anterior", self)
-        self.btn_anterior_menu.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #008CBA;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #007B9A;
-            }
-            """
-        )
+        self.btn_anterior_menu.setStyleSheet(Paginas_atras)
         self.btn_anterior_menu.clicked.connect(self.cargar_anterior_menu)
         
         self.btn_siguiente_menu = QPushButton("Siguiente Página", self)
-        self.btn_siguiente_menu.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #008CBA;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #007B9A;
-            }
-            """
-        )
+        self.btn_siguiente_menu.setStyleSheet(Paginas_Adelante)
         self.btn_siguiente_menu.clicked.connect(self.cargar_siguiente_menu)
         
         menu_pagination_layout.addWidget(self.btn_anterior_menu)
@@ -527,22 +439,7 @@ class RestaurantInterface(QMainWindow):
         # Refresh button
         refresh_button = QPushButton("Actualizar Menu")
         refresh_button.clicked.connect(self.load_menu)
-        refresh_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #008CBA;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #007B9A;
-            }
-        """
-        )
+        refresh_button.setStyleSheet(Recargar_Tablas)
         menu_layout.addWidget(refresh_button)
 
         bottom_layout = QHBoxLayout()
@@ -620,42 +517,10 @@ class RestaurantInterface(QMainWindow):
 
                 edit_button = QPushButton("Editar")
                 edit_button.clicked.connect(lambda _, r=row: self.edit_product(r))
-                edit_button.setStyleSheet(
-                    """
-                    QPushButton {
-                        background-color: #FFA500;
-                        color: white;
-                        border: none;
-                        padding: 5px 10px;
-                        border-radius: 3px;
-                        min-width: 80px;
-                        max-width: 80px;
-                        font-size: 12px;
-                    }
-                    QPushButton:hover {
-                        background-color: #FF8C00;
-                    }
-                """
-                )
+                edit_button.setStyleSheet(boton_editar_Plato)
                 delete_button = QPushButton("Eliminar")
                 delete_button.clicked.connect(lambda _, n=item[1]: self.delete_product(n))
-                delete_button.setStyleSheet(
-                    """
-                    QPushButton {
-                        background-color: #f44336;
-                        color: white;
-                        border: none;
-                        padding: 5px 10px;
-                        border-radius: 3px;
-                        min-width: 80px;
-                        max-width: 80px;
-                        font-size: 12px;
-                    }
-                    QPushButton:hover {
-                        background-color: #d32f2f;
-                    }
-                """
-                )
+                delete_button.setStyleSheet(boton_eliminar_PLato)
 
                 button_layout.addWidget(edit_button)
                 button_layout.addWidget(delete_button)
@@ -687,24 +552,7 @@ class RestaurantInterface(QMainWindow):
         dialog_layout.addWidget(price_input)
 
         save_button = QPushButton("Guardar")
-        save_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px 20px;
-                margin: 25px;
-                border: none;
-                border-radius: 5px;
-                font-size: 16px;
-                min-width: 80px;
-                max-width: 80px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            """
-        )
+        save_button.setStyleSheet(Guardar_cambios_Plato)
         save_button.clicked.connect(
             lambda: self.save_product_edit(
                 name,
@@ -764,33 +612,9 @@ class RestaurantInterface(QMainWindow):
         add_mozo_layout = QHBoxLayout()
         self.mozo_name_input = QLineEdit()
         self.mozo_name_input.setPlaceholderText("Nombre del Mozo")
-        self.mozo_name_input.setStyleSheet(
-            """
-            QLineEdit {
-                padding: 5px;
-                border: 1px solid #ccc;
-                border-radius: 3px;
-                font-size: 14px;
-            }
-        """
-        )
+        self.mozo_name_input.setStyleSheet(Entry_name_mozo)
         add_mozo_button = QPushButton("Agregar Mozo")
-        add_mozo_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 100px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-        """
-        )
+        add_mozo_button.setStyleSheet(Agregar_Mozo)
         add_mozo_button.clicked.connect(self.add_mozo)
         add_mozo_layout.addWidget(self.mozo_name_input, 3)
         add_mozo_layout.addWidget(add_mozo_button, 1)
@@ -800,29 +624,7 @@ class RestaurantInterface(QMainWindow):
         self.mozos_table = QTableWidget(0, 7)
         self.mozos_table.setHorizontalHeaderLabels(["Nombre", "Código", "Hora de entrada", "Hora de salida", "Fecha", "Mesas Totales", "Acciones",])
 
-        self.mozos_table.setStyleSheet(
-            """
-            QTableWidget {
-                background-color: white; 
-                border: 1px solid #CCCCCC;
-                border-radius: 5px;
-            }
-            QHeaderView::section {
-                background-color: #009688; 
-                color: white;
-                padding: 8px;
-                border: none;
-                font-weight: bold;
-            }
-            QTableWidget::item {
-                padding: 8px;
-            }
-            QTableWidget::item:selected {
-                background-color: #E8F5E9;
-                color: #333333;
-            }
-        """
-        )
+        self.mozos_table.setStyleSheet(Tabla_Mozo)
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
         self.mozos_table.verticalHeader().setDefaultSectionSize(40)
         self.mozos_table.setMinimumHeight(300)  # Establecer una altura mínima
@@ -831,41 +633,11 @@ class RestaurantInterface(QMainWindow):
         pagination_layout = QHBoxLayout()
     
         self.btn_anterior_mozos = QPushButton("Página Anterior", self)
-        self.btn_anterior_mozos.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #008CBA;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #007B9A;
-            }
-            """
-        )
+        self.btn_anterior_mozos.setStyleSheet(Paginas_atras)
         self.btn_anterior_mozos.clicked.connect(self.cargar_anterior_mozos)
         
         self.btn_siguiente_mozos = QPushButton("Siguiente Página", self)
-        self.btn_siguiente_mozos.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #008CBA;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #007B9A;
-            }
-            """
-        )
+        self.btn_siguiente_mozos.setStyleSheet(Paginas_Adelante)
         self.btn_siguiente_mozos.clicked.connect(self.cargar_siguiente_mozos)
         
         pagination_layout.addWidget(self.btn_anterior_mozos)
@@ -876,22 +648,7 @@ class RestaurantInterface(QMainWindow):
 
         # Modificar el botón de actualizar
         self.refresh_button = QPushButton("Actualizar Lista")
-        self.refresh_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #008CBA;
-                color: white;
-                padding: 5px 15px;
-                border: none;
-                border-radius: 3px;
-                font-size: 14px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #007B9A;
-            }
-        """
-        )
+        self.refresh_button.setStyleSheet(Recargar_Tablas)
         self.refresh_button.clicked.connect(self.update_current_view)
         mozos_layout.addWidget(self.refresh_button, alignment=Qt.AlignRight)
 
@@ -997,39 +754,6 @@ class RestaurantInterface(QMainWindow):
             # Actualizar la tabla de una sola vez
             self.mozos_table.setRowCount(len(table_data))
             
-            # Crear los estilos de los botones una sola vez
-            edit_button_style = """
-                QPushButton {
-                    background-color: #FFA500;
-                    color: white;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    min-width: 80px;
-                    max-width: 80px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #FF8C00;
-                }
-            """
-            
-            delete_button_style = """
-                QPushButton {
-                    background-color: #f44336;
-                    color: white;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    min-width: 80px;
-                    max-width: 80px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #d32f2f;
-                }
-            """
-            
             # Actualizar la tabla
             for row, row_data in enumerate(table_data):
                 # Insertar datos en las columnas
@@ -1045,11 +769,11 @@ class RestaurantInterface(QMainWindow):
                 button_layout.setSpacing(10)
                 
                 edit_button = QPushButton("Editar")
-                edit_button.setStyleSheet(edit_button_style)
+                edit_button.setStyleSheet(Boton_Editar_mozo)
                 edit_button.clicked.connect(lambda _, r=row: self.edit_mozo(r))
                 
                 delete_button = QPushButton("Eliminar")
-                delete_button.setStyleSheet(delete_button_style)
+                delete_button.setStyleSheet(Boton_eliminar_Mozo)
                 delete_button.clicked.connect(lambda _, n=row_data[0]: self.delete_mozo(n))
                 
                 button_layout.addWidget(edit_button)
@@ -1077,48 +801,7 @@ class RestaurantInterface(QMainWindow):
             dialog = QDialog(self)
             dialog.setWindowTitle(f"Editar Mozo: {name}")
             dialog.setFixedSize(400, 250)
-            dialog.setStyleSheet(
-                """
-                QDialog {
-                    background-color: #f5f5f5;
-                    border-radius: 15px;
-                    border: 1px solid #dcdcdc;
-                }
-                QLabel {
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #333;
-                    margin-bottom: 10px;
-                }
-                QLineEdit {
-                    font-size: 16px;
-                    padding: 12px;
-                    border: 2px solid #4CAF50;
-                    border-radius: 8px;
-                    background-color: white;
-                    color: #333;
-                }
-                QLineEdit:focus {
-                    border-color: #45a049;
-                }
-                QPushButton {
-                    font-size: 16px;
-                    font-weight: bold;
-                    padding: 12px 24px;
-                    background-color: #4CAF50;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    margin-top: 20px;
-                }
-                QPushButton:hover {
-                    background-color: #45a049;
-                }
-                QPushButton:pressed {
-                    background-color: #3d8b40;
-                }
-            """
-            )
+            dialog.setStyleSheet(Ventanta_de_editar_Mozo)
 
             layout = QVBoxLayout(dialog)
             layout.setSpacing(20)
@@ -1182,52 +865,7 @@ class RestaurantInterface(QMainWindow):
         self.setPalette(palette)
 
         # Estilo general
-        self.setStyleSheet(
-            """
-            QWidget {
-                font-family: Arial, sans-serif;
-            }
-            QLabel {
-                font-size: 14px;
-                font-weight: bold;
-                color: #333333;
-                margin-bottom: 5px;
-            }
-            QPushButton {
-                border-radius: 15px;
-                padding: 10px;
-                font-size: 16px;
-                font-weight: bold;
-            }
-            QTableWidget {
-                alternate-background-color: #F5F5F5;
-                gridline-color: #D0D0D0;
-            }
-            QHeaderView::section {
-                background-color: #009688;
-                color: white;
-                padding: 8px;
-                border: 1px solid #00796B;
-                font-weight: bold;
-            }
-            QTabWidget::pane {
-                border: 1px solid #D0D0D0;
-                border-radius: 5px;
-            }
-            QTabBar::tab {
-                background-color: #E0E0E0;
-                color: #333333;
-                padding: 8px 16px;
-                margin-right: 2px;
-                border-top-left-radius: 5px;
-                border-top-right-radius: 5px;
-            }
-            QTabBar::tab:selected {
-                background-color: #4CAF50;
-                color: white;
-            }
-        """
-        )
+        self.setStyleSheet(Estilo_General)
 
     def ajustar_tamano_pantalla(self):
         screen = QDesktopWidget().screenGeometry()
@@ -1249,42 +887,14 @@ class RestaurantInterface(QMainWindow):
         mesas_scroll.setWidget(mesas_widget)
 
         # Estilo para el QScrollArea (mesas_scroll)
-        mesas_scroll.setStyleSheet(
-            """
-            QScrollArea {
-                border: none;
-                background-color: #F5F5F5;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #E0E0E0;
-                width: 10px;
-                margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #BDBDBD;
-                min-height: 20px;
-                border-radius: 5px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """
-        )
+        mesas_scroll.setStyleSheet(Frame_Scroll_mesas)
 
         # Sección derecha para pedidos y registro
         right_widget = QWidget()
         right_layout = QVBoxLayout(right_widget)
 
         # Estilo para el widget derecho
-        right_widget.setStyleSheet(
-            """
-            QWidget {
-                background-color: #FAFAFA;
-                border-radius: 10px;
-            }
-        """
-        )
+        right_widget.setStyleSheet(right_widget_style)
 
         # Área de pedidos
         pedidos_widget = QWidget()
@@ -1293,33 +903,12 @@ class RestaurantInterface(QMainWindow):
         pedidos_layout.addWidget(pedidos_label)
 
         # Estilo para las etiquetas
-        pedidos_label.setStyleSheet(
-            """
-            QLabel {
-                font-size: 16px;
-                font-weight: bold;
-                color: #333333;
-                margin-bottom: 5px;
-            }
-        """
-        )
+        pedidos_label.setStyleSheet(pedidos_label_Style)
 
         self.json_input = QTextEdit()
         self.json_input.setFont(QFont("Courier New", 12))
         self.json_input.setPlaceholderText("Datos del pedido se mostrarán aquí")
-        self.json_input.setStyleSheet(
-            """
-            QTextEdit {
-                border: 2px solid #4CAF50;
-                border-radius: 10px;
-                padding: 10px;
-                background-color: #FFFFFF;
-                selection-background-color: #81C784;
-                font-family: 'Courier New';
-                font-size: 12px;
-            }
-        """
-        )
+        self.json_input.setStyleSheet(Placeholder_text_pedido)
         self.json_input.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
         )
@@ -1332,13 +921,7 @@ class RestaurantInterface(QMainWindow):
         right_layout.addWidget(splitter)
 
         # Estilo para el QSplitter
-        splitter.setStyleSheet(
-            """
-            QSplitter::handle {
-                background-color: #E0E0E0;
-            }
-        """
-        )
+        splitter.setStyleSheet(splitter_style)
 
         main_layout.addWidget(mesas_scroll, 6)
         main_layout.addWidget(right_widget, 4)
@@ -1382,41 +965,9 @@ class RestaurantInterface(QMainWindow):
                     mesa_data = json.load(file)
 
                 if mesa_data.get("Disponible", True):
-                    mesa_button.setStyleSheet(
-                        """
-                        QPushButton {
-                            background-color: #4CAF50;
-                            color: white;
-                            border-radius: 20px;
-                            font-size: 18px;
-                            font-weight: bold;
-                        }
-                        QPushButton:hover {
-                            background-color: #45A049;
-                        }
-                        QPushButton:pressed {
-                            background-color: #3D8B40;
-                        }
-                        """
-                    )
+                    mesa_button.setStyleSheet(Mesas_True)
                 else:
-                    mesa_button.setStyleSheet(
-                        """
-                        QPushButton {
-                            background-color: #F44336;
-                            color: white;
-                            border-radius: 20px;
-                            font-size: 18px;
-                            font-weight: bold;
-                        }
-                        QPushButton:hover {
-                            background-color: #D32F2F;
-                        }
-                        QPushButton:pressed {
-                            background-color: #C62828;
-                        }
-                        """
-                    )
+                    mesa_button.setStyleSheet(Mesas_False)
 
                 self.mesas_layout.addWidget(
                     mesa_button, (mesa_num - 1) // 3, (mesa_num - 1) % 3
@@ -1432,50 +983,7 @@ class RestaurantInterface(QMainWindow):
         layout = QVBoxLayout(dialog)
 
         # Estilo para el diálogo
-        dialog.setStyleSheet("""
-            QDialog {
-                background-color: #f5f5f5;
-                border-radius: 10px;
-            }
-            QLabel {
-                font-size: 18px;
-                font-weight: bold;
-                color: #2E7D32;
-                padding: 10px;
-            }
-            QTableWidget {
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                background-color: white;
-                gridline-color: #ddd;
-            }
-            QTableWidget::item {
-                padding: 12px;
-                border-bottom: 1px solid #eee;
-            }
-            QHeaderView::section {
-                background-color: #2E7D32;
-                color: white;
-                padding: 15px;
-                border: none;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #f0f0f0;
-                width: 10px;
-                margin: 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #2E7D32;
-                border-radius: 5px;
-                min-height: 20px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """)
+        dialog.setStyleSheet(Ventana_de_historial_mesa)
 
         # Título
         title_label = QLabel(f"Historial de Comandas - Mesa {mesa_num}")
@@ -1530,41 +1038,11 @@ class RestaurantInterface(QMainWindow):
             # Botón de exportar
             export_button = QPushButton("📄 Exportar")
             export_button.setFixedSize(130, 40)
-            export_button.setStyleSheet("""
-                QPushButton {
-                    background-color: #FF5722;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    font-size: 14px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #F4511E;
-                }
-                QPushButton:pressed {
-                    background-color: #E64A19;
-                }
-            """)
+            export_button.setStyleSheet(Boton_Exportar_comadna)
 
             # Menú de exportación
             export_menu = QMenu()
-            export_menu.setStyleSheet("""
-                QMenu {
-                    background-color: white;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                    padding: 5px;
-                }
-                QMenu::item {
-                    padding: 8px 20px;
-                    font-size: 13px;
-                }
-                QMenu::item:selected {
-                    background-color: #FF5722;
-                    color: white;
-                }
-            """)
+            export_menu.setStyleSheet(Exportar_menu)
 
             pdf_action = QAction("Exportar como PDF", self)
             pdf_action.triggered.connect(lambda checked, c=comanda: self.export_comanda(c, self.cargar_menu(), "pdf"))
@@ -1850,54 +1328,10 @@ class RestaurantInterface(QMainWindow):
         self.config_button.setText("⚙️")
         self.config_button.setFont(QFont("Arial", 14))
         self.config_button.setPopupMode(QToolButton.InstantPopup)
-        self.config_button.setStyleSheet(
-            """
-            QToolButton {
-                color: #555555;
-                background-color: transparent;
-                border: none;
-                padding: 15px;  
-                margin: 30px;
-                margin-right: 0px;  
-            }
-            QToolButton:hover {
-                background-color: rgba(224, 224, 224, 0.5);
-                border-radius: 5px;
-            }
-            QToolButton:pressed {
-                background-color: rgba(200, 200, 200, 0.7);
-            }
-            QToolButton::menu-indicator {
-                image: none;
-            }
-            """
-        )
+        self.config_button.setStyleSheet(Config_Style_boton)
 
         config_menu = QMenu(self)
-        config_menu.setStyleSheet(
-            """
-            QMenu {
-                background-color: white;
-                border: 1px solid #44dc4a;
-                padding: 8px;
-                border-radius: 12px;
-                font-size: 14px;
-            }
-            QMenu::item {
-                padding: 10px 20px;
-                border-radius: 8px;
-                background-color: #4caf50;
-                margin-bottom: 5px;
-                color: white
-            }
-            QMenu::item:selected {
-                background-color: #45A049;
-            }
-            QMenu::icon {
-                padding-right: 12px;
-            }
-            """
-        )
+        config_menu.setStyleSheet(Config_Desplegable_Menu)
 
         cubiertos_action = QAction("💰 Precio de cubiertos", self)
         cubiertos_action.triggered.connect(lambda: self.show_config_dialog("Precio de cubiertos"))
@@ -1926,46 +1360,7 @@ class RestaurantInterface(QMainWindow):
         dialog.setFixedSize(420, 270)
         layout = QVBoxLayout(dialog)
 
-        dialog.setStyleSheet("""
-            QDialog {
-                background-color: #f5f5f5;
-                border-radius: 18px;
-                border: 1px solid #d0d0d0;
-            }
-            QLabel {
-                font-size: 18px;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 12px;
-            }
-            QLineEdit {
-                font-size: 16px;
-                padding: 12px;
-                border: 2px solid #44dc4a;
-                border-radius: 10px;
-                background-color: white;
-                color: #333;
-            }
-            QLineEdit:focus {
-                border-color: #44dc4a;
-            }
-            QPushButton {
-                font-size: 16px;
-                font-weight: bold;
-                padding: 12px 24px;
-                background-color: #31b736;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                margin-top: 20px;
-            }
-            QPushButton:hover {
-                background-color: #45A049;
-            }
-            QPushButton:pressed {
-                background-color: #2471a3;
-            }
-        """)
+        dialog.setStyleSheet(Ventanta_de_configuracion)
 
         icon_label = QLabel()
         if config_type == "Precio de cubiertos":
@@ -2295,27 +1690,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    app.setStyleSheet(
-        """
-        QMainWindow {
-            background-color: #F0F0F0;
-        }
-        QScrollBar:vertical {
-            border: none;
-            background: #E0E0E0;
-            width: 10px;
-            margin: 0px 0px 0px 0px;
-        }
-        QScrollBar::handle:vertical {
-            background: #BDBDBD;
-            min-height: 20px;
-            border-radius: 5px;
-        }
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-            height: 0px;
-        }
-    """
-    )
+    app.setStyleSheet(Estilo_app)
 
     ventana = RestaurantInterface()
     ventana.showMaximized()
