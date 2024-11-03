@@ -16,7 +16,7 @@ from Back.Menu_de_mesas_Back import (
     cerrar_mesa,
     crear_comanda,
     crear_sub_mesa,
-    agregar_producto_sub_mesa,
+    editar_sub_mesa,
     cerrar_sub_mesa,
 )
 from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
@@ -212,7 +212,7 @@ async def ruta_cubierto():
 
 # Ruta POST para crear una sub-mesa.
 # Recibe el número de mesa y el ID de la sub-mesa.
-@app.post("/mesas/{mesa}/sub_mesa")
+@app.post("/mesas/{mesa}/sub_mesa/{sub_mesa_id}")
 async def ruta_crear_sub_mesa(mesa: int, sub_mesa_id: str):
     try:
         # Llama a la función 'crear_sub_mesa' con el número de mesa y el ID de la sub-mesa.
@@ -231,11 +231,11 @@ async def ruta_crear_sub_mesa(mesa: int, sub_mesa_id: str):
 
 # Ruta POST para agregar un producto a una sub-mesa.
 # Recibe el número de mesa, el ID de la sub-mesa y el producto.
-@app.post("/mesas/{mesa}/sub_mesa/{sub_mesa_id}/producto")
-async def ruta_agregar_producto_sub_mesa(mesa: int, sub_mesa_id: str, producto: ValorInput):
+@app.post("/mesas/{mesa}/sub_mesa/{sub_mesa_id}/editar")
+async def ruta_editar_sub_mesa(mesa: int, sub_mesa_id: str, producto: ValorInput):
     try:
-        # Llama a la función 'agregar_producto_sub_mesa' con el número de mesa, el ID de la sub-mesa y el producto.
-        result = await agregar_producto_sub_mesa(mesa, sub_mesa_id, producto)
+        # Llama a la función 'editar_sub_mesa' con el número de mesa, el ID de la sub-mesa y el producto.
+        result = await editar_sub_mesa(mesa, sub_mesa_id, producto)
         
         # Si no se encuentra la mesa, lanza un error 404.
         if not result:

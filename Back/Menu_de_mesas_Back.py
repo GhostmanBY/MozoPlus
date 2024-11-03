@@ -422,23 +422,132 @@ mesas = {
     # Puedes agregar más mesas y sub-mesas según sea necesario
 }
 
-def crear_sub_mesa(mesa_num, sub_mesa_id):
+async def crear_sub_mesa(mesa_num, sub_mesa_id):
     """Crea una nueva sub-mesa dentro de una mesa existente."""
-    if mesa_num not in mesas:
-        mesas[mesa_num] = {"sub_mesas": {}}
-    mesas[mesa_num]["sub_mesas"][sub_mesa_id] = {"productos": [], "total": 0.0}
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
+    try:
+        with open(archivo, "r", encoding="utf-8") as file:
+            mesa_data = json.load(file)
+        
+        if "sub_mesas" not in mesa_data:
+            mesa_data["sub_mesas"] = {}
+        
+        mesa_data["sub_mesas"][sub_mesa_id] = {
+            "Mesa": sub_mesa_id,
+            "productos": [],
+            "cantidad_comensales": 0,
+            "comensales_infantiles": 0,
+            "Extra": None,
+        }
 
-def agregar_producto_sub_mesa(mesa_num, sub_mesa_id, producto):
-    """Agrega un producto a una sub-mesa específica."""
-    if mesa_num in mesas and sub_mesa_id in mesas[mesa_num]["sub_mesas"]:
-        sub_mesa = mesas[mesa_num]["sub_mesas"][sub_mesa_id]
-        sub_mesa["productos"].append(producto)
-        sub_mesa["total"] += producto["price"] * producto["cantidad"]
+        with open(archivo, "w", encoding="utf-8") as file:
+            json.dump(mesa_data, file, ensure_ascii=False, indent=4)
 
-def cerrar_sub_mesa(mesa_num, sub_mesa_id):
+        return JSONResponse(content=f"Sub-mesa {sub_mesa_id} creada en mesa {mesa_num}", media_type="application/json")
+    except Exception as e:
+        return JSONResponse(content=f"Error al crear sub-mesa: {str(e)}", status_code=500)
+
+async def editar_sub_mesa(mesa_num, sub_mesa_id, input: ValorInput):
+    """Edita una sub-mesa reemplazando los valores de la categoría {categoria} con {valor}."""
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
+    try:
+        with open(archivo, "r", encoding="utf-8") as file:
+            mesa_data = json.load(file)
+        
+        if "sub_mesas" in mesa_data and sub_mesa_id in mesa_data["sub_mesas"]:
+            sub_mesa = mesa_data["sub_mesas"][sub_mesa_id]
+            
+            if input.categoria not in sub_mesa:
+                return JSONResponse(content=f"Categoría {input.categoria} no existe en la sub-mesa {sub_mesa_id}", status_code=400)
+
+            if isinstance(input.valor, list):
+                if isinstance(sub_mesa[input.categoria], list):
+                    sub_mesa[input.categoria] = input.valor
+                else:
+                    sub_mesa[input.categoria] = input.valor
+            else:
+                sub_mesa[input.categoria] = input.valor
+
+            with open(archivo, "w", encoding="utf-8") as file:
+                json.dump(mesa_data, file, ensure_ascii=False, indent=4)
+
+            return JSONResponse(content=f"Sub-mesa {sub_mesa_id} en mesa {mesa_num} {input.categoria} actualizada a {input.valor}", media_type="application/json")
+        else:
+            return JSONResponse(content=f"Sub-mesa {sub_mesa_id} no encontrada en mesa {mesa_num}", status_code=404)
+    except Exception as e:
+        return JSONResponse(content=f"Error al editar sub-mesa: {str(e)}", status_code=500)
+
+async def cerrar_sub_mesa(mesa_num, sub_mesa_id):
     """Cierra una sub-mesa y procesa el pago."""
-    if mesa_num in mesas and sub_mesa_id in mesas[mesa_num]["sub_mesas"]:
-        del mesas[mesa_num]["sub_mesas"][sub_mesa_id]
+    archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
+    try:
+        with open(archivo, "r", encoding="utf-8") as file:
+            mesa_data = json.load(file)
+        
+        if "sub_mesas" in mesa_data and sub_mesa_id in mesa_data["sub_mesas"]:
+            sub_mesa = mesa_data["sub_mesas"][sub_mesa_id]
+            
+            # Crear comanda para la sub-mesa
+            await crear_comanda_sub_mesa(mesa_num, sub_mesa_id, sub_mesa)
+
+            # Eliminar la sub-mesa
+            del mesa_data["sub_mesas"][sub_mesa_id]
+
+            with open(archivo, "w", encoding="utf-8") as file:
+                json.dump(mesa_data, file, ensure_ascii=False, indent=4)
+
+            return JSONResponse(content=f"Sub-mesa {sub_mesa_id} cerrada en mesa {mesa_num}", media_type="application/json")
+        else:
+            return JSONResponse(content=f"Sub-mesa {sub_mesa_id} no encontrada en mesa {mesa_num}", status_code=404)
+    except Exception as e:
+        return JSONResponse(content=f"Error al cerrar sub-mesa: {str(e)}", status_code=500)
+
+async def crear_comanda_sub_mesa(mesa_num, sub_mesa_id, sub_mesa):
+    """Crea una comanda para una sub-mesa y la guarda en un archivo."""
+    items = sub_mesa["productos"]
+    numero_comanda = datetime.datetime.now().strftime("%d-%m-%Y-%H-%M")
+    total = 0
+
+    contenido = f"""
+=======================================
+    COMANDA SUB-MESA #{numero_comanda}
+=======================================
+Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+Mesa: {mesa_num}
+Sub-Mesa: {sub_mesa_id}
+
+--------------------------------------------------
+{"Item".ljust(20)} {"Cant.".rjust(5)} {"Precio".rjust(10)} {"Total".rjust(10)}
+--------------------------------------------------
+"""
+
+    # Supongamos que tienes un archivo de menú donde puedes buscar los detalles de cada producto
+    with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
+        menu = json.load(file)
+
+    for item_name in items:
+        for categoria in menu["menu"]:
+            for plato in menu["menu"][categoria]:
+                if item_name == plato["name"]:
+                    cantidad = 1  # Asume cantidad 1 si no está especificada
+                    precio = plato["price"]
+                    subtotal = cantidad * precio
+                    total += subtotal
+                    contenido += f"{item_name.ljust(20)} {str(cantidad).rjust(5)} {f'${precio:,.2f}'.rjust(10)} {f'${subtotal:,.2f}'.rjust(10)}\n"
+
+    contenido += f"""
+---------------------------------------------------
+{"TOTAL:".ljust(36)} {f'${total:,.2f}'.rjust(10)}
+===================================================
+"""
+
+    # Guardar la comanda en un archivo
+    with open(
+        os.path.join(base_dir, f"../Docs/Comandas/comanda_sub_mesa_{numero_comanda}.txt"),
+        "w",
+        encoding="utf-8",
+    ) as archivo:
+        archivo.write(contenido)
 
 
 if __name__ == "__main__":

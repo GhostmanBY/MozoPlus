@@ -65,5 +65,33 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json(), dict)
 
+    def test_crear_sub_mesa(self):
+        response = requests.post(f"{BASE_URL}/mesas/1/sub_mesa/A1")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("Sub-mesa A1 creada en mesa 1", data)
+
+    def test_editar_sub_mesa(self):
+        # Primero, crea la sub-mesa si no existe
+        requests.post(f"{BASE_URL}/mesas/1/sub_mesa/A1")
+
+        # Luego, intenta editar los datos de la sub-mesa
+        data = {
+            "categoria": "productos",
+            "valor": ["Agua mineral gasificada", "Andes origin lata"]
+        }
+        response = requests.post(f"{BASE_URL}/mesas/1/sub_mesa/A1/editar", json=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Sub-mesa A1 en mesa 1 productos actualizada", response.json())
+
+    def test_cerrar_sub_mesa(self):
+        # Primero, crea la sub-mesa si no existe
+        requests.post(f"{BASE_URL}/mesas/1/sub_mesa/A1")
+
+        # Luego, intenta cerrar la sub-mesa
+        response = requests.post(f"{BASE_URL}/mesas/1/sub_mesa/A1/cerrar")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Sub-mesa A1 cerrada en mesa 1", response.json())
+
 if __name__ == '__main__':
     unittest.main()
