@@ -405,6 +405,42 @@ def dividir_cuenta(mesa, cantidad):
     return total
 
 
+# Modelo de datos para una mesa con sub-mesas
+mesas = {
+    "1": {
+        "sub_mesas": {
+            "1A": {
+                "productos": [],
+                "total": 0.0
+            },
+            "1B": {
+                "productos": [],
+                "total": 0.0
+            }
+        }
+    }
+    # Puedes agregar más mesas y sub-mesas según sea necesario
+}
+
+def crear_sub_mesa(mesa_num, sub_mesa_id):
+    """Crea una nueva sub-mesa dentro de una mesa existente."""
+    if mesa_num not in mesas:
+        mesas[mesa_num] = {"sub_mesas": {}}
+    mesas[mesa_num]["sub_mesas"][sub_mesa_id] = {"productos": [], "total": 0.0}
+
+def agregar_producto_sub_mesa(mesa_num, sub_mesa_id, producto):
+    """Agrega un producto a una sub-mesa específica."""
+    if mesa_num in mesas and sub_mesa_id in mesas[mesa_num]["sub_mesas"]:
+        sub_mesa = mesas[mesa_num]["sub_mesas"][sub_mesa_id]
+        sub_mesa["productos"].append(producto)
+        sub_mesa["total"] += producto["price"] * producto["cantidad"]
+
+def cerrar_sub_mesa(mesa_num, sub_mesa_id):
+    """Cierra una sub-mesa y procesa el pago."""
+    if mesa_num in mesas and sub_mesa_id in mesas[mesa_num]["sub_mesas"]:
+        del mesas[mesa_num]["sub_mesas"][sub_mesa_id]
+
+
 if __name__ == "__main__":
     creas_mesas(10)
     crea_mesas_tmp()

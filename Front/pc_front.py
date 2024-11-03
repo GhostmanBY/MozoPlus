@@ -32,8 +32,8 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QHeaderView,
     QMessageBox,
-    QDialog,  # Asegúrate de que QTabBar esté importado
-    QSizePolicy,  # Asegúrate de que QSizePolicy esté importado
+    QDialog,
+    QSizePolicy,
     QFrame,
     QComboBox,
     QToolBar,
@@ -1427,7 +1427,7 @@ class RestaurantInterface(QMainWindow):
     def mostrar_historial_mesa(self, mesa_num):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"Historial Mesa {mesa_num}")
-        dialog.setMinimumSize(600, 400)
+        dialog.setMinimumSize(800, 600)  # Aumentar el tamaño mínimo
         layout = QVBoxLayout(dialog)
 
         # Estilo para el diálogo
@@ -1437,91 +1437,127 @@ class RestaurantInterface(QMainWindow):
                 border-radius: 10px;
             }
             QLabel {
-                font-size: 16px;
+                font-size: 18px;
                 font-weight: bold;
                 color: #2E7D32;
-                margin: 10px 0;
-            }
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 5px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
+                padding: 10px;
             }
             QTableWidget {
                 border: 1px solid #ddd;
                 border-radius: 5px;
                 background-color: white;
+                gridline-color: #ddd;
             }
             QTableWidget::item {
-                padding: 5px;
+                padding: 12px;
+                border-bottom: 1px solid #eee;
             }
             QHeaderView::section {
-                background-color: #4CAF50;
+                background-color: #2E7D32;
                 color: white;
-                padding: 8px;
+                padding: 15px;
                 border: none;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #f0f0f0;
+                width: 10px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #2E7D32;
+                border-radius: 5px;
+                min-height: 20px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
             }
         """)
 
         # Título
         title_label = QLabel(f"Historial de Comandas - Mesa {mesa_num}")
+        title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
+
+        # Crear un área de desplazamiento para la tabla
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
 
         # Tabla de historial
         table = QTableWidget()
         table.setColumnCount(5)
         table.setHorizontalHeaderLabels(["Fecha", "Hora", "Mozo", "Total", "Acciones"])
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        layout.addWidget(table)
-
+        
+        # Configurar la tabla
+        header = table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+        
         # Cargar historial
         historial = self.cargar_historial_mesa(mesa_num)
         table.setRowCount(len(historial))
 
         for row, comanda in enumerate(historial):
-            table.setItem(row, 0, QTableWidgetItem(comanda['fecha']))
-            table.setItem(row, 1, QTableWidgetItem(comanda['hora']))
-            table.setItem(row, 2, QTableWidgetItem(comanda['mozo']))
-            table.setItem(row, 3, QTableWidgetItem(f"${comanda['total']:.2f}"))
+            # Configurar altura de fila
+            table.setRowHeight(row, 50)
 
-            # Crear widget contenedor para los botones
+            # Crear y configurar items
+            fecha_item = QTableWidgetItem(comanda['fecha'])
+            hora_item = QTableWidgetItem(comanda['hora'])
+            mozo_item = QTableWidgetItem(comanda['mozo'])
+            total_item = QTableWidgetItem(f"${comanda['total']:.2f}")
+
+            # Alinear texto al centro
+            for item in [fecha_item, hora_item, mozo_item, total_item]:
+                item.setTextAlignment(Qt.AlignCenter)
+
+            # Agregar items a la tabla
+            table.setItem(row, 0, fecha_item)
+            table.setItem(row, 1, hora_item)
+            table.setItem(row, 2, mozo_item)
+            table.setItem(row, 3, total_item)
+
+            # Crear widget contenedor para el botón
             cell_widget = QWidget()
             cell_layout = QHBoxLayout(cell_widget)
-            cell_layout.setContentsMargins(5, 2, 5, 2)
+            cell_layout.setContentsMargins(10, 5, 10, 5)
+            cell_layout.setAlignment(Qt.AlignCenter)
 
-            # Botón de exportar con menú desplegable
+            # Botón de exportar
             export_button = QPushButton("📄 Exportar")
+            export_button.setFixedSize(130, 40)
             export_button.setStyleSheet("""
                 QPushButton {
                     background-color: #FF5722;
                     color: white;
-                    padding: 5px 10px;
                     border: none;
                     border-radius: 5px;
+                    font-size: 14px;
                     font-weight: bold;
-                    min-width: 100px;
-                    font-size: 12px;
                 }
                 QPushButton:hover {
                     background-color: #F4511E;
                 }
+                QPushButton:pressed {
+                    background-color: #E64A19;
+                }
             """)
 
+            # Menú de exportación
             export_menu = QMenu()
             export_menu.setStyleSheet("""
                 QMenu {
                     background-color: white;
                     border: 1px solid #ddd;
                     border-radius: 5px;
+                    padding: 5px;
                 }
                 QMenu::item {
-                    padding: 5px 20px;
+                    padding: 8px 20px;
+                    font-size: 13px;
                 }
                 QMenu::item:selected {
                     background-color: #FF5722;
@@ -1529,7 +1565,6 @@ class RestaurantInterface(QMainWindow):
                 }
             """)
 
-            # Acciones para diferentes formatos
             pdf_action = QAction("Exportar como PDF", self)
             pdf_action.triggered.connect(lambda checked, c=comanda: self.export_comanda(c, self.cargar_menu(), "pdf"))
             
@@ -1539,11 +1574,16 @@ class RestaurantInterface(QMainWindow):
             export_menu.addAction(pdf_action)
             export_menu.addAction(txt_action)
             
-            export_button.clicked.connect(lambda: export_menu.exec_(export_button.mapToGlobal(export_button.rect().bottomLeft())))
+            export_button.clicked.connect(
+                lambda: export_menu.exec_(export_button.mapToGlobal(export_button.rect().bottomLeft()))
+            )
             
             cell_layout.addWidget(export_button)
             table.setCellWidget(row, 4, cell_widget)
 
+        scroll_layout.addWidget(table)
+        scroll_area.setWidget(scroll_content)
+        layout.addWidget(scroll_area)
         dialog.exec_()
 
     def export_comanda(self, pedido_json, menu, formato):

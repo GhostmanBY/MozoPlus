@@ -15,6 +15,9 @@ from Back.Menu_de_mesas_Back import (
     abrir_mesa,
     cerrar_mesa,
     crear_comanda,
+    crear_sub_mesa,
+    agregar_producto_sub_mesa,
+    cerrar_sub_mesa,
 )
 from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
@@ -206,6 +209,63 @@ async def ruta_cubierto():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Precio no encontrado")
     
     return precio_cubierto
+
+# Ruta POST para crear una sub-mesa.
+# Recibe el número de mesa y el ID de la sub-mesa.
+@app.post("/mesas/{mesa}/sub_mesa")
+async def ruta_crear_sub_mesa(mesa: int, sub_mesa_id: str):
+    try:
+        # Llama a la función 'crear_sub_mesa' con el número de mesa y el ID de la sub-mesa.
+        result = await crear_sub_mesa(mesa, sub_mesa_id)
+        
+        # Si no se encuentra la mesa, lanza un error 404.
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
+        
+        # Devuelve el resultado de la creación de la sub-mesa si todo es correcto.
+        return result
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+# Ruta POST para agregar un producto a una sub-mesa.
+# Recibe el número de mesa, el ID de la sub-mesa y el producto.
+@app.post("/mesas/{mesa}/sub_mesa/{sub_mesa_id}/producto")
+async def ruta_agregar_producto_sub_mesa(mesa: int, sub_mesa_id: str, producto: ValorInput):
+    try:
+        # Llama a la función 'agregar_producto_sub_mesa' con el número de mesa, el ID de la sub-mesa y el producto.
+        result = await agregar_producto_sub_mesa(mesa, sub_mesa_id, producto)
+        
+        # Si no se encuentra la mesa, lanza un error 404.
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
+        
+        # Devuelve el resultado de la adición del producto a la sub-mesa si todo es correcto.
+        return result
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+# Ruta POST para cerrar una sub-mesa.
+# Recibe el número de mesa y el ID de la sub-mesa.
+@app.post("/mesas/{mesa}/sub_mesa/{sub_mesa_id}/cerrar")
+async def ruta_cerrar_sub_mesa(mesa: int, sub_mesa_id: str):
+    try:
+        # Llama a la función 'cerrar_sub_mesa' con el número de mesa y el ID de la sub-mesa.
+        result = await cerrar_sub_mesa(mesa, sub_mesa_id)
+        
+        # Si no se encuentra la mesa, lanza un error 404.
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
+        
+        # Devuelve el resultado de la cierre de la sub-mesa si todo es correcto.
+        return result
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 # Bloque principal para ejecutar la aplicación con Uvicorn.
 # Este código solo se ejecuta si el archivo se ejecuta directamente.
