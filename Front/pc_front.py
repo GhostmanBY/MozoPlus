@@ -5,6 +5,11 @@ import re
 import socket
 import datetime
 import requests
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -34,9 +39,10 @@ from PyQt5.QtWidgets import (
     QToolBar,
     QToolButton,
     QMenu,
-    QAction
+    QAction,
+    QFileDialog
 )
-from PyQt5.QtGui import QFont, QColor, QPalette, QIcon
+from PyQt5.QtGui import QFont, QColor, QPalette, QIcon, QCursor
 from PyQt5.QtCore import Qt, QTimer
 from datetime import datetime
 from Back.Panel_Admin_Back import (
@@ -282,8 +288,6 @@ class RestaurantInterface(QMainWindow):
                 entry_layout.addWidget(Precio_total_label)
 
                 fecha_layout.addWidget(entry_frame)
-
-            self.scroll_layout.addWidget(fecha_frame)
 
     def load_summary(self):
         with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
@@ -1363,9 +1367,13 @@ class RestaurantInterface(QMainWindow):
                 mesa_button = QPushButton(f"Mesa {mesa_num}")
                 mesa_button.setFont(QFont("Arial", 14, QFont.Bold))
                 mesa_button.setMinimumSize(200, 150)
-                mesa_button.clicked.connect(
-                    lambda _, num=mesa_num: self.mesa_clicked(num)
-                )
+                
+                # Configurar los eventos de clic
+                mesa_button.clicked.connect(lambda checked, num=mesa_num: self.cargar_json(num))  # Clic izquierdo
+                mesa_button.setContextMenuPolicy(Qt.CustomContextMenu)
+                mesa_button.customContextMenuRequested.connect(
+                    lambda pos, num=mesa_num: self.mostrar_historial_mesa(num)
+                )  # Clic derecho
 
                 with open(
                     os.path.join(directorio_json, archivo), "r", encoding="utf-8"
@@ -1388,7 +1396,7 @@ class RestaurantInterface(QMainWindow):
                         QPushButton:pressed {
                             background-color: #3D8B40;
                         }
-                    """
+                        """
                     )
                 else:
                     mesa_button.setStyleSheet(
@@ -1406,7 +1414,7 @@ class RestaurantInterface(QMainWindow):
                         QPushButton:pressed {
                             background-color: #C62828;
                         }
-                    """
+                        """
                     )
 
                 self.mesas_layout.addWidget(
@@ -1416,221 +1424,385 @@ class RestaurantInterface(QMainWindow):
             except ValueError:
                 print(f"Error: El nombre del archivo '{archivo}' no es válido")
 
-    def mesa_clicked(self, mesa_num):
-        print(f"Clic en mesa {mesa_num}")
-        self.cargar_json(mesa_num)
+    def mostrar_historial_mesa(self, mesa_num):
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Historial Mesa {mesa_num}")
+        dialog.setMinimumSize(600, 400)
+        layout = QVBoxLayout(dialog)
 
-    def cargar_json(self, mesa_num):
-        print(f"Cargando JSON para mesa {mesa_num}")
-        ruta_archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
-        print(f"Ruta del archivo: {ruta_archivo}")
-        try:
-            with open(ruta_archivo, "r", encoding="utf-8") as f:
-                pedido_json = json.load(f)
-                self.procesar_pedido_con_json(pedido_json)
-        except (json.JSONDecodeError, FileNotFoundError) as e:
-            print(f"Error al cargar JSON para Mesa {mesa_num}: {e}")
+        # Estilo para el diálogo
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #f5f5f5;
+                border-radius: 10px;
+            }
+            QLabel {
+                font-size: 16px;
+                font-weight: bold;
+                color: #2E7D32;
+                margin: 10px 0;
+            }
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QTableWidget {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: white;
+            }
+            QTableWidget::item {
+                padding: 5px;
+            }
+            QHeaderView::section {
+                background-color: #4CAF50;
+                color: white;
+                padding: 8px;
+                border: none;
+            }
+        """)
 
-    def procesar_pedido_con_json(self, pedido_json):
-        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
-            menu = json.load(f)
+        # Título
+        title_label = QLabel(f"Historial de Comandas - Mesa {mesa_num}")
+        layout.addWidget(title_label)
 
-        mesa = pedido_json.get("Mesa", "")
-        fecha = pedido_json.get("Fecha", "")
-        hora = pedido_json.get("Hora", "")
-        mozo = pedido_json.get("Mozo", "")
-        productos = pedido_json.get("productos", [])
-        cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
-        comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
-        aclaraciones = pedido_json.get("Extra", "")
+        # Tabla de historial
+        table = QTableWidget()
+        table.setColumnCount(5)
+        table.setHorizontalHeaderLabels(["Fecha", "Hora", "Mozo", "Total", "Acciones"])
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addWidget(table)
 
-        estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
+        # Cargar historial
+        historial = self.cargar_historial_mesa(mesa_num)
+        table.setRowCount(len(historial))
 
-        if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
-            fecha_formateada = self.formatear_fecha(fecha)
-            comanda_texto = f"""
-            <style>
-                body {{
-                    font-family: 'Arial', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f9f9f9;
-                }}
-                .comanda {{
-                    background-color: #ffffff;
-                    border-radius: 12px;
-                    padding: 30px;
-                    width: 100%;
-                    box-sizing: border-box;
-                }}
-                h2 {{
-                    color: #2E7D32;
-                    text-align: center;
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }}
-                .info {{
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    font-size: 14px;
-                    margin-bottom: 20px;
-                }}
-                .info p {{
-                    margin: 5px 0;
-                    flex: 1 1 40%;
-                }}
-                .aclaraciones {{
-                    background-color: #FFF3E0;
-                    border-left: 5px solid #FF9800;
-                    padding: 10px;
-                    margin-top: 10px;
-                    border-radius: 5px;
-                    font-style: italic;
-                }}
-                table {{
-                    border-collapse: collapse;
-                    width: 100%;
-                    margin-top: 20px;
-                    font-size: 14px;
-                }}
-                th, td {{
-                    border: 1px solid #ddd;
-                    padding: 10px;
-                    text-align: left;
-                    white-space: nowrap;
-                }}
-                th {{
-                    background-color: #2E7D32;
+        for row, comanda in enumerate(historial):
+            table.setItem(row, 0, QTableWidgetItem(comanda['fecha']))
+            table.setItem(row, 1, QTableWidgetItem(comanda['hora']))
+            table.setItem(row, 2, QTableWidgetItem(comanda['mozo']))
+            table.setItem(row, 3, QTableWidgetItem(f"${comanda['total']:.2f}"))
+
+            # Crear widget contenedor para los botones
+            cell_widget = QWidget()
+            cell_layout = QHBoxLayout(cell_widget)
+            cell_layout.setContentsMargins(5, 2, 5, 2)
+
+            # Botón de exportar con menú desplegable
+            export_button = QPushButton("📄 Exportar")
+            export_button.setStyleSheet("""
+                QPushButton {
+                    background-color: #FF5722;
                     color: white;
-                }}
-                tr:nth-child(even) {{
-                    background-color: #f2f2f2;
-                }}
-                .total {{
-                    font-weight: bold;
-                    background-color: #E8F5E9;
-                }}
-            </style>
-            <div class="comanda">
-                <h2>COMANDA MESA: {mesa}</h2>
-                <div class="info">
-                    <p><strong>Fecha:</strong> {fecha}</p>
-                    <p><strong>Hora:</strong> {hora}</p>
-                    <p><strong>Mozo:</strong> {mozo}</p>
-                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
-                </div>
-                <div class="aclaraciones">
-                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
-                </div>
-
-                <table>
-                    <tr>
-                        <th>Item</th>
-                        <th>Cant.</th>
-                        <th>Precio</th>
-                        <th>Total</th>
-                    </tr>
-            """
-
-            total_general = 0
-            producto_tmp = []
-            for producto in productos:
-                cantidad = 0
-                for categoria in menu["menu"]:
-                    for pedido in menu["menu"][categoria]:
-                        if producto == pedido["name"]:
-                             if producto not in producto_tmp:    
-                                cantidad += productos.count(producto)
-                                Precio_producto = pedido["price"]*cantidad 
-                                producto_tmp.append(producto)
-                                total_general += Precio_producto
-                                comanda_texto += f"""
-                                <tr>
-                                    <td>{producto}</td>
-                                    <td>{cantidad}</td>
-                                    <td>${Precio_producto:.2f}</td>
-                                    <td>${Precio_producto:.2f}</td>
-                                </tr>
-                                """
-
-            comanda_texto += f"""
-                <tr class="total">
-                    <td colspan="3">Total General:</td>
-                    <td>${total_general:.2f}</td>
-                </tr>
-            </table>
-            </div>
-            """
-        else:
-            comanda_texto = f"""
-            <style>
-                body {{
-                    font-family: 'Arial', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f9f9f9;
-                }}
-                .comanda-vacia {{
-                    background-color: #ffffff;
-                    border-radius: 12px;
-                    padding: 30px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    text-align: center;
-                }}
-                h2 {{
-                    color: #2E7D32;
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }}
-                .icon {{
-                    font-size: 48px;
-                    color: #9E9E9E;
-                    margin-bottom: 20px;
-                }}
-                p {{
-                    font-size: 16px;
-                    color: #616161;
-                    margin: 10px 0;
-                    line-height: 1.5;
-                }}
-                .estado {{
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: {('#4CAF50' if estado == 'Disponible' else '#F44336')};
-                    margin-top: 20px;
-                }}
-                .aclaraciones {{
-                    background-color: #FFF3E0;
-                    border-left: 5px solid #FF9800;
-                    padding: 10px;
-                    margin-top: 20px;
+                    padding: 5px 10px;
+                    border: none;
                     border-radius: 5px;
-                    text-align: left;
-                    font-style: italic;
-                }}
-            </style>
-            <div class="comanda-vacia">
-                <h2>MESA {mesa}</h2>
-                <div class="icon">📋</div>
-                <p>No hay pedidos registrados para esta mesa.</p>
-                <p>Esta mesa está actualmente:</p>
-                <p class="estado">{estado.upper()}</p>
-                <div class="aclaraciones">
-                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
-                </div>
-            </div>
-            """
+                    font-weight: bold;
+                    min-width: 100px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #F4511E;
+                }
+            """)
 
-        self.json_input.setHtml(comanda_texto)
+            export_menu = QMenu()
+            export_menu.setStyleSheet("""
+                QMenu {
+                    background-color: white;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                QMenu::item {
+                    padding: 5px 20px;
+                }
+                QMenu::item:selected {
+                    background-color: #FF5722;
+                    color: white;
+                }
+            """)
 
-    def formatear_fecha(self, fecha_str):
+            # Acciones para diferentes formatos
+            pdf_action = QAction("Exportar como PDF", self)
+            pdf_action.triggered.connect(lambda checked, c=comanda: self.export_comanda(c, self.cargar_menu(), "pdf"))
+            
+            txt_action = QAction("Exportar como TXT", self)
+            txt_action.triggered.connect(lambda checked, c=comanda: self.export_comanda(c, self.cargar_menu(), "txt"))
+
+            export_menu.addAction(pdf_action)
+            export_menu.addAction(txt_action)
+            
+            export_button.clicked.connect(lambda: export_menu.exec_(export_button.mapToGlobal(export_button.rect().bottomLeft())))
+            
+            cell_layout.addWidget(export_button)
+            table.setCellWidget(row, 4, cell_widget)
+
+        dialog.exec_()
+
+    def export_comanda(self, pedido_json, menu, formato):
         try:
-            fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
-            return fecha_obj.strftime("%d/%m/%Y %H:%M")
-        except ValueError:
-            return fecha_str
+            # Obtener la ubicación donde guardar el archivo
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            default_name = f"Comanda_Mesa_{pedido_json['Mesa']}_{timestamp}"
+            
+            if formato == "pdf":
+                file_filter = "PDF Files (*.pdf)"
+                default_name += ".pdf"
+            else:
+                file_filter = "Text Files (*.txt)"
+                default_name += ".txt"
+
+            filename, _ = QFileDialog.getSaveFileName(
+                self,
+                "Guardar Comanda",
+                default_name,
+                file_filter
+            )
+
+            if filename:
+                if formato == "pdf":
+                    self.export_to_pdf(pedido_json, menu, filename)
+                else:
+                    self.export_to_txt(pedido_json, menu, filename)
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Error al exportar: {str(e)}"
+            )
+
+    def export_to_txt(self, pedido_json, menu, filename):
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                # Escribir encabezado
+                f.write(f"{'='*50}\n")
+                f.write(f"COMANDA MESA {pedido_json['Mesa']}\n")
+                f.write(f"{'='*50}\n\n")
+
+                # Información básica
+                f.write(f"Fecha: {pedido_json['fecha']}\n")
+                f.write(f"Hora: {pedido_json['hora']}\n")
+                f.write(f"Mozo: {pedido_json['mozo']}\n")
+                f.write(f"Comensales: {pedido_json.get('cantidad_comensales', 0)} ")
+                f.write(f"(Infantiles: {pedido_json.get('comensales_infantiles', 0)})\n\n")
+
+                # Aclaraciones
+                if pedido_json.get('Extra'):
+                    f.write("ACLARACIONES:\n")
+                    f.write(f"{pedido_json['Extra']}\n\n")
+
+                # Productos
+                f.write(f"{'-'*50}\n")
+                f.write(f"{'Producto':<30}{'Cant.':<8}{'Precio':<10}{'Total':<10}\n")
+                f.write(f"{'-'*50}\n")
+
+                total_general = 0
+                producto_tmp = []
+                
+                for producto in pedido_json['productos']:
+                    if producto not in producto_tmp:
+                        cantidad = pedido_json['productos'].count(producto)
+                        for categoria in menu["menu"]:
+                            for item in menu["menu"][categoria]:
+                                if producto == item["name"]:
+                                    precio = item["price"]
+                                    total = precio * cantidad
+                                    total_general += total
+                                    f.write(f"{producto:<30}{cantidad:<8}${precio:<9.2f}${total:<9.2f}\n")
+                                    producto_tmp.append(producto)
+
+                f.write(f"{'-'*50}\n")
+                f.write(f"{'TOTAL GENERAL:':<48}${total_general:.2f}\n")
+                f.write(f"{'-'*50}\n")
+
+            QMessageBox.information(
+                self,
+                "Exportación Exitosa",
+                f"La comanda ha sido exportada como archivo de texto en:\n{filename}"
+            )
+
+        except Exception as e:
+            raise Exception(f"Error al exportar a TXT: {str(e)}")
+
+    def export_to_pdf(self, pedido_json, menu, filename):
+        try:
+            # Crear el documento PDF con el filename proporcionado
+            doc = SimpleDocTemplate(
+                filename,
+                pagesize=letter,
+                rightMargin=72,
+                leftMargin=72,
+                topMargin=72,
+                bottomMargin=72
+            )
+            
+            # Preparar los elementos del documento
+            elements = []
+            styles = getSampleStyleSheet()
+            
+            # Estilo personalizado para el título
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#2E7D32'),
+                spaceAfter=30,
+                alignment=1
+            )
+
+            # Título
+            elements.append(Paragraph(f"Comanda Mesa {pedido_json['Mesa']}", title_style))
+            
+            # Información básica
+            info_style = ParagraphStyle(
+                'Info',
+                parent=styles['Normal'],
+                fontSize=12,
+                spaceAfter=12,
+                textColor=colors.HexColor('#333333')
+            )
+            
+            elements.append(Paragraph(f"<b>Fecha:</b> {pedido_json['fecha']}", info_style))
+            elements.append(Paragraph(f"<b>Hora:</b> {pedido_json['hora']}", info_style))
+            elements.append(Paragraph(f"<b>Mozo:</b> {pedido_json['mozo']}", info_style))
+            elements.append(Paragraph(f"<b>Comensales:</b> {pedido_json.get('cantidad_comensales', 0)} (Infantiles: {pedido_json.get('comensales_infantiles', 0)})", info_style))
+            
+            elements.append(Spacer(1, 20))
+
+            # Aclaraciones
+            if pedido_json.get('Extra'):
+                elements.append(Paragraph("<b>Aclaraciones:</b>", info_style))
+                aclaraciones_style = ParagraphStyle(
+                    'Aclaraciones',
+                    parent=styles['Normal'],
+                    fontSize=12,
+                    textColor=colors.HexColor('#FF5722'),
+                    backColor=colors.HexColor('#FFF3E0'),
+                    borderPadding=10,
+                    spaceAfter=20
+                )
+                elements.append(Paragraph(pedido_json['Extra'], aclaraciones_style))
+
+            # Tabla de productos
+            if pedido_json.get('productos'):
+                data = [['Producto', 'Cantidad', 'Precio', 'Total']]
+                total_general = 0
+                producto_tmp = []
+                
+                for producto in pedido_json['productos']:
+                    if producto not in producto_tmp:
+                        cantidad = pedido_json['productos'].count(producto)
+                        for categoria in menu["menu"]:
+                            for item in menu["menu"][categoria]:
+                                if producto == item["name"]:
+                                    precio = item["price"]
+                                    total = precio * cantidad
+                                    total_general += total
+                                    data.append([
+                                        producto,
+                                        str(cantidad),
+                                        f"${precio:.2f}",
+                                        f"${total:.2f}"
+                                    ])
+                                    producto_tmp.append(producto)
+
+                # Agregar el total general
+                data.append(['Total General', '', '', f"${total_general:.2f}"])
+
+                # Crear y estilizar la tabla
+                table = Table(data, colWidths=[220, 80, 80, 80])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2E7D32')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 12),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#E8F5E9')),
+                    ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                    ('BOX', (0, 0), (-1, -1), 2, colors.black),
+                ]))
+                
+                elements.append(table)
+
+            # Generar el PDF
+            doc.build(elements)
+            
+            QMessageBox.information(
+                self,
+                "Exportación Exitosa",
+                f"La comanda ha sido exportada como PDF en:\n{filename}"
+            )
+
+        except Exception as e:
+            raise Exception(f"Error al exportar a PDF: {str(e)}")
+
+    def cargar_historial_mesa(self, mesa_num):
+        historial = []
+        registro_dir = os.path.join(base_dir, "../Docs/Registro")
+        
+        # Verificar si el directorio existe
+        if not os.path.exists(registro_dir):
+            return historial
+
+        # Obtener todos los archivos de registro
+        for filename in os.listdir(registro_dir):
+            if filename.endswith('.json'):
+                filepath = os.path.join(registro_dir, filename)
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        registros = json.load(f)
+                        
+                        # Procesar cada registro
+                        for registro in registros:
+                            if str(registro.get('Mesa')) == str(mesa_num):
+                                # Calcular el total
+                                total = 0
+                                productos = registro.get('productos', [])
+                                menu_data = self.cargar_menu()
+                                
+                                for producto in productos:
+                                    for categoria in menu_data["menu"]:
+                                        for item in menu_data["menu"][categoria]:
+                                            if producto == item["name"]:
+                                                total += item["price"]
+
+                                historial.append({
+                                    'fecha': registro.get('Fecha', ''),
+                                    'hora': registro.get('Hora', ''),
+                                    'mozo': registro.get('Mozo', ''),
+                                    'total': total,
+                                    'productos': productos,
+                                    'Mesa': mesa_num,
+                                    'cantidad_comensales': registro.get('cantidad_comensales', 0),
+                                    'comensales_infantiles': registro.get('comensales_infantiles', 0),
+                                    'Extra': registro.get('Extra', '')
+                                })
+                except Exception as e:
+                    print(f"Error al cargar el archivo {filename}: {str(e)}")
+
+        # Ordenar el historial por fecha y hora (más reciente primero)
+        historial.sort(key=lambda x: f"{x['fecha']} {x['hora']}", reverse=True)
+        return historial
+
+    def cargar_menu(self):
+        """Carga y retorna los datos del menú"""
+        menu_path = os.path.join(base_dir, "../Docs/Menu.json")
+        try:
+            with open(menu_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error al cargar el menú: {str(e)}")
+            return {"menu": {}}
 
     def setup_config_menu(self):
         self.config_button = QToolButton(self)
@@ -1863,14 +2035,220 @@ class RestaurantInterface(QMainWindow):
         except FileNotFoundError:
             return 1
 
+    def cargar_json(self, mesa_num):
+        """Carga y muestra la comanda actual de una mesa específica"""
+        ruta_archivo = os.path.join(base_dir, f"../tmp/Mesa {mesa_num}.json")
+        try:
+            with open(ruta_archivo, "r", encoding="utf-8") as f:
+                pedido_json = json.load(f)
+                self.procesar_pedido_con_json(pedido_json)
+        except Exception as e:
+            print(f"Error al cargar JSON para Mesa {mesa_num}: {str(e)}")
+
+    def procesar_pedido_con_json(self, pedido_json):
+        """Procesa y muestra la comanda en la interfaz"""
+        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
+            menu = json.load(f)
+
+        mesa = pedido_json.get("Mesa", "")
+        fecha = pedido_json.get("Fecha", "")
+        hora = pedido_json.get("Hora", "")
+        mozo = pedido_json.get("Mozo", "")
+        productos = pedido_json.get("productos", [])
+        cantidad_comensales = pedido_json.get("cantidad_comensales", 0)
+        comensales_infantiles = pedido_json.get("comensales_infantiles", 0)
+        aclaraciones = pedido_json.get("Extra", "")
+
+        estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
+
+        if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
+            fecha_formateada = self.formatear_fecha(fecha)
+            comanda_texto = f"""
+            <style>
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f9f9f9;
+                }}
+                .comanda {{
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    padding: 30px;
+                    width: 100%;
+                    box-sizing: border-box;
+                }}
+                h2 {{
+                    color: #2E7D32;
+                    text-align: center;
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }}
+                .info {{
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    font-size: 14px;
+                    margin-bottom: 20px;
+                }}
+                .info p {{
+                    margin: 5px 0;
+                    flex: 1 1 40%;
+                }}
+                .aclaraciones {{
+                    background-color: #FFF3E0;
+                    border-left: 5px solid #FF9800;
+                    padding: 10px;
+                    margin-top: 10px;
+                    border-radius: 5px;
+                    font-style: italic;
+                }}
+                table {{
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin-top: 20px;
+                    font-size: 14px;
+                }}
+                th, td {{
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    text-align: left;
+                    white-space: nowrap;
+                }}
+                th {{
+                    background-color: #2E7D32;
+                    color: white;
+                }}
+                tr:nth-child(even) {{
+                    background-color: #f2f2f2;
+                }}
+                .total {{
+                    font-weight: bold;
+                    background-color: #E8F5E9;
+                }}
+            </style>
+            <div class="comanda">
+                <h2>COMANDA MESA: {mesa}</h2>
+                <div class="info">
+                    <p><strong>Fecha:</strong> {fecha}</p>
+                    <p><strong>Hora:</strong> {hora}</p>
+                    <p><strong>Mozo:</strong> {mozo}</p>
+                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
+                </div>
+                <div class="aclaraciones">
+                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
+                </div>
+
+                <table>
+                    <tr>
+                        <th>Item</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Total</th>
+                    </tr>
+            """
+
+            total_general = 0
+            producto_tmp = []
+            for producto in productos:
+                cantidad = 0
+                for categoria in menu["menu"]:
+                    for pedido in menu["menu"][categoria]:
+                        if producto == pedido["name"]:
+                             if producto not in producto_tmp:    
+                                cantidad += productos.count(producto)
+                                Precio_producto = pedido["price"]*cantidad 
+                                producto_tmp.append(producto)
+                                total_general += Precio_producto
+                                comanda_texto += f"""
+                                <tr>
+                                    <td>{producto}</td>
+                                    <td>{cantidad}</td>
+                                    <td>${pedido["price"]:.2f}</td>
+                                    <td>${Precio_producto:.2f}</td>
+                                </tr>
+                                """
+
+            comanda_texto += f"""
+                <tr class="total">
+                    <td colspan="3">Total General:</td>
+                    <td>${total_general:.2f}</td>
+                </tr>
+            </table>
+            </div>
+            """
+        else:
+            comanda_texto = f"""
+            <style>
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f9f9f9;
+                }}
+                .comanda-vacia {{
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    padding: 30px;
+                    width: 100%;
+                    box-sizing: border-box;
+                    text-align: center;
+                }}
+                h2 {{
+                    color: #2E7D32;
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }}
+                .icon {{
+                    font-size: 48px;
+                    color: #9E9E9E;
+                    margin-bottom: 20px;
+                }}
+                p {{
+                    font-size: 16px;
+                    color: #616161;
+                    margin: 10px 0;
+                    line-height: 1.5;
+                }}
+                .estado {{
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: {('#4CAF50' if estado == 'Disponible' else '#F44336')};
+                    margin-top: 20px;
+                }}
+                .aclaraciones {{
+                    background-color: #FFF3E0;
+                    border-left: 5px solid #FF9800;
+                    padding: 10px;
+                    margin-top: 20px;
+                    border-radius: 5px;
+                    text-align: left;
+                    font-style: italic;
+                }}
+            </style>
+            <div class="comanda-vacia">
+                <h2>MESA {mesa}</h2>
+                <div class="icon">📋</div>
+                <p>No hay pedidos registrados para esta mesa.</p>
+                <p>Esta mesa está actualmente:</p>
+                <p class="estado">{estado.upper()}</p>
+                <div class="aclaraciones">
+                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
+                </div>
+            </div>
+            """
+
+        self.json_input.setHtml(comanda_texto)
+
 
 if __name__ == "__main__":
-    def exception_hook(exctype, value, traceback):
+    def exception_hook(exctype, value, tb):
         print(f"Excepción no manejada: {exctype}, {value}")
         print("Traceback:")
-        print("".join(traceback.format_tb(traceback)))
-        sys.__excepthook__(exctype, value, traceback)
-        sys.exit(1) 
+        import traceback
+        print("".join(traceback.format_tb(tb)))
+        sys.__excepthook__(exctype, value, tb)
+        sys.exit(1)
 
     sys.excepthook = exception_hook
 
