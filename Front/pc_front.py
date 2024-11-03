@@ -192,6 +192,8 @@ class RestaurantInterface(QMainWindow):
             QMessageBox.warning(self, "Búsqueda", "No se encontraron registros para los criterios especificados.")
 
     def mostrar_resumen(self, registros):
+        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
+            menu = json.load(f)
         # Limpiar el layout de scroll existente
         for i in reversed(range(self.scroll_layout.count())):
             widget = self.scroll_layout.itemAt(i).widget()
@@ -1125,7 +1127,6 @@ class RestaurantInterface(QMainWindow):
             code_layout = QHBoxLayout()
             code_label = QLabel("Código:")
             code_input = QLineEdit(code)
-            code_input.setDisabled(True)
             code_layout.addWidget(code_label)
             code_layout.addWidget(code_input)
             layout.addLayout(code_layout)
