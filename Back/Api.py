@@ -6,8 +6,8 @@ import requests
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from models import ValorInput
-from Login_de_mozo_back import verificar, login_out
-from Menu_de_mesas_Back import (
+from Back.Login_de_mozo_back import verificar, login_out
+from Back.Menu_de_mesas_Back import (
     ver_mesas,
     cantidad_de_mesas,
     guardar_mesa,
@@ -16,7 +16,7 @@ from Menu_de_mesas_Back import (
     cerrar_mesa,
     crear_comanda,
 )
-from Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
+from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
 app = FastAPI()
 

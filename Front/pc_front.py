@@ -1063,7 +1063,7 @@ class RestaurantInterface(QMainWindow):
         name = self.mozos_table.item(row, 0).text()
         code = self.mozos_table.item(row, 1).text()
 
-        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöü��ËÏÖÜçÇ' ]+$", name) :
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑäëïöüÄËÏÖÜçÇ' ]+$", name) :
             QMessageBox.warning(
                 self, "Error", "Por favor, no Ingrese caracteres especiales."
             )
@@ -1865,8 +1865,6 @@ class RestaurantInterface(QMainWindow):
 
 
 if __name__ == "__main__":
-    fecha = "2023-10-15"  # Cambia esto a la fecha que desees consultar
-    mozo = "Juan Pérez"  # Opcional, puedes dejarlo como None
     def exception_hook(exctype, value, traceback):
         print(f"Excepción no manejada: {exctype}, {value}")
         print("Traceback:")
