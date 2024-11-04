@@ -93,6 +93,10 @@ from Front.QSS_Pc_Front import (
     COMANDA_STYLE,
     COMANDA_VACIA_STYLE
 )
+from Front.HTML_Pc_Front import (
+    COMANDA_HTML,
+    COMANDA_VACIA_HTML
+)
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -1433,30 +1437,16 @@ class RestaurantInterface(QMainWindow):
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
         if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
-            comanda_texto = f"""
-            <style>
-                {COMANDA_STYLE}
-            </style>
-            <div class="comanda">
-                <h2>COMANDA MESA: {mesa}</h2>
-                <div class="info">
-                    <p><strong>Fecha:</strong> {fecha}</p>
-                    <p><strong>Hora:</strong> {hora}</p>
-                    <p><strong>Mozo:</strong> {mozo}</p>
-                    <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
-                </div>
-                <div class="aclaraciones">
-                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
-                </div>
-
-                <table>
-                    <tr>
-                        <th>Item</th>
-                        <th>Cant.</th>
-                        <th>Precio</th>
-                        <th>Total</th>
-                    </tr>
-            """
+            comanda_texto = COMANDA_HTML.format(
+                COMANDA_STYLE=COMANDA_STYLE,
+                mesa=mesa,
+                fecha=fecha,
+                hora=hora,
+                mozo=mozo,
+                cantidad_comensales=cantidad_comensales,
+                comensales_infantiles=comensales_infantiles,
+                aclaraciones=aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"
+            )
             total_general = 0
             producto_tmp = []
             for producto in productos:
@@ -1464,9 +1454,9 @@ class RestaurantInterface(QMainWindow):
                 for categoria in menu["menu"]:
                     for pedido in menu["menu"][categoria]:
                         if producto == pedido["name"]:
-                             if producto not in producto_tmp:    
+                            if producto not in producto_tmp:
                                 cantidad += productos.count(producto)
-                                Precio_producto = pedido["price"]*cantidad 
+                                Precio_producto = pedido["price"] * cantidad
                                 producto_tmp.append(producto)
                                 total_general += Precio_producto
                                 comanda_texto += f"""
@@ -1487,21 +1477,12 @@ class RestaurantInterface(QMainWindow):
             </div>
             """
         else:
-            comanda_texto = f"""
-            <style>
-                {COMANDA_VACIA_STYLE}
-            </style>
-            <div class="comanda-vacia">
-                <h2>MESA {mesa}</h2>
-                <div class="icon">📋</div>
-                <p>No hay pedidos registrados para esta mesa.</p>
-                <p>Esta mesa está actualmente:</p>
-                <p class="estado">{estado.upper()}</p>
-                <div class="aclaraciones">
-                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
-                </div>
-            </div>
-            """
+            comanda_texto = COMANDA_VACIA_HTML.format(
+                COMANDA_VACIA_STYLE=COMANDA_VACIA_STYLE,
+                mesa=mesa,
+                estado=estado.upper(),
+                aclaraciones=aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"
+            )
 
         self.json_input.setHtml(comanda_texto)
 
