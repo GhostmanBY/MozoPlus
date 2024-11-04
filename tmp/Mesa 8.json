@@ -1,11 +1,18 @@
 {
     "Mesa": 8,
-    "Disponible": true,
-    "productos": [],
-    "cantidad_comensales": 0,
-    "comensales_infantiles": 0,
-    "Mozo": [],
+    "Disponible": false,
+    "productos": [
+        "Agua saborizada",
+        "Gaseosa",
+        "Agua mineral gasificada",
+        "Agua mineral"
+    ],
+    "cantidad_comensales": 1,
+    "comensales_infantiles": 1,
+    "Mozo": "Santiago Mono",
+    "Hora": "10:26",
+    "Fecha": "2024-11-04",
     "Pagado": false,
     "Metodo": "",
-    "Extra": null
+    "Extra": "v va w te"
 }
