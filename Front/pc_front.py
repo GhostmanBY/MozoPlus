@@ -95,7 +95,7 @@ from Front.QSS_Pc_Front import (
 )
 from Front.HTML_Pc_Front import (
     Coamnda_HTML,
-    Coamnda_Vacia_HTML
+    Comanda_Vacia_HTML
 )
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1437,8 +1437,8 @@ class RestaurantInterface(QMainWindow):
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
         if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
-            comanda_texto = Coamnda_HTML.format(
-                COMANDA_STYLE=Comanda_Style,
+            comanda_texto = Coamnda_HTML(
+                comanda_style=Comanda_Style,
                 mesa=mesa,
                 fecha=fecha,
                 hora=hora,
@@ -1477,8 +1477,8 @@ class RestaurantInterface(QMainWindow):
             </div>
             """
         else:
-            comanda_texto = Coamnda_Vacia_HTML.format(
-                COMANDA_VACIA_STYLE=Comanda_Vacia_Style,
+            comanda_texto = Comanda_Vacia_HTML(
+                Comanda_Vacia_Style=Comanda_Vacia_Style,
                 mesa=mesa,
                 estado=estado.upper(),
                 aclaraciones=aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"
