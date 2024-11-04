@@ -57,7 +57,7 @@ from Back.Panel_Admin_Back import (
     Recargar_menu,
     obtener_resumen_por_fecha,
 )
-from CCS_Pc_Front import (
+from Front.QSS_Pc_Front import (
     Paginas_atras_adelante_reset,
     Estilo_General,
     Style_Scroll_Area,
