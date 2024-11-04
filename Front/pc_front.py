@@ -58,9 +58,7 @@ from Back.Panel_Admin_Back import (
     obtener_resumen_por_fecha,
 )
 from CCS_Pc_Front import (
-    Paginas_atras,
-    Paginas_Adelante,
-    Recargar_Tablas,
+    Paginas_atras_adelante_reset,
     Estilo_General,
     Style_Scroll_Area,
     Cargar_Resumen_boton,
@@ -73,7 +71,8 @@ from CCS_Pc_Front import (
     Guardar_cambios_Plato,
     Entry_name_mozo,
     Agregar_Mozo,
-    Tabla_Mozo,
+    Tablas_Menu,
+    Tablas_Mozo,
     Boton_Editar_mozo,
     Boton_eliminar_Mozo,
     Ventanta_de_editar_Mozo,
@@ -183,98 +182,28 @@ class RestaurantInterface(QMainWindow):
 
         # Mejora del botón "Cargar resumen de registros"
         load_button = QPushButton("Cargar resumen de registros")
-        load_button.clicked.connect(self.load_summary)
+        load_button.clicked.connect(lambda: self.load_summary(None))
         load_button.setStyleSheet(Cargar_Resumen_boton)
         info_layout.addWidget(load_button)
 
         self.central_widget.addTab(info_widget, "Resumen")
 
     def buscar_resumen(self):
-        fecha = self.fecha_input.text()
+        fecha = self.fecha_input.text() if self.mozo_input.text() else None
         mozo = self.mozo_input.text() if self.mozo_input.text() else None
 
         # Llamar a la función para obtener el resumen por fecha y mozo
-        resumen = obtener_resumen_por_fecha(fecha, mozo)
+        if fecha and mozo != None:
+            resumen = obtener_resumen_por_fecha(fecha, mozo)
+        else:
+            resumen = None
+
         if resumen:
-            self.mostrar_resumen(resumen)
+            self.load_summary(resumen)
         else:
             QMessageBox.warning(self, "Búsqueda", "No se encontraron registros para los criterios especificados.")
 
-    def mostrar_resumen(self, registros):
-        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
-            menu = json.load(f)
-        # Limpiar el layout de scroll existente
-        for i in reversed(range(self.scroll_layout.count())):
-            widget = self.scroll_layout.itemAt(i).widget()
-            if widget is not None:
-                widget.setParent(None)
-
-        for fecha, data in registros.items():
-            fecha_frame = QFrame()
-            fecha_frame.setStyleSheet(Estilo_Fecha)
-            fecha_layout = QVBoxLayout(fecha_frame)
-            fecha_label = QLabel(f"Fecha: {fecha}")
-            fecha_label.setStyleSheet(Estilo_fecha_label)
-            fecha_layout.addWidget(fecha_label)
-
-            for entry in data:
-                entry_frame = QFrame()
-                entry_frame.setStyleSheet(Estilo_Frame)
-                entry_layout = QVBoxLayout(entry_frame)
-
-                mozo_label = QLabel(f"Mozo: {entry['mozo']}")
-                mozo_label.setStyleSheet("font-weight: bold; color: #2980b9;")
-                entry_layout.addWidget(mozo_label)
-
-                mesa_label = QLabel(f"Mesa: {entry['mesa']}")
-                entry_layout.addWidget(mesa_label)
-
-                hora_label = QLabel(f"Hora Apertura: {entry['hora']}")
-                entry_layout.addWidget(hora_label)
-
-                hora_cierre_label = QLabel(f"Hora Cierre: {entry['hora_cierre']}")
-                entry_layout.addWidget(hora_cierre_label)
-
-                pedido_tmp = []
-                pedido_final = []
-                for producto in entry['productos']:
-                    cantidad = 0
-                    if producto not in pedido_tmp:
-                        cantidad = entry['productos'].count(producto)
-                        pedido = f"{producto} {cantidad}X"
-                        pedido_final.append(pedido)
-                        pedido_tmp.append(producto)
-                    else:
-                        if producto not in pedido_tmp:
-                            pedido = f"{producto} 1X"
-                            pedido_final.append(pedido)
-                            pedido_tmp.append(producto)
-
-                productos_label = QLabel(f"Productos: {', '.join(pedido_final)}")
-                productos_label.setWordWrap(True)
-                productos_label.setStyleSheet("color: #27ae60;")
-                entry_layout.addWidget(productos_label)
-
-                total_general = 0
-                for producto in entry['productos']:
-                    for categoria in menu["menu"]:
-                        for pedido in menu["menu"][categoria]:
-                            if producto == pedido["name"]:
-                                precio = pedido["price"]
-                                total = precio
-                                total_general += total
-                               
-                with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
-                    config = json.load(f)
-                    precio_cubiertos = config[0].get("precio_cubiertos", 0)
-                total_general += float(precio_cubiertos[1:])
-                
-                Precio_total_label = QLabel(f"Total: ${total_general}")
-                entry_layout.addWidget(Precio_total_label)
-
-                fecha_layout.addWidget(entry_frame)
-
-    def load_summary(self):
+    def load_summary(self, registro = None):
         with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
             menu = json.load(f)
 
@@ -283,7 +212,10 @@ class RestaurantInterface(QMainWindow):
             if widget is not None:
                 widget.setParent(None)
 
-        registros = self.get_summary_records()
+        if registro == None:
+            registros = self.get_summary_records()
+        else:
+            registros = registro
 
         for fecha, data in registros.items():
             fecha_frame = QFrame()
@@ -417,17 +349,18 @@ class RestaurantInterface(QMainWindow):
         self.menu_table.setHorizontalHeaderLabels(
             ["Nombre", "Categoría", "Precio", "Acciones"]
         )
+        self.menu_table.setStyleSheet(Tablas_Menu)
         self.menu_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         menu_layout.addWidget(self.menu_table)
 
         menu_pagination_layout = QHBoxLayout()
         
         self.btn_anterior_menu = QPushButton("Página Anterior", self)
-        self.btn_anterior_menu.setStyleSheet(Paginas_atras)
+        self.btn_anterior_menu.setStyleSheet(Paginas_atras_adelante_reset)
         self.btn_anterior_menu.clicked.connect(self.cargar_anterior_menu)
         
         self.btn_siguiente_menu = QPushButton("Siguiente Página", self)
-        self.btn_siguiente_menu.setStyleSheet(Paginas_Adelante)
+        self.btn_siguiente_menu.setStyleSheet(Paginas_atras_adelante_reset)
         self.btn_siguiente_menu.clicked.connect(self.cargar_siguiente_menu)
         
         menu_pagination_layout.addWidget(self.btn_anterior_menu)
@@ -439,7 +372,7 @@ class RestaurantInterface(QMainWindow):
         # Refresh button
         refresh_button = QPushButton("Actualizar Menu")
         refresh_button.clicked.connect(self.load_menu)
-        refresh_button.setStyleSheet(Recargar_Tablas)
+        refresh_button.setStyleSheet(Paginas_atras_adelante_reset)
         menu_layout.addWidget(refresh_button)
 
         bottom_layout = QHBoxLayout()
@@ -624,7 +557,7 @@ class RestaurantInterface(QMainWindow):
         self.mozos_table = QTableWidget(0, 7)
         self.mozos_table.setHorizontalHeaderLabels(["Nombre", "Código", "Hora de entrada", "Hora de salida", "Fecha", "Mesas Totales", "Acciones",])
 
-        self.mozos_table.setStyleSheet(Tabla_Mozo)
+        self.mozos_table.setStyleSheet(Tablas_Mozo)
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
         self.mozos_table.verticalHeader().setDefaultSectionSize(40)
         self.mozos_table.setMinimumHeight(300)  # Establecer una altura mínima
@@ -633,11 +566,11 @@ class RestaurantInterface(QMainWindow):
         pagination_layout = QHBoxLayout()
     
         self.btn_anterior_mozos = QPushButton("Página Anterior", self)
-        self.btn_anterior_mozos.setStyleSheet(Paginas_atras)
+        self.btn_anterior_mozos.setStyleSheet(Paginas_atras_adelante_reset)
         self.btn_anterior_mozos.clicked.connect(self.cargar_anterior_mozos)
         
         self.btn_siguiente_mozos = QPushButton("Siguiente Página", self)
-        self.btn_siguiente_mozos.setStyleSheet(Paginas_Adelante)
+        self.btn_siguiente_mozos.setStyleSheet(Paginas_atras_adelante_reset)
         self.btn_siguiente_mozos.clicked.connect(self.cargar_siguiente_mozos)
         
         pagination_layout.addWidget(self.btn_anterior_mozos)
@@ -648,7 +581,7 @@ class RestaurantInterface(QMainWindow):
 
         # Modificar el botón de actualizar
         self.refresh_button = QPushButton("Actualizar Lista")
-        self.refresh_button.setStyleSheet(Recargar_Tablas)
+        self.refresh_button.setStyleSheet(Paginas_atras_adelante_reset)
         self.refresh_button.clicked.connect(self.update_current_view)
         mozos_layout.addWidget(self.refresh_button, alignment=Qt.AlignRight)
 
@@ -1498,7 +1431,6 @@ class RestaurantInterface(QMainWindow):
         estado = "Disponible" if pedido_json.get("Disponible", True) else "Ocupada"
 
         if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
-            fecha_formateada = self.formatear_fecha(fecha)
             comanda_texto = f"""
             <style>
                 body {{
@@ -1583,7 +1515,6 @@ class RestaurantInterface(QMainWindow):
                         <th>Total</th>
                     </tr>
             """
-
             total_general = 0
             producto_tmp = []
             for producto in productos:
@@ -1675,7 +1606,6 @@ class RestaurantInterface(QMainWindow):
             """
 
         self.json_input.setHtml(comanda_texto)
-
 
 if __name__ == "__main__":
     def exception_hook(exctype, value, tb):
