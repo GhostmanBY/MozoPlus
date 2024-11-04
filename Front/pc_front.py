@@ -89,7 +89,9 @@ from Front.QSS_Pc_Front import (
     Config_Style_boton,
     Config_Desplegable_Menu,
     Ventanta_de_configuracion,
-    Estilo_app
+    Estilo_app,
+    COMANDA_STYLE,
+    COMANDA_VACIA_STYLE
 )
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1433,67 +1435,7 @@ class RestaurantInterface(QMainWindow):
         if productos or cantidad_comensales > 0 or comensales_infantiles > 0:
             comanda_texto = f"""
             <style>
-                body {{
-                    font-family: 'Arial', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f9f9f9;
-                }}
-                .comanda {{
-                    background-color: #ffffff;
-                    border-radius: 12px;
-                    padding: 30px;
-                    width: 100%;
-                    box-sizing: border-box;
-                }}
-                h2 {{
-                    color: #2E7D32;
-                    text-align: center;
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }}
-                .info {{
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    font-size: 14px;
-                    margin-bottom: 20px;
-                }}
-                .info p {{
-                    margin: 5px 0;
-                    flex: 1 1 40%;
-                }}
-                .aclaraciones {{
-                    background-color: #FFF3E0;
-                    border-left: 5px solid #FF9800;
-                    padding: 10px;
-                    margin-top: 10px;
-                    border-radius: 5px;
-                    font-style: italic;
-                }}
-                table {{
-                    border-collapse: collapse;
-                    width: 100%;
-                    margin-top: 20px;
-                    font-size: 14px;
-                }}
-                th, td {{
-                    border: 1px solid #ddd;
-                    padding: 10px;
-                    text-align: left;
-                    white-space: nowrap;
-                }}
-                th {{
-                    background-color: #2E7D32;
-                    color: white;
-                }}
-                tr:nth-child(even) {{
-                    background-color: #f2f2f2;
-                }}
-                .total {{
-                    font-weight: bold;
-                    background-color: #E8F5E9;
-                }}
+                {COMANDA_STYLE}
             </style>
             <div class="comanda">
                 <h2>COMANDA MESA: {mesa}</h2>
@@ -1547,51 +1489,7 @@ class RestaurantInterface(QMainWindow):
         else:
             comanda_texto = f"""
             <style>
-                body {{
-                    font-family: 'Arial', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f9f9f9;
-                }}
-                .comanda-vacia {{
-                    background-color: #ffffff;
-                    border-radius: 12px;
-                    padding: 30px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    text-align: center;
-                }}
-                h2 {{
-                    color: #2E7D32;
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }}
-                .icon {{
-                    font-size: 48px;
-                    color: #9E9E9E;
-                    margin-bottom: 20px;
-                }}
-                p {{
-                    font-size: 16px;
-                    color: #616161;
-                    margin: 10px 0;
-                    line-height: 1.5;
-                }}
-                .estado {{
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: {('#4CAF50' if estado == 'Disponible' else '#F44336')};
-                    margin-top: 20px;
-                }}
-                .aclaraciones {{
-                    background-color: #FFF3E0;
-                    border-left: 5px solid #FF9800;
-                    padding: 10px;
-                    margin-top: 20px;
-                    border-radius: 5px;
-                    text-align: left;
-                    font-style: italic;
-                }}
+                {COMANDA_VACIA_STYLE}
             </style>
             <div class="comanda-vacia">
                 <h2>MESA {mesa}</h2>
