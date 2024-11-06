@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import requests
 from fastapi import FastAPI, HTTPException, status, Body
 from fastapi.middleware.cors import CORSMiddleware
-from models import ValorInput
+from Back.models import ValorInput
 from Back.Login_de_mozo_back import verificar, login_out
 from Back.Menu_de_mesas_Back import (
     ver_mesas,
@@ -17,8 +17,7 @@ from Back.Menu_de_mesas_Back import (
     crear_comanda,
     crear_sub_mesa,
     editar_sub_mesa,
-    cerrar_sub_mesa,
-    obtener_mesas_enlazadas,
+    cerrar_sub_mesa
 )
 from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
