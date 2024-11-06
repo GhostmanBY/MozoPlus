@@ -548,7 +548,66 @@ Sub-Mesa: {sub_mesa_id}
         encoding="utf-8",
     ) as archivo:
         archivo.write(contenido)
+import datetime
 
+async def vista_previa_comanda(mesa, mozo, productos):
+    """
+    Genera una vista preliminar de la comanda de una mesa sin guardarla en archivo.
+
+    :param mesa: Número de mesa
+    :param mozo: Nombre del mozo
+    :param productos: Lista de productos seleccionados en la mesa
+    :param menu: Menú completo con categorías y precios de cada plato
+    :return: Vista previa de la comanda en formato de texto
+    """
+    items = []
+    with open(
+        os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8"
+    ) as file:
+        menu = json.load(file)
+        file.close()
+    # Buscar productos en el menú y añadirlos a la lista de items
+    for categoria in menu["menu"]:
+        for item in productos:
+            for plato in menu["menu"][categoria]:
+                if item == plato["name"]:
+                    items.append([plato["name"], productos[item], plato["price"]])
+
+    # Calcular el total de la comanda
+    total = sum(cantidad * precio for _, cantidad, precio in items)
+
+    # Crear el contenido preliminar de la comanda
+    contenido = f"""
+=======================================
+      VISTA PRELIMINAR DE LA COMANDA
+=======================================
+Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+Mesa: {mesa}
+Mozo: {mozo}
+
+--------------------------------------------------
+{"Item".ljust(20)} {"Cant.".rjust(5)} {"Precio".rjust(10)} {"Total".rjust(10)}
+--------------------------------------------------
+"""
+
+    for item, cantidad, precio in items:
+        subtotal = cantidad * precio
+        contenido += f"{item.ljust(20)} {str(cantidad).rjust(5)} {f'${precio:,.2f}'.rjust(10)} {f'${subtotal:,.2f}'.rjust(10)}\n"
+
+    contenido += f"""
+--------------------------------------------------
+{"TOTAL:".ljust(36)} {f'${total:,.2f}'.rjust(10)}
+==================================================
+"""
+
+    return contenido
+
+def imprir(comanda):
+    texto = vista_previa_comanda(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
+    with open(os.path.join(base_dir, f"../Docs/Comandas/comanda_{comanda['Mesa']}.txt"), "w", encoding="utf-8") as file:
+        file.write(texto)
+    os.system(f"print ../Docs/Comandas/comanda_{comanda['Mesa']}.txt")
+    
 
 if __name__ == "__main__":
     creas_mesas(10)

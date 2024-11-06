@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import requests
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Body
 from fastapi.middleware.cors import CORSMiddleware
 from models import ValorInput
 from Back.Login_de_mozo_back import verificar, login_out
@@ -18,6 +18,7 @@ from Back.Menu_de_mesas_Back import (
     crear_sub_mesa,
     editar_sub_mesa,
     cerrar_sub_mesa,
+    obtener_mesas_enlazadas,
 )
 from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
@@ -97,55 +98,24 @@ async def ruta_cantidad_mesas():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
 
-# Ruta PUT para editar una mesa.
-# Recibe el número de la mesa y un JSON con los valores que se van a editar.
+# Ruta PUT para editar una mesa o un grupo de mesas enlazadas.
 @app.put("/mesas/{mesa}")
-async def ruta_guardar_mesa(mesa: int, input: ValorInput):
-    """
-    Ejemplo del JSON enviado en la petición:
-    {
-      "categoria": "productos",
-      "valor": ["vino", "sorrentino"]
-    }
-    """
+async def ruta_editar_mesa(mesa: int, input: ValorInput):
     try:
-        # Llama a la función 'editar_mesa' con el número de mesa y los nuevos valores.
-        result = await guardar_mesa(mesa, input)
+        # Verifica si la mesa está enlazada con otras.
+        mesas_list = obtener_mesas_enlazadas(mesa)
         
-        # Si la mesa no se encuentra, lanza un error 404.
-        if not result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
+        for mesa_id in mesas_list:
+            result = await editar_mesa(mesa_id, input)
+            if not result:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa_id} no encontrada.")
         
-        # Si la petición no es procesable, lanza un error 422 y un print.
-        if isinstance(result, dict) and "error" in result:
-            print(f"INFO:    {requests.client.host}:{requests.client.port} - {requests.method} {requests.url.path} {result['error']}")
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Error en la entidad {result['entity']}: {result['error']}"
-            )
-        
-        # Devuelve el resultado de la edición.
-        return result
+        return {"message": "Mesa(s) editada(s) exitosamente."}
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@app.get("/mesas/{mesa}")
-async def ruta_editar_mesa(mesa: int):
-    try:
-        # Llama a la función 'editar_mesa' con el número de mesa y los nuevos valores.
-        result = await editar_mesa(mesa)
-        
-        # Si la mesa no se encuentra, lanza un error 404.
-        if not result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
-        
-        return result
-    except HTTPException as http_exc:
-        raise http_exc
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 # Ruta POST para abrir una mesa.
 # Recibe el número de mesa y el nombre del mozo.
 @app.post("/mesas/{mesa}/{mozo}/abrir")
@@ -165,23 +135,22 @@ async def ruta_abrir_mesa(mesa: int, mozo: str):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# Ruta POST para cerrar una mesa.
-# Primero crea una comanda y luego cierra la mesa.
+# Ruta POST para cerrar una mesa o un grupo de mesas enlazadas.
 @app.post("/mesas/{mesa}/cerrar")
 async def ruta_cerrar_mesa(mesa: int):
     try:
-        # Crea una comanda antes de cerrar la mesa.
-        await crear_comanda(mesa)
+        # Verifica si la mesa está enlazada con otras.
+        mesas_list = obtener_mesas_enlazadas(mesa)
         
-        # Cierra la mesa usando la función 'cerrar_mesa'.
-        result = await cerrar_mesa(mesa)
+        # Crea una comanda antes de cerrar las mesas.
+        await crear_comanda(mesas_list)
         
-        # Si no se encuentra la mesa, lanza un error 404.
-        if not result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mesa no encontrada.")
+        for mesa_id in mesas_list:
+            result = await cerrar_mesa(mesa_id)
+            if not result:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa_id} no encontrada.")
         
-        # Devuelve un mensaje de éxito si la mesa se cerró correctamente.
-        return {"message": "Mesa cerrada exitosamente."}
+        return {"message": "Mesa(s) cerrada(s) exitosamente."}
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
@@ -209,6 +178,7 @@ async def ruta_cubierto():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Precio no encontrado")
     
     return precio_cubierto
+
 
 # Ruta POST para crear una sub-mesa.
 # Recibe el número de mesa y el ID de la sub-mesa.
@@ -266,6 +236,69 @@ async def ruta_cerrar_sub_mesa(mesa: int, sub_mesa_id: str):
         raise http_exc
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+# Ruta POST para abrir un grupo de mesas enlazadas.
+@app.post("/mesas/enlazar/{mesas}/{mozo}/abrir")
+async def ruta_abrir_mesas_enlazadas(mesas: str, mozo: str):
+    try:
+        # Convierte la cadena de mesas en una lista de enteros.
+        mesas_list = list(map(int, mesas.split(',')))
+        
+        # Llama a la función 'abrir_mesa' para cada mesa en el grupo.
+        for mesa in mesas_list:
+            result = await abrir_mesa(mesa, mozo)
+            if not result:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} o mozo no encontrado.")
+        
+        # Devuelve un mensaje de éxito si todas las mesas se abrieron correctamente.
+        return {"message": "Mesas enlazadas abiertas exitosamente."}
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+# Ruta PUT para editar un grupo de mesas enlazadas.
+@app.put("/mesas/enlazar/{mesas}")
+async def ruta_editar_mesas_enlazadas(mesas: str, input: ValorInput):
+    try:
+        mesas_list = list(map(int, mesas.split(',')))
+        
+        for mesa in mesas_list:
+            result = await editar_mesa(mesa, input)
+            if not result:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} no encontrada.")
+        
+        return {"message": "Mesas enlazadas editadas exitosamente."}
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+# Ruta POST para cerrar un grupo de mesas enlazadas.
+@app.post("/mesas/enlazar/{mesas}/cerrar")
+async def ruta_cerrar_mesas_enlazadas(mesas: str):
+    try:
+        mesas_list = list(map(int, mesas.split(',')))
+        
+        # Crea una comanda antes de cerrar las mesas.
+        await crear_comanda(mesas_list)
+        
+        for mesa in mesas_list:
+            result = await cerrar_mesa(mesa)
+            if not result:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} no encontrada.")
+        
+        return {"message": "Mesas enlazadas cerradas exitosamente."}
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@app.post("/precomanda")
+async def ruta_precomanda(comanda: dict = Body(...)):
+    #imprir(comanda)
+    return {"message": "Comanda recibida exitosamente."}
+
 
 # Bloque principal para ejecutar la aplicación con Uvicorn.
 # Este código solo se ejecuta si el archivo se ejecuta directamente.
