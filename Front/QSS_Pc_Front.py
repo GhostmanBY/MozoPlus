@@ -1,61 +1,61 @@
 # Definición de constantes de color
-# Colores base - Tonos cálidos y elegantes
-COLOR_PRIMARIO = "#8B4513"  # Marrón elegante
-COLOR_SECUNDARIO = "#CD853F"  # Marrón claro
-COLOR_TERCERO = "#DEB887"  # Beige oscuro
-COLOR_ERROR = "#8B0000"  # Rojo oscuro elegante
+# Colores base
+COLOR_PRIMARIO = "#DA1F3D"    # Rojo Chichilo
+COLOR_SECUNDARIO = "#1B3159"  # Azul Marino
+COLOR_TERCERO = "#F5F7FA"     # Gris Claro
+COLOR_ERROR = "#DA1F3D"       # Rojo Chichilo
 
 # Colores de fondo
-COLOR_FONDO = "#FDF5E6"  # Blanco hueso
-COLOR_FONDO_CLARO = "#FEFCF8"  # Blanco cálido
-COLOR_FONDO_DARK = "#F5DEB3"  # Beige
-COLOR_FONDO_VENTANA = "#FFF8DC"  # Blanco maíz
-COLOR_FONDO_FECHA = "#FAEBD7"  # Blanco antiguo
+COLOR_FONDO = "#F5F7FA"       # Gris Claro
+COLOR_FONDO_CLARO = "#FFFFFF" # Blanco Base
+COLOR_FONDO_DARK = "#F5F7FA"  # Gris Claro
+COLOR_FONDO_VENTANA = "#FFFFFF" # Blanco Base
+COLOR_FONDO_FECHA = "#F5F7FA"   # Gris Claro
 
 # Colores de texto
-COLOR_TEXTO = "#2F1810"  # Marrón muy oscuro
-COLOR_TEXTO_CLARO = "#FFF8DC"  # Blanco maíz
-COLOR_TEXTO_DARK = "#4A2511"  # Marrón oscuro
-COLOR_TEXTO_SECUNDARIO = "#6B4423"  # Marrón medio
+COLOR_TEXTO = "#4A5568"       # Gris Texto
+COLOR_TEXTO_CLARO = "#FFFFFF" # Blanco Base
+COLOR_TEXTO_DARK = "#1B3159"  # Azul Marino
+COLOR_TEXTO_SECUNDARIO = "#2B4F8C" # Azul Acento
 
 # Colores hover
-COLOR_TEXTO_HOVER = "#A0522D"  # Siena
-COLOR_TEXTO_HOVER_SECUNDARIO = "#8B4513"  # Marrón silla
-COLOR_TEXTO_HOVER_ERROR = "#800000"  # Granate
+COLOR_TEXTO_HOVER = "#FF4D6A"     # Rojo Claro
+COLOR_TEXTO_HOVER_SECUNDARIO = "#FF4D6A" # Rojo Claro
+COLOR_TEXTO_HOVER_ERROR = "#DA1F3D"      # Rojo Chichilo
 
 # Colores de bordes
-COLOR_BORDES = "#DEB887"  # Beige oscuro
-COLOR_BORDE_TABLA = "#8B4513"  # Marrón silla
+COLOR_BORDES = "#1B3159"      # Azul Marino
+COLOR_BORDE_TABLA = "#2B4F8C" # Azul Acento
 
 # Colores de tabla
-COLOR_FONDO_TABLA = "#FFF8DC"  # Blanco maíz
-COLOR_HEADER_TABLA = "#8B4513"  # Marrón silla
-COLOR_ITEM_SELECCIONADO = "#FFE4C4"  # Bisque
-COLOR_HEADER_HISTORIAL = "#654321"  # Marrón oscuro
+COLOR_FONDO_TABLA = "#FFFFFF"   # Blanco Base
+COLOR_HEADER_TABLA = "#1B3159"  # Azul Marino
+COLOR_ITEM_SELECCIONADO = "#F5F7FA" # Gris Claro
+COLOR_HEADER_HISTORIAL = "#4A5568"   # Gris Texto
 
 # Colores de scroll
-COLOR_SCROLL_AREA = "#DEB887"  # Beige oscuro
-COLOR_SCROLL_HANDLE = "#8B4513"  # Marrón silla
+COLOR_SCROLL_AREA = "#1B3159"   # Azul Marino
+COLOR_SCROLL_HANDLE = "#2B4F8C" # Azul Acento
 
 # Colores de botones
 ## Botón cargar
-COLOR_BOTON_CARGAR = "#8B4513"  # Marrón silla
-COLOR_BOTON_CARGAR_HOVER = "#A0522D"  # Siena
-COLOR_BOTON_CARGAR_PRESSED = "#6B4423"  # Marrón medio
+COLOR_BOTON_CARGAR = "#DA1F3D"        # Rojo Chichilo
+COLOR_BOTON_CARGAR_HOVER = "#FF4D6A"  # Rojo Claro
+COLOR_BOTON_CARGAR_PRESSED = "#4A5568" # Gris Texto
 
 ## Botón agregar
-COLOR_BOTON_AGREGAR = "#85AC41"  # Verde oliva oscuro
-COLOR_BOTON_EDITAR_HOVER = "#6B8E23"  # Verde oliva
+COLOR_BOTON_AGREGAR = "#10B981"       # Verde Estado
+COLOR_BOTON_EDITAR_HOVER = "#10B981"  # Verde Estado
 
 ## Botón exportar
-COLOR_BOTON_EXPORTAR = "#8B4513"  # Marrón silla
-COLOR_BOTON_EXPORTAR_HOVER = "#A0522D"  # Siena
-COLOR_BOTON_EXPORTAR_PRESSED = "#6B4423"  # Marrón medio
+COLOR_BOTON_EXPORTAR = "#DA1F3D"       # Rojo Chichilo
+COLOR_BOTON_EXPORTAR_HOVER = "#FF4D6A" # Rojo Claro
+COLOR_BOTON_EXPORTAR_PRESSED = "#4A5568" # Gris Texto
 
 ## Botones de configuración
-COLOR_BOTON_CONFIG_MENU = "#556B2F"  # Verde oliva oscuro
-COLOR_BOTON_GUARDAR = "#2E8B57"  # Verde mar oscuro
-COLOR_BOTON_GUARDAR_PRESSED = "#2F4F4F"  # Verde gris oscuro
+COLOR_BOTON_CONFIG_MENU = "#1B3159"    # Azul Marino
+COLOR_BOTON_GUARDAR = "#10B981"        # Verde Estado
+COLOR_BOTON_GUARDAR_PRESSED = "#4A5568" # Gris Texto
 
 
 # MARK: Estilos generales

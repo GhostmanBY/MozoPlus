@@ -4,3 +4,4 @@ fpdf
 pydantic
 PyQt5
 uvicorn
+reportlab
