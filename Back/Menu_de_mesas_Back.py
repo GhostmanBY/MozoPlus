@@ -548,24 +548,25 @@ Sub-Mesa: {sub_mesa_id}
         encoding="utf-8",
     ) as archivo:
         archivo.write(contenido)
-import datetime
 
 async def vista_previa_comanda(mesa, mozo, productos):
     """
     Genera una vista preliminar de la comanda de una mesa sin guardarla en archivo.
-
-    :param mesa: Número de mesa
-    :param mozo: Nombre del mozo
-    :param productos: Lista de productos seleccionados en la mesa
-    :param menu: Menú completo con categorías y precios de cada plato
-    :return: Vista previa de la comanda en formato de texto
+    
+    Args:
+        mesa (int): Número de mesa
+        mozo (str): Nombre del mozo
+        productos (dict): Lista de productos seleccionados en la mesa
+    
+    Returns:
+        str: Vista previa de la comanda en formato de texto estilizado
     """
     items = []
     with open(
         os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8"
     ) as file:
         menu = json.load(file)
-        file.close()
+
     # Buscar productos en el menú y añadirlos a la lista de items
     for categoria in menu["menu"]:
         for item in productos:
@@ -576,34 +577,47 @@ async def vista_previa_comanda(mesa, mozo, productos):
     # Calcular el total de la comanda
     total = sum(cantidad * precio for _, cantidad, precio in items)
 
-    # Crear el contenido preliminar de la comanda
+    # Constantes de diseño
+    ancho_total = 50
+    linea_doble = "═" * ancho_total
+    linea_simple = "─" * ancho_total
+    espaciado = " " * 2
+
+    # Crear el encabezado
     contenido = f"""
-=======================================
-      VISTA PRELIMINAR DE LA COMANDA
-=======================================
-Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
-Mesa: {mesa}
-Mozo: {mozo}
+╔{linea_doble}╗
+║{espaciado}{'RESTAURANTE EL BUEN SABOR'.center(ancho_total - 4)}{espaciado}║
+╟{linea_simple}╢
+║{espaciado}{'VISTA PREVIA DE COMANDA'.center(ancho_total - 4)}{espaciado}║
+╟{linea_simple}╢
+║{espaciado}Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"):<37}{espaciado}║
+║{espaciado}Mesa: {str(mesa):<39}{espaciado}║
+║{espaciado}Mozo: {mozo:<39}{espaciado}║
+╟{linea_simple}╢
+║{espaciado}{"Descripción":<20}{"Cant.":<8}{"Precio":>8}{"Total":>10}{espaciado}║
+╟{linea_simple}╢"""
 
---------------------------------------------------
-{"Item".ljust(20)} {"Cant.".rjust(5)} {"Precio".rjust(10)} {"Total".rjust(10)}
---------------------------------------------------
-"""
-
+    # Agregar items
     for item, cantidad, precio in items:
         subtotal = cantidad * precio
-        contenido += f"{item.ljust(20)} {str(cantidad).rjust(5)} {f'${precio:,.2f}'.rjust(10)} {f'${subtotal:,.2f}'.rjust(10)}\n"
+        contenido += f"\n║{espaciado}{item:<20}{cantidad:<8}${precio:>7,.2f}${subtotal:>9,.2f}{espaciado}║"
 
+    # Agregar total y pie
     contenido += f"""
---------------------------------------------------
-{"TOTAL:".ljust(36)} {f'${total:,.2f}'.rjust(10)}
-==================================================
+╟{linea_simple}╢
+║{espaciado}{"TOTAL:":>36}${total:>9,.2f}{espaciado}║
+╚{linea_doble}╝
+
+        * Los precios incluyen IVA
+        * Conserve este comprobante
 """
 
     return contenido
 
-def imprir(comanda):
-    texto = vista_previa_comanda(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
+    return contenido
+
+async def imprir(comanda):
+    texto = await vista_previa_comanda(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
     with open(os.path.join(base_dir, f"../Docs/Comandas/comanda_{comanda['Mesa']}.txt"), "w", encoding="utf-8") as file:
         file.write(texto)
     os.system(f"print ../Docs/Comandas/comanda_{comanda['Mesa']}.txt")
