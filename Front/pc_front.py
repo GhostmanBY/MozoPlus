@@ -57,42 +57,7 @@ from Back.Panel_Admin_Back import (
     Recargar_menu,
     obtener_resumen_por_fecha,
 )
-from Front.QSS_Pc_Front import (
-    Paginas_atras_adelante_reset,
-    Estilo_General,
-    Style_Scroll_Area,
-    Cargar_Resumen_boton,
-    Estilo_Fecha,
-    Estilo_fecha_label,
-    Estilo_Frame,
-    Agregar_Plato_boton,
-    boton_editar_Plato,
-    boton_eliminar_PLato,
-    Guardar_cambios_Plato,
-    Entry_name_mozo,
-    Agregar_Mozo,
-    Tablas_Menu,
-    Tablas_Mozo,
-    Boton_Editar_mozo,
-    Boton_eliminar_Mozo,
-    Ventanta_de_editar_Mozo,
-    Frame_Scroll_mesas,
-    right_widget_style,
-    pedidos_label_Style,
-    Placeholder_text_pedido,
-    splitter_style,
-    Mesas_True,
-    Mesas_False,
-    Ventana_de_historial_mesa,
-    Boton_Exportar_comadna,
-    Exportar_menu,
-    Config_Style_boton,
-    Config_Desplegable_Menu,
-    Ventanta_de_configuracion,
-    Estilo_app,
-    Comanda_Style,
-    Comanda_Vacia_Style
-)
+from Front.QSS_Pc_Front import *
 from Front.HTML_Pc_Front import (
     Coamnda_HTML,
     Comanda_Vacia_HTML
@@ -167,30 +132,116 @@ class RestaurantInterface(QMainWindow):
     def setup_info_tab(self):
         info_widget = QWidget()
         info_layout = QVBoxLayout(info_widget)
+        info_layout.setContentsMargins(20, 20, 20, 20)
+        info_layout.setSpacing(15)
 
-        # Añadir campos de entrada para la búsqueda
-        search_layout = QHBoxLayout()
-        search_layout.addWidget(QLabel("Fecha:"))
-        search_layout.addWidget(self.fecha_input)
-        search_layout.addWidget(QLabel("Mozo:"))
-        search_layout.addWidget(self.mozo_input)
+        # Título y búsqueda en el mismo frame
+        header_frame = QFrame()
+        header_frame.setStyleSheet(Header_Frame_Style)
+        header_layout = QVBoxLayout(header_frame)
+        header_layout.setSpacing(10)
 
-        # Botón de búsqueda
-        search_button = QPushButton("Buscar")
+        # Título
+        title_label = QLabel("Resumen de Registros")
+        title_label.setStyleSheet(Title_Label_Style)
+        header_layout.addWidget(title_label, alignment=Qt.AlignCenter)
+
+        # Contenedor para los controles de búsqueda
+        search_container = QWidget()
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(10, 0, 10, 0)
+        search_layout.setSpacing(20)
+
+        # Fecha
+        fecha_container = QWidget()
+        fecha_layout = QHBoxLayout(fecha_container)
+        fecha_layout.setContentsMargins(0, 0, 0, 0)
+        fecha_layout.setSpacing(10)
+        
+        fecha_label = QLabel("📅")
+        fecha_label.setStyleSheet(Icon_Label_Style)
+        self.fecha_input.setPlaceholderText("Buscar por fecha...")
+        self.fecha_input.setStyleSheet(Search_Input_Style)
+        fecha_layout.addWidget(fecha_label)
+        fecha_layout.addWidget(self.fecha_input)
+
+        # Mozo
+        mozo_container = QWidget()
+        mozo_layout = QHBoxLayout(mozo_container)
+        mozo_layout.setContentsMargins(0, 0, 0, 0)
+        mozo_layout.setSpacing(10)
+        
+        mozo_label = QLabel("👤")
+        mozo_label.setStyleSheet(Icon_Label_Style)
+        self.mozo_input.setPlaceholderText("Buscar por mozo...")
+        self.mozo_input.setStyleSheet(Search_Input_Style)
+        mozo_layout.addWidget(mozo_label)
+        mozo_layout.addWidget(self.mozo_input)
+
+        # Botones
+        buttons_container = QWidget()
+        buttons_layout = QHBoxLayout(buttons_container)
+        buttons_layout.setContentsMargins(0, 0, 0, 0)
+        buttons_layout.setSpacing(10)
+
+        search_button = QPushButton("🔍 Buscar")
+        search_button.setStyleSheet(Search_Button_Style)
         search_button.clicked.connect(self.buscar_resumen)
-        search_layout.addWidget(search_button)
 
-        info_layout.addLayout(search_layout)
-
-        # Estilo para el widget de desplazamiento
-        self.scroll_area.setStyleSheet(Style_Scroll_Area)
-        info_layout.addWidget(self.scroll_area)
-
-        # Mejora del botón "Cargar resumen de registros"
-        load_button = QPushButton("Cargar resumen de registros")
+        load_button = QPushButton("📋 Ver Todos")
+        load_button.setStyleSheet(Load_Button_Style)
         load_button.clicked.connect(lambda: self.load_summary(None))
-        load_button.setStyleSheet(Cargar_Resumen_boton)
-        info_layout.addWidget(load_button)
+
+        buttons_layout.addWidget(search_button)
+        buttons_layout.addWidget(load_button)
+
+        # Agregar todos los elementos al layout de búsqueda
+        search_layout.addWidget(fecha_container)
+        search_layout.addWidget(mozo_container)
+        search_layout.addWidget(buttons_container)
+        search_layout.addStretch()
+
+        header_layout.addWidget(search_container)
+        info_layout.addWidget(header_frame)
+
+        # Área de scroll (sin cambios en el código existente)
+        self.scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: 2px solid #DEB887;
+                border-radius: 10px;
+                background-color: #FEFCF8;
+                min-height: 850px;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #FDF5E6;
+                width: 12px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #8B4513;
+                min-height: 30px;
+                border-radius: 6px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+        """)
+        
+        # Asegurar que el contenido sea scrolleable
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_content.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding
+        )
+        
+        # Ajustar márgenes y espaciado
+        self.scroll_layout.setSpacing(10)
+        self.scroll_layout.setContentsMargins(10, 10, 10, 30)  # Aumentar margen inferior
+        
+        info_layout.addWidget(self.scroll_area)
+        info_layout.setStretch(0, 0)
+        info_layout.setStretch(1, 1)
 
         self.central_widget.addTab(info_widget, "Resumen")
 
@@ -207,98 +258,107 @@ class RestaurantInterface(QMainWindow):
         else:
             QMessageBox.warning(self, "Búsqueda", "No se encontraron registros para los criterios especificados.")
 
-    def load_summary(self, registro = None):
-        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
-            menu = json.load(f)
-
+    def load_summary(self, registro=None):
+        # Limpiar el layout existente
         for i in reversed(range(self.scroll_layout.count())):
             widget = self.scroll_layout.itemAt(i).widget()
             if widget is not None:
                 widget.setParent(None)
 
-        if registro == None:
+        # Cargar registros
+        if registro is None:
             registros = self.get_summary_records()
         else:
             registros = registro
 
+        # Estilo para los frames de fecha
+        fecha_frame_style = Summary_Fecha_Frame_Style
+
+        # Estilo para las etiquetas de fecha
+        fecha_label_style = Summary_Fecha_Label_Style
+
+        # Estilo para los frames de entrada
+        entry_frame_style = Summary_Entry_Frame_Style
+
+        # Estilo para las etiquetas de información
+        info_label_style = Summary_Info_Label_Style
+
         for fecha, data in registros.items():
             fecha_frame = QFrame()
-            fecha_frame.setStyleSheet(Estilo_Fecha)
+            fecha_frame.setStyleSheet(fecha_frame_style)
             fecha_layout = QVBoxLayout(fecha_frame)
-            fecha_label = QLabel(f"Fecha: {fecha}")
-            fecha_label.setStyleSheet(Estilo_fecha_label)
+
+            fecha_label = QLabel(f"📅 {fecha}")
+            fecha_label.setStyleSheet(fecha_label_style)
             fecha_layout.addWidget(fecha_label)
 
             for entry in data:
-                entry_frame = QFrame()
-                entry_frame.setStyleSheet(Estilo_Frame)
-                entry_layout = QVBoxLayout(entry_frame)
-
-                # Verificación para evitar errores de clave
                 if isinstance(entry, dict):
-                    mozo_text = entry.get('mozo', 'Mozo desconocido')  # Usa un valor predeterminado si no existe
-                    mozo_label = QLabel(f"Mozo: {mozo_text}")
-                    mozo_label.setStyleSheet("font-weight: bold;")
+                    entry_frame = QFrame()
+                    entry_frame.setStyleSheet(entry_frame_style)
+                    entry_frame.setCursor(Qt.PointingHandCursor)  # Cambiar el cursor al pasar por encima
+                    entry_layout = QVBoxLayout(entry_frame)
+
+                    # Guardar los datos en el frame para acceder a ellos al hacer clic
+                    entry_frame.entry_data = entry
+                    
+                    # Conectar el evento de clic
+                    entry_frame.mousePressEvent = lambda e, data=entry: self.show_detailed_info(data)
+
+                    # Información del mozo
+                    mozo_label = QLabel(f"👤 Mozo: {entry.get('mozo', 'Desconocido')}")
+                    mozo_label.setStyleSheet(info_label_style)
                     entry_layout.addWidget(mozo_label)
-                    
-                    mesa_text = entry.get('mesa', 'Mesa desconocida')
-                    mesa_label = QLabel(f"<span style='color: #C06D03;'>Mesa:</span> {mesa_text}")
-                    mesa_label.setStyleSheet("font-weight: bold;")
+
+                    # Información de la mesa
+                    mesa_label = QLabel(f"🍽️ Mesa: {entry.get('mesa', 'Desconocida')}")
+                    mesa_label.setStyleSheet(info_label_style)
                     entry_layout.addWidget(mesa_label)
+
+                    # Horarios
+                    horarios_frame = QFrame()
+                    horarios_layout = QHBoxLayout(horarios_frame)
                     
-                    hora_text = entry.get('hora', 'Hora no especificada')
-                    hora_label = QLabel(f"<span style='color: orange;'>Hora Apertura:</span> {hora_text}")
-                    hora_label.setStyleSheet("font-weight: bold;")
-                    entry_layout.addWidget(hora_label)
+                    hora_apertura = QLabel(f"🕐 Apertura: {entry.get('hora', 'No especificada')}")
+                    hora_cierre = QLabel(f"🕒 Cierre: {entry.get('hora_cierre', 'No especificada')}")
                     
-                    hora_cierre_text = entry.get('hora_cierre', 'Hora de cierre no especificada')
-                    hora_cierre_label = QLabel(f"<span style='color: red;'>Hora Cierre:</span> {hora_cierre_text}")
-                    hora_cierre_label.setStyleSheet("font-weight: bold;")
-                    entry_layout.addWidget(hora_cierre_label)
-                else:
-                    print("Advertencia: `entry` no es un diccionario.")
+                    hora_apertura.setStyleSheet(info_label_style)
+                    hora_cierre.setStyleSheet(info_label_style)
+                    
+                    horarios_layout.addWidget(hora_apertura)
+                    horarios_layout.addWidget(hora_cierre)
+                    entry_layout.addWidget(horarios_frame)
 
-                pedido_tmp = []
-                pedido_final = []
-                for producto in entry['productos']:
-                    cantidad = 0
-                    if producto not in pedido_tmp:
-                        cantidad = entry['productos'].count(producto)
-                        pedido = f"{producto} {cantidad}X"
-                        pedido_final.append(pedido)
-                        pedido_tmp.append(producto)
-                    else:
-                        if producto not in pedido_tmp:
-                            pedido = f"{producto} 1X"
-                            pedido_final.append(pedido)
-                            pedido_tmp.append(producto)
+                    # Productos y total
+                    if 'productos' in entry:
+                        productos_frame = QFrame()
+                        productos_layout = QVBoxLayout(productos_frame)
+                        
+                        productos_label = QLabel("📋 Productos:")
+                        productos_label.setStyleSheet(info_label_style)
+                        productos_layout.addWidget(productos_label)
 
-                productos_label = QLabel(f"Productos: {', '.join(pedido_final)}")
-                productos_label.setStyleSheet("font-weight: bold;")
-                productos_label.setWordWrap(True)
-                entry_layout.addWidget(productos_label)
+                        pedido_tmp = []
+                        pedido_final = []
+                        for producto in entry['productos']:
+                            if producto not in pedido_tmp:
+                                cantidad = entry['productos'].count(producto)
+                                pedido = f"• {producto} (x{cantidad})"
+                                pedido_final.append(pedido)
+                                pedido_tmp.append(producto)
 
-                total_general = 0
-                for producto in entry['productos']:
-                    for categoria in menu["menu"]:
-                        for pedido in menu["menu"][categoria]:
-                            if producto == pedido["name"]:
-                                precio = pedido["price"]
-                                total = precio
-                                total_general += total
-                               
-                with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
-                    config = json.load(f)
-                    precio_cubiertos = config[0].get("precio_cubiertos", 0)
-                total_general += float(precio_cubiertos[1:])
-                
-                Precio_total_label = QLabel(f"<span style='color: green;'>Total: ${total_general}</span>")
-                Precio_total_label.setStyleSheet("font-weight: bold;")
-                entry_layout.addWidget(Precio_total_label)
+                        productos_detalle = QLabel("\n".join(pedido_final))
+                        productos_detalle.setStyleSheet(Summary_Productos_Detalle_Style)
+                        productos_detalle.setWordWrap(True)
+                        productos_layout.addWidget(productos_detalle)
+                        entry_layout.addWidget(productos_frame)
 
-                fecha_layout.addWidget(entry_frame)
+                    fecha_layout.addWidget(entry_frame)
 
             self.scroll_layout.addWidget(fecha_frame)
+
+        # Añadir un espaciador al final
+        self.scroll_layout.addStretch()
 
     def get_summary_records(self):
         fecha_hoy = datetime.now().date()
@@ -861,7 +921,6 @@ class RestaurantInterface(QMainWindow):
         self.json_input.setSizePolicy(
             QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
         )
-
         self.json_input.setReadOnly(True)
         pedidos_layout.addWidget(self.json_input)
 
@@ -1500,6 +1559,147 @@ class RestaurantInterface(QMainWindow):
             )
 
         self.json_input.setHtml(comanda_texto)
+
+    def show_detailed_info(self, entry_data):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Detalles de la Comanda")
+        dialog.setMinimumWidth(500)
+        dialog.setMaximumHeight(700)  # Limitar altura máxima
+        
+        # Crear un scroll area para contener todo el contenido
+        scroll = QScrollArea(dialog)
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: #FFF8DC;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #FDF5E6;
+                width: 12px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #8B4513;
+                min-height: 30px;
+                border-radius: 6px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+        """)
+
+        # Widget contenedor principal
+        main_widget = QWidget()
+        layout = QVBoxLayout(main_widget)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        # Encabezado
+        header_frame = QFrame()
+        header_layout = QVBoxLayout(header_frame)
+        
+        title = QLabel(f"Mesa {entry_data.get('mesa', 'N/A')}")
+        title.setStyleSheet("""
+            font-size: 24px;
+            font-weight: bold;
+            color: #8B4513;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #DEB887;
+        """)
+        header_layout.addWidget(title)
+
+        # Información básica
+        info_frame = QFrame()
+        info_layout = QVBoxLayout(info_frame)
+        
+        mozo_label = QLabel(f"👤 Mozo: {entry_data.get('mozo', 'N/A')}")
+        fecha_label = QLabel(f"📅 Fecha: {entry_data.get('fecha', 'N/A')}")
+        hora_apertura = QLabel(f"🕐 Hora de apertura: {entry_data.get('hora', 'N/A')}")
+        hora_cierre = QLabel(f"🕒 Hora de cierre: {entry_data.get('hora_cierre', 'N/A')}")
+
+        info_layout.addWidget(mozo_label)
+        info_layout.addWidget(fecha_label)
+        info_layout.addWidget(hora_apertura)
+        info_layout.addWidget(hora_cierre)
+
+        # Productos
+        productos_frame = QFrame()
+        productos_layout = QVBoxLayout(productos_frame)
+        
+        productos_title = QLabel("📋 Productos:")
+        productos_title.setStyleSheet("font-weight: bold;")
+        productos_layout.addWidget(productos_title)
+
+        productos = entry_data.get('productos', [])
+        if productos:
+            producto_tmp = []
+            for producto in productos:
+                if producto not in producto_tmp:
+                    cantidad = productos.count(producto)
+                    producto_label = QLabel(f"• {producto} (x{cantidad})")
+                    producto_label.setStyleSheet("margin-left: 20px;")
+                    productos_layout.addWidget(producto_label)
+                    producto_tmp.append(producto)
+        else:
+            productos_layout.addWidget(QLabel("No hay productos registrados"))
+
+        # Calcular total
+        total = 0
+        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
+            menu = json.load(f)
+            for producto in productos:
+                for categoria in menu["menu"]:
+                    for item in menu["menu"][categoria]:
+                        if producto == item["name"]:
+                            total += item["price"]
+
+        total_label = QLabel(f"💰 Total: ${total:.2f}")
+        total_label.setStyleSheet("""
+            font-size: 18px;
+            font-weight: bold;
+            color: #2E7D32;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #E8F5E9;
+            border-radius: 5px;
+        """)
+
+        # Agregar todos los elementos al layout principal
+        layout.addWidget(header_frame)
+        layout.addWidget(info_frame)
+        layout.addWidget(productos_frame)
+        layout.addWidget(total_label)
+
+        # Botón de cerrar
+        close_button = QPushButton("Cerrar")
+        close_button.setStyleSheet("""
+            QPushButton {
+                background-color: #8B4513;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #A0522D;
+            }
+        """)
+        close_button.clicked.connect(dialog.accept)
+        layout.addWidget(close_button, alignment=Qt.AlignCenter)
+
+        # Establecer el widget principal en el scroll area
+        scroll.setWidget(main_widget)
+
+        # Layout del diálogo
+        dialog_layout = QVBoxLayout(dialog)
+        dialog_layout.setContentsMargins(0, 0, 0, 0)
+        dialog_layout.addWidget(scroll)
+
+        dialog.exec_()
 
 if __name__ == "__main__":
     def exception_hook(exctype, value, tb):
