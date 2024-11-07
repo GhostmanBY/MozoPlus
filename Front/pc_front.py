@@ -199,12 +199,10 @@ class RestaurantInterface(QMainWindow):
         mozo = self.mozo_input.text() if self.mozo_input.text() else None
 
         # Llamar a la función para obtener el resumen por fecha y mozo
-        if fecha and mozo != None:
-            resumen = obtener_resumen_por_fecha(fecha, mozo)
-        else:
-            resumen = None
+        resumen = obtener_resumen_por_fecha(fecha, mozo)
 
         if resumen:
+            print(f"resumen: {resumen}")
             self.load_summary(resumen)
         else:
             QMessageBox.warning(self, "Búsqueda", "No se encontraron registros para los criterios especificados.")
@@ -236,21 +234,29 @@ class RestaurantInterface(QMainWindow):
                 entry_frame.setStyleSheet(Estilo_Frame)
                 entry_layout = QVBoxLayout(entry_frame)
 
-                mozo_label = QLabel(f"Mozo: {entry['mozo']}")
-                mozo_label.setStyleSheet("font-weight: bold;")
-                entry_layout.addWidget(mozo_label)
-
-                mesa_label = QLabel(f"<span style='color: #C06D03;'>Mesa:</span> {entry['mesa']}")
-                mesa_label.setStyleSheet("font-weight: bold;")
-                entry_layout.addWidget(mesa_label)
-
-                hora_label = QLabel(f"<span style='color: orange;'>Hora Apertura:</span> {entry['hora']}")
-                hora_label.setStyleSheet("font-weight: bold;")
-                entry_layout.addWidget(hora_label)
-
-                hora_cierre_label = QLabel(f"<span style='color: red;'>Hora Cierre:</span> {entry['hora_cierre']}")
-                hora_cierre_label.setStyleSheet("font-weight: bold;")
-                entry_layout.addWidget(hora_cierre_label)
+                # Verificación para evitar errores de clave
+                if isinstance(entry, dict):
+                    mozo_text = entry.get('mozo', 'Mozo desconocido')  # Usa un valor predeterminado si no existe
+                    mozo_label = QLabel(f"Mozo: {mozo_text}")
+                    mozo_label.setStyleSheet("font-weight: bold;")
+                    entry_layout.addWidget(mozo_label)
+                    
+                    mesa_text = entry.get('mesa', 'Mesa desconocida')
+                    mesa_label = QLabel(f"<span style='color: #C06D03;'>Mesa:</span> {mesa_text}")
+                    mesa_label.setStyleSheet("font-weight: bold;")
+                    entry_layout.addWidget(mesa_label)
+                    
+                    hora_text = entry.get('hora', 'Hora no especificada')
+                    hora_label = QLabel(f"<span style='color: orange;'>Hora Apertura:</span> {hora_text}")
+                    hora_label.setStyleSheet("font-weight: bold;")
+                    entry_layout.addWidget(hora_label)
+                    
+                    hora_cierre_text = entry.get('hora_cierre', 'Hora de cierre no especificada')
+                    hora_cierre_label = QLabel(f"<span style='color: red;'>Hora Cierre:</span> {hora_cierre_text}")
+                    hora_cierre_label.setStyleSheet("font-weight: bold;")
+                    entry_layout.addWidget(hora_cierre_label)
+                else:
+                    print("Advertencia: `entry` no es un diccionario.")
 
                 pedido_tmp = []
                 pedido_final = []

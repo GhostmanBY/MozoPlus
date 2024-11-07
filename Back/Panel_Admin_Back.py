@@ -9,9 +9,9 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
 ruta_json = os.path.join(base_dir, "../Docs/mesas.json")
 
-def obtener_resumen_por_fecha(fecha: str, mozo: Optional[str] = None):
+def obtener_resumen_por_fecha(fecha: Optional[str] = None, mozo: Optional[str] = None):
     """
-    Busca archivos JSON de registro por fecha y opcionalmente por mozo.
+    Busca archivos JSON de registro por fecha, por mozo, o ambos.
     """
     directorio_registro = os.path.join(base_dir, "../Docs/Registro")
     resumen = {}
@@ -20,25 +20,46 @@ def obtener_resumen_por_fecha(fecha: str, mozo: Optional[str] = None):
         # Listar todos los archivos en el directorio de registros
         archivos = os.listdir(directorio_registro)
         
-        # Filtrar archivos por fecha y opcionalmente por mozo
+        # Filtrar archivos por fecha y/o mozo
         for archivo in archivos:
-            if archivo.startswith(f"{fecha}_"):
-                if mozo and mozo not in archivo:
-                    continue
-                ruta_archivo = os.path.join(directorio_registro, archivo)
-                with open(ruta_archivo, "r", encoding="utf-8") as file:
-                    data = json.load(file)
-                    mozo_name = archivo.replace(f"{fecha}_", "").replace(".json", "")
-                    if fecha not in resumen:
-                        resumen[fecha] = []
-                    for entry in data:
-                        resumen[fecha].append({
-                            "mozo": mozo_name,
-                            "mesa": entry["Mesa"],
-                            "hora": entry["Hora"],
-                            "hora_cierre": entry["Hora_cierre"],
-                            "productos": entry["productos"],
-                        })
+            if fecha and not archivo.startswith(f"{fecha}_"):
+                continue
+            if mozo and mozo not in archivo:
+                continue
+            ruta_archivo = os.path.join(directorio_registro, archivo)
+            with open(ruta_archivo, "r", encoding="utf-8") as file:
+                data = json.load(file)
+                mozo_name = archivo.replace(f"{fecha}_", "").replace(".json", "")
+                
+                for entry in data:
+                    # Verificar que `entry` tenga todas las claves necesarias
+                    registro_fecha = entry.get("Fecha", None)
+                    if registro_fecha is None:
+                        print(f"Advertencia: 'Fecha' no encontrada en una entrada de {archivo}.")
+                        continue
+                    if fecha and registro_fecha != fecha:
+                        continue
+
+                    mozo_entry = entry.get("Mozo", None)
+                    if mozo and mozo_entry != mozo:
+                        continue
+
+                    mesa = entry.get("Mesa", "Mesa desconocida")
+                    hora = entry.get("Hora", "Hora desconocida")
+                    hora_cierre = entry.get("Hora_cierre", "Hora de cierre desconocida")
+                    productos = entry.get("productos", [])
+
+                    # Añadir datos al resumen si la fecha no está en `resumen`
+                    if registro_fecha not in resumen:
+                        resumen[registro_fecha] = []
+                    
+                    resumen[registro_fecha].append({
+                        "mozo": mozo_name,
+                        "mesa": mesa,
+                        "hora": hora,
+                        "hora_cierre": hora_cierre,
+                        "productos": productos,
+                    })
         
         return resumen
     except Exception as e:
