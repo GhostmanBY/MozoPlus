@@ -10,14 +10,14 @@ from Back.Login_de_mozo_back import verificar, login_out
 from Back.Menu_de_mesas_Back import (
     ver_mesas,
     cantidad_de_mesas,
-    guardar_mesa,
     editar_mesa,
     abrir_mesa,
     cerrar_mesa,
     crear_comanda,
     crear_sub_mesa,
     editar_sub_mesa,
-    cerrar_sub_mesa
+    cerrar_sub_mesa,
+    imprir
 )
 from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
@@ -101,14 +101,12 @@ async def ruta_cantidad_mesas():
 @app.put("/mesas/{mesa}")
 async def ruta_editar_mesa(mesa: int, input: ValorInput):
     try:
-        # Verifica si la mesa está enlazada con otras.
-        mesas_list = obtener_mesas_enlazadas(mesa)
         
-        for mesa_id in mesas_list:
-            result = await editar_mesa(mesa_id, input)
-            if not result:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa_id} no encontrada.")
         
+        result = await editar_mesa(mesa, input)
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} no encontrada.")
+    
         return {"message": "Mesa(s) editada(s) exitosamente."}
     except HTTPException as http_exc:
         raise http_exc
@@ -138,17 +136,13 @@ async def ruta_abrir_mesa(mesa: int, mozo: str):
 @app.post("/mesas/{mesa}/cerrar")
 async def ruta_cerrar_mesa(mesa: int):
     try:
-        # Verifica si la mesa está enlazada con otras.
-        mesas_list = obtener_mesas_enlazadas(mesa)
+        await crear_comanda(mesa)
         
-        # Crea una comanda antes de cerrar las mesas.
-        await crear_comanda(mesas_list)
-        
-        for mesa_id in mesas_list:
-            result = await cerrar_mesa(mesa_id)
-            if not result:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa_id} no encontrada.")
-        
+    
+        result = await cerrar_mesa(mesa)
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} no encontrada.")
+    
         return {"message": "Mesa(s) cerrada(s) exitosamente."}
     except HTTPException as http_exc:
         raise http_exc
@@ -295,7 +289,7 @@ async def ruta_cerrar_mesas_enlazadas(mesas: str):
 
 @app.post("/precomanda")
 async def ruta_precomanda(comanda: dict = Body(...)):
-    #imprir(comanda)
+    imprir(comanda)
     return {"message": "Comanda recibida exitosamente."}
 
 

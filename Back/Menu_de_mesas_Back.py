@@ -300,6 +300,11 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
         file.write("{:<20} {:>5} {:>10.2f}\n".format("Total", "", total))
         file.write("="*40 + "\n")
         file.write("¡Gracias por su pedido!\n")
+async def imprir(comanda):
+    texto = await comanda_preview(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
+    with open(os.path.join(base_dir, f"../Docs/Comandas/comanda_{comanda['Mesa']}.txt"), "w", encoding="utf-8") as file:
+        file.write(texto)
+    os.system(f"print ../Docs/Comandas/comanda_{comanda['Mesa']}.txt")
 
 def cantidad_de_mesas():
     """
