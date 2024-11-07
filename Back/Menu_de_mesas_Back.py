@@ -5,7 +5,12 @@ import sqlite3
 import json
 import datetime
 from fastapi.responses import JSONResponse
-from Back.models import Mesa, ValorInput
+
+#Este if es para que cuando se compile desde el archivo no se tenga que cambiar la ruta de la importacion
+if __name__ == "__main__":    
+    from models import Mesa, ValorInput
+else:
+    from Back.models import Mesa, ValorInput
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -271,6 +276,30 @@ async def cerrar_mesa(mesa: int):
             content=f"Error al cerrar la mesa: {str(e)}", status_code=500
         )
 
+def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
+    
+    with open(f"Pre-view Mesa {numero_mesa}.txt", "w") as file:
+        file.write("Comanda de Pedido\n")
+        file.write("="*40 + "\n")
+        
+        file.write(f"Fecha y Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        file.write(f"Mesa: {numero_mesa}\n")
+        file.write(f"Mozo: {nombre_mozo}\n")
+        file.write("="*40 + "\n")
+        
+        file.write("{:<20} {:>5} {:>10}\n".format("Item", "Cant", "Precio"))
+        file.write("-"*40 + "\n")
+        
+        total = 0
+        for item in lista_platos:
+            subtotal = item["cantidad"] * item["precio"]
+            total += subtotal
+            file.write("{:<20} {:>5} {:>10.2f}\n".format(item["nombre"], item["cantidad"], subtotal))
+        
+        file.write("="*40 + "\n")
+        file.write("{:<20} {:>5} {:>10.2f}\n".format("Total", "", total))
+        file.write("="*40 + "\n")
+        file.write("¡Gracias por su pedido!\n")
 
 def cantidad_de_mesas():
     """
@@ -549,84 +578,24 @@ Sub-Mesa: {sub_mesa_id}
     ) as archivo:
         archivo.write(contenido)
 
-async def vista_previa_comanda(mesa, mozo, productos):
-    """
-    Genera una vista preliminar de la comanda de una mesa sin guardarla en archivo.
-    
-    Args:
-        mesa (int): Número de mesa
-        mozo (str): Nombre del mozo
-        productos (dict): Lista de productos seleccionados en la mesa
-    
-    Returns:
-        str: Vista previa de la comanda en formato de texto estilizado
-    """
-    items = []
-    with open(
-        os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8"
-    ) as file:
-        menu = json.load(file)
-
-    # Buscar productos en el menú y añadirlos a la lista de items
-    for categoria in menu["menu"]:
-        for item in productos:
-            for plato in menu["menu"][categoria]:
-                if item == plato["name"]:
-                    items.append([plato["name"], productos[item], plato["price"]])
-
-    # Calcular el total de la comanda
-    total = sum(cantidad * precio for _, cantidad, precio in items)
-
-    # Constantes de diseño
-    ancho_total = 50
-    linea_doble = "═" * ancho_total
-    linea_simple = "─" * ancho_total
-    espaciado = " " * 2
-
-    # Crear el encabezado
-    contenido = f"""
-╔{linea_doble}╗
-║{espaciado}{'RESTAURANTE EL BUEN SABOR'.center(ancho_total - 4)}{espaciado}║
-╟{linea_simple}╢
-║{espaciado}{'VISTA PREVIA DE COMANDA'.center(ancho_total - 4)}{espaciado}║
-╟{linea_simple}╢
-║{espaciado}Fecha: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"):<37}{espaciado}║
-║{espaciado}Mesa: {str(mesa):<39}{espaciado}║
-║{espaciado}Mozo: {mozo:<39}{espaciado}║
-╟{linea_simple}╢
-║{espaciado}{"Descripción":<20}{"Cant.":<8}{"Precio":>8}{"Total":>10}{espaciado}║
-╟{linea_simple}╢"""
-
-    # Agregar items
-    for item, cantidad, precio in items:
-        subtotal = cantidad * precio
-        contenido += f"\n║{espaciado}{item:<20}{cantidad:<8}${precio:>7,.2f}${subtotal:>9,.2f}{espaciado}║"
-
-    # Agregar total y pie
-    contenido += f"""
-╟{linea_simple}╢
-║{espaciado}{"TOTAL:":>36}${total:>9,.2f}{espaciado}║
-╚{linea_doble}╝
-
-        * Los precios incluyen IVA
-        * Conserve este comprobante
-"""
-
-    return contenido
-
-    return contenido
-
-async def imprir(comanda):
-    texto = await vista_previa_comanda(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
-    with open(os.path.join(base_dir, f"../Docs/Comandas/comanda_{comanda['Mesa']}.txt"), "w", encoding="utf-8") as file:
-        file.write(texto)
-    os.system(f"print ../Docs/Comandas/comanda_{comanda['Mesa']}.txt")
-    
 
 if __name__ == "__main__":
-    creas_mesas(10)
-    crea_mesas_tmp()
-    
 
+    with open (os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
+        menu = json.load(file)
+    v = ["Agua mineral",
+        "Agua mineral gasificada",
+        "Gaseosa",
+        "Agua saborizada"
+        ]
+    data = []
+    for categoria in menu["menu"]:
+        for pedido in menu["menu"][categoria]:
+            if v == pedido["name"]:
+                data.append({"nombre":pedido["name"], "cantidad": 1, "precio": pedido["price"]})
+                print(data)
+                
+
+    
 
 

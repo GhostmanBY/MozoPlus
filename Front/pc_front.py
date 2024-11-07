@@ -237,16 +237,19 @@ class RestaurantInterface(QMainWindow):
                 entry_layout = QVBoxLayout(entry_frame)
 
                 mozo_label = QLabel(f"Mozo: {entry['mozo']}")
-                mozo_label.setStyleSheet("font-weight: bold; color: #2980b9;")
+                mozo_label.setStyleSheet("font-weight: bold;")
                 entry_layout.addWidget(mozo_label)
 
-                mesa_label = QLabel(f"Mesa: {entry['mesa']}")
+                mesa_label = QLabel(f"<span style='color: #C06D03;'>Mesa:</span> {entry['mesa']}")
+                mesa_label.setStyleSheet("font-weight: bold;")
                 entry_layout.addWidget(mesa_label)
 
-                hora_label = QLabel(f"Hora Apertura: {entry['hora']}")
+                hora_label = QLabel(f"<span style='color: orange;'>Hora Apertura:</span> {entry['hora']}")
+                hora_label.setStyleSheet("font-weight: bold;")
                 entry_layout.addWidget(hora_label)
 
-                hora_cierre_label = QLabel(f"Hora Cierre: {entry['hora_cierre']}")
+                hora_cierre_label = QLabel(f"<span style='color: red;'>Hora Cierre:</span> {entry['hora_cierre']}")
+                hora_cierre_label.setStyleSheet("font-weight: bold;")
                 entry_layout.addWidget(hora_cierre_label)
 
                 pedido_tmp = []
@@ -265,8 +268,8 @@ class RestaurantInterface(QMainWindow):
                             pedido_tmp.append(producto)
 
                 productos_label = QLabel(f"Productos: {', '.join(pedido_final)}")
+                productos_label.setStyleSheet("font-weight: bold;")
                 productos_label.setWordWrap(True)
-                productos_label.setStyleSheet("color: #27ae60;")
                 entry_layout.addWidget(productos_label)
 
                 total_general = 0
@@ -283,7 +286,8 @@ class RestaurantInterface(QMainWindow):
                     precio_cubiertos = config[0].get("precio_cubiertos", 0)
                 total_general += float(precio_cubiertos[1:])
                 
-                Precio_total_label = QLabel(f"Total: ${total_general}")
+                Precio_total_label = QLabel(f"<span style='color: green;'>Total: ${total_general}</span>")
+                Precio_total_label.setStyleSheet("font-weight: bold;")
                 entry_layout.addWidget(Precio_total_label)
 
                 fecha_layout.addWidget(entry_frame)
@@ -1367,7 +1371,7 @@ class RestaurantInterface(QMainWindow):
                 else:
                     config = [{"precio_cubiertos": 0}, {"cantidad_mesas": 0}]
                 
-                config[0]["precio_cubiertos"] = str(precio_cubiertos)
+                config[0]["precio_cubiertos"] = "$" + str(precio_cubiertos)
             
             elif config_type == "Cantidad de mesas":
                 cantidad_mesas = int(self.mesas_input.text())
@@ -1424,6 +1428,9 @@ class RestaurantInterface(QMainWindow):
         """Procesa y muestra la comanda en la interfaz"""
         with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
             menu = json.load(f)
+        with open(os.path.join(base_dir, "../Docs/config.json"), "r", encoding="utf-8") as f:
+            config = json.load(f)
+            precio_cubiertos = config[0].get("precio_cubiertos", 0)
 
         mesa = pedido_json.get("Mesa", "")
         fecha = pedido_json.get("Fecha", "")
@@ -1458,7 +1465,9 @@ class RestaurantInterface(QMainWindow):
                                 cantidad += productos.count(producto)
                                 Precio_producto = pedido["price"] * cantidad
                                 producto_tmp.append(producto)
-                                total_general += Precio_producto
+                                total_general += Precio_producto 
+                                
+                                
                                 comanda_texto += f"""
                                 <tr>
                                     <td>{producto}</td>
@@ -1467,10 +1476,11 @@ class RestaurantInterface(QMainWindow):
                                     <td>${Precio_producto:.2f}</td>
                                 </tr>
                                 """
-
+            total_general += float(precio_cubiertos[1:])
             comanda_texto += f"""
                 <tr class="total">
-                    <td colspan="3">Total General:</td>
+                    <td colspan="2">Total General:</td>
+                    <td>${float(precio_cubiertos[1:])}</td>
                     <td>${total_general:.2f}</td>
                 </tr>
             </table>
@@ -1481,7 +1491,6 @@ class RestaurantInterface(QMainWindow):
                 Comanda_Vacia_Style=Comanda_Vacia_Style,
                 mesa=mesa,
                 estado=estado.upper(),
-                aclaraciones=aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"
             )
 
         self.json_input.setHtml(comanda_texto)

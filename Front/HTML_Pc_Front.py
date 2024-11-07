@@ -9,7 +9,8 @@ def Coamnda_HTML(comanda_style, mesa, fecha, hora, mozo, cantidad_comensales, co
                         <p><strong>Fecha:</strong> {fecha}</p>
                         <p><strong>Hora:</strong> {hora}</p>
                         <p><strong>Mozo:</strong> {mozo}</p>
-                        <p><strong>Comensales:</strong> {cantidad_comensales} (Infantiles: {comensales_infantiles})</p>
+                        <p><strong>Comensales Adultos:</strong> {cantidad_comensales}</p>
+                        <p><strong>Comensales Infantiles:</strong>  {comensales_infantiles}</p>
                     </div>
                     <div class="aclaraciones">
                         <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
@@ -25,7 +26,7 @@ def Coamnda_HTML(comanda_style, mesa, fecha, hora, mozo, cantidad_comensales, co
             """
     return Coamnda_HTML
 
-def Comanda_Vacia_HTML (Comanda_Vacia_Style, mesa, estado, aclaraciones):
+def Comanda_Vacia_HTML (Comanda_Vacia_Style, mesa, estado):
     Comanda_Vacia_HTML = f"""
                 <style>
                     {Comanda_Vacia_Style}
@@ -35,9 +36,6 @@ def Comanda_Vacia_HTML (Comanda_Vacia_Style, mesa, estado, aclaraciones):
                 <p>No hay pedidos registrados para esta mesa.</p>
                 <p>Esta mesa está actualmente:</p>
                 <p class="estado">{estado.upper()}</p>
-                <div class="aclaraciones">
-                    <p><strong>Aclaraciones:</strong> {aclaraciones if aclaraciones else "No hay aclaraciones sobre el pedido"}</p>
-                </div>
             </div>
             """
     return Comanda_Vacia_HTML

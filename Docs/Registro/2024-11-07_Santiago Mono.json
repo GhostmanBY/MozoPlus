@@ -1,0 +1,40 @@
+[
+    {
+        "Mesa": 10,
+        "Disponible": false,
+        "productos": [
+            "Agua mineral",
+            "Agua mineral gasificada",
+            "Gaseosa",
+            "Agua saborizada"
+        ],
+        "cantidad_comensales": 1,
+        "comensales_infantiles": 1,
+        "Mozo": "Santiago Mono",
+        "Hora": "01:46",
+        "Fecha": "2024-11-07",
+        "Pagado": false,
+        "Metodo": "",
+        "Extra": "dddd",
+        "Hora_cierre": "01:46"
+    },
+    {
+        "Mesa": 1,
+        "Disponible": false,
+        "productos": [
+            "Agua mineral",
+            "Agua mineral gasificada",
+            "Gaseosa",
+            "Agua saborizada"
+        ],
+        "cantidad_comensales": 1,
+        "comensales_infantiles": 1,
+        "Mozo": "Santiago Mono",
+        "Hora": "01:46",
+        "Fecha": "2024-11-07",
+        "Pagado": false,
+        "Metodo": "",
+        "Extra": "dddd",
+        "Hora_cierre": "01:46"
+    }
+]

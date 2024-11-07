@@ -1,61 +1,64 @@
 # Definición de constantes de color
 # Colores base
-COLOR_PRIMARIO = "#DA1F3D"    # Rojo Chichilo
-COLOR_SECUNDARIO = "#1B3159"  # Azul Marino
-COLOR_TERCERO = "#F5F7FA"     # Gris Claro
-COLOR_ERROR = "#DA1F3D"       # Rojo Chichilo
+# Definición de constantes de color
+# Colores base - Tonos cálidos y elegantes
+COLOR_PRIMARIO = "#8B4513"  # Marrón elegante
+COLOR_SECUNDARIO = "#CD853F"  # Marrón claro
+COLOR_TERCERO = "#DEB887"  # Beige oscuro
+COLOR_ERROR = "#8B0000"  # Rojo oscuro elegante
 
 # Colores de fondo
-COLOR_FONDO = "#F5F7FA"       # Gris Claro
-COLOR_FONDO_CLARO = "#FFFFFF" # Blanco Base
-COLOR_FONDO_DARK = "#F5F7FA"  # Gris Claro
-COLOR_FONDO_VENTANA = "#FFFFFF" # Blanco Base
-COLOR_FONDO_FECHA = "#F5F7FA"   # Gris Claro
+COLOR_FONDO = "#FDF5E6"  # Blanco hueso
+COLOR_FONDO_CLARO = "#FEFCF8"  # Blanco cálido
+COLOR_FONDO_DARK = "#F5DEB3"  # Beige
+COLOR_FONDO_VENTANA = "#FFF8DC"  # Blanco maíz
+COLOR_FONDO_FECHA = "#FAEBD7"  # Blanco antiguo
 
 # Colores de texto
-COLOR_TEXTO = "#4A5568"       # Gris Texto
-COLOR_TEXTO_CLARO = "#FFFFFF" # Blanco Base
-COLOR_TEXTO_DARK = "#1B3159"  # Azul Marino
-COLOR_TEXTO_SECUNDARIO = "#2B4F8C" # Azul Acento
+COLOR_TEXTO = "#2F1810"  # Marrón muy oscuro
+COLOR_TEXTO_CLARO = "#FFF8DC"  # Blanco maíz
+COLOR_TEXTO_DARK = "#4A2511"  # Marrón oscuro
+COLOR_TEXTO_SECUNDARIO = "#6B4423"  # Marrón medio
 
 # Colores hover
-COLOR_TEXTO_HOVER = "#FF4D6A"     # Rojo Claro
-COLOR_TEXTO_HOVER_SECUNDARIO = "#FF4D6A" # Rojo Claro
-COLOR_TEXTO_HOVER_ERROR = "#DA1F3D"      # Rojo Chichilo
+COLOR_TEXTO_HOVER = "#A0522D"  # Siena
+COLOR_TEXTO_HOVER_SECUNDARIO = "#8B4513"  # Marrón silla
+COLOR_TEXTO_HOVER_ERROR = "#800000"  # Granate
 
 # Colores de bordes
-COLOR_BORDES = "#1B3159"      # Azul Marino
-COLOR_BORDE_TABLA = "#2B4F8C" # Azul Acento
+COLOR_BORDES = "#DEB887"  # Beige oscuro
+COLOR_BORDE_TABLA = "#8B4513"  # Marrón silla
 
 # Colores de tabla
-COLOR_FONDO_TABLA = "#FFFFFF"   # Blanco Base
-COLOR_HEADER_TABLA = "#1B3159"  # Azul Marino
-COLOR_ITEM_SELECCIONADO = "#F5F7FA" # Gris Claro
-COLOR_HEADER_HISTORIAL = "#4A5568"   # Gris Texto
+COLOR_FONDO_TABLA = "#FFF8DC"  # Blanco maíz
+COLOR_HEADER_TABLA = "#8B4513"  # Marrón silla
+COLOR_ITEM_SELECCIONADO = "#FFE4C4"  # Bisque
+COLOR_HEADER_HISTORIAL = "#654321"  # Marrón oscuro
 
 # Colores de scroll
-COLOR_SCROLL_AREA = "#1B3159"   # Azul Marino
-COLOR_SCROLL_HANDLE = "#2B4F8C" # Azul Acento
+COLOR_SCROLL_AREA = "#DEB887"  # Beige oscuro
+COLOR_SCROLL_HANDLE = "#8B4513"  # Marrón silla
 
 # Colores de botones
 ## Botón cargar
-COLOR_BOTON_CARGAR = "#DA1F3D"        # Rojo Chichilo
-COLOR_BOTON_CARGAR_HOVER = "#FF4D6A"  # Rojo Claro
-COLOR_BOTON_CARGAR_PRESSED = "#4A5568" # Gris Texto
+COLOR_BOTON_CARGAR = "#8B4513"  # Marrón silla
+COLOR_BOTON_CARGAR_HOVER = "#A0522D"  # Siena
+COLOR_BOTON_CARGAR_PRESSED = "#6B4423"  # Marrón medio
 
 ## Botón agregar
-COLOR_BOTON_AGREGAR = "#10B981"       # Verde Estado
-COLOR_BOTON_EDITAR_HOVER = "#10B981"  # Verde Estado
+COLOR_BOTON_AGREGAR = "#85AC41"  # Verde oliva oscuro
+COLOR_BOTON_EDITAR_HOVER = "#6B8E23"  # Verde oliva
+COLOR_DISPO_F = "#C62828"
 
 ## Botón exportar
-COLOR_BOTON_EXPORTAR = "#DA1F3D"       # Rojo Chichilo
-COLOR_BOTON_EXPORTAR_HOVER = "#FF4D6A" # Rojo Claro
-COLOR_BOTON_EXPORTAR_PRESSED = "#4A5568" # Gris Texto
+COLOR_BOTON_EXPORTAR = "#8B4513"  # Marrón silla
+COLOR_BOTON_EXPORTAR_HOVER = "#A0522D"  # Siena
+COLOR_BOTON_EXPORTAR_PRESSED = "#6B4423"  # Marrón medio
 
 ## Botones de configuración
-COLOR_BOTON_CONFIG_MENU = "#1B3159"    # Azul Marino
-COLOR_BOTON_GUARDAR = "#10B981"        # Verde Estado
-COLOR_BOTON_GUARDAR_PRESSED = "#4A5568" # Gris Texto
+COLOR_BOTON_CONFIG_MENU = "#556B2F"  # Verde oliva oscuro
+COLOR_BOTON_GUARDAR = "#2E8B57"  # Verde mar oscuro
+COLOR_BOTON_GUARDAR_PRESSED = "#2F4F4F"  # Verde gris oscuro
 
 
 # MARK: Estilos generales
@@ -238,7 +241,7 @@ Estilo_Frame = f"""
 #Variable: add_product_button
 Agregar_Plato_boton = f"""
             QPushButton {{
-                background-color: {COLOR_BOTON_AGREGAR};
+                background-color: {COLOR_SECUNDARIO};
                 color: white;
                 padding: 5px 15px;
                 border: none;
@@ -247,7 +250,7 @@ Agregar_Plato_boton = f"""
                 min-width: 100px;
             }}
             QPushButton:hover {{
-                background-color: {COLOR_TEXTO_HOVER};
+                background-color: {COLOR_PRIMARIO};
             }}
         """
 
@@ -255,7 +258,7 @@ Agregar_Plato_boton = f"""
 #Variable: edit_button
 boton_editar_Plato = f"""
                     QPushButton {{
-                        background-color: {COLOR_TERCERO};
+                        background-color: {COLOR_SECUNDARIO};
                         color: white;
                         border: none;
                         padding: 5px 10px;
@@ -265,7 +268,7 @@ boton_editar_Plato = f"""
                         font-size: 12px;
                     }}
                     QPushButton:hover {{
-                        background-color: {COLOR_BOTON_EDITAR_HOVER};
+                        background-color: {COLOR_PRIMARIO};
                     }}
                 """
 #Variable: delete_button
@@ -288,7 +291,7 @@ boton_eliminar_PLato = f"""
 #Variable: save_button
 Guardar_cambios_Plato = f"""
             QPushButton {{
-                background-color: {COLOR_BOTON_AGREGAR};
+                background-color: {COLOR_SECUNDARIO};
                 color: white;
                 padding: 10px 20px;
                 margin: 25px;
@@ -299,7 +302,7 @@ Guardar_cambios_Plato = f"""
                 max-width: 80px;
             }}
             QPushButton:hover {{
-                background-color: {COLOR_TEXTO_HOVER};
+                background-color: {COLOR_PRIMARIO};
             }}
             """
 # MARK: setup_mozos_tab
@@ -315,7 +318,7 @@ Entry_name_mozo = """
 #Variable: add_mozo_button
 Agregar_Mozo = f"""
             QPushButton {{
-                background-color: {COLOR_BOTON_AGREGAR};
+                background-color: {COLOR_SECUNDARIO};
                 color: white;
                 padding: 5px 15px;
                 border: none;
@@ -324,14 +327,14 @@ Agregar_Mozo = f"""
                 min-width: 100px;
             }}
             QPushButton:hover {{
-                background-color: {COLOR_TEXTO_HOVER};
+                background-color: {COLOR_PRIMARIO};
             }}
         """
 # MARK: load_mozos
 #Varaible: edit_button_style
 Boton_Editar_mozo = f"""
                 QPushButton {{
-                    background-color: {COLOR_TERCERO};
+                    background-color: {COLOR_SECUNDARIO};
                     color: white;
                     border: none;
                     padding: 5px 10px;
@@ -341,7 +344,7 @@ Boton_Editar_mozo = f"""
                     font-size: 12px;
                 }}
                 QPushButton:hover {{
-                    background-color: {COLOR_BOTON_EDITAR_HOVER};
+                    background-color: {COLOR_PRIMARIO};
                 }}
             """
 #Variable: delete_button_style
@@ -450,7 +453,7 @@ pedidos_label_Style = f"""
 #Variable: json_input
 Placeholder_text_pedido = f"""
             QTextEdit {{
-                border: 2px solid {COLOR_BOTON_AGREGAR};
+                border: 2px solid {COLOR_SCROLL_AREA};
                 border-radius: 10px;
                 padding: 10px;
                 background-color: {COLOR_TEXTO_CLARO};
@@ -470,7 +473,7 @@ splitter_style = """
 #Varaible: mesa_button
 Mesas_True = f"""
             QPushButton {{
-                background-color: {COLOR_BOTON_AGREGAR};
+                background-color: {COLOR_PRIMARIO};
                 color: white;
                 border-radius: 20px;
                 font-size: 18px;
@@ -480,23 +483,23 @@ Mesas_True = f"""
                 background-color: {COLOR_TEXTO_HOVER};
             }}
             QPushButton:pressed {{
-                background-color: #3D8B40;
+                background-color: {COLOR_TEXTO_HOVER};
             }}
             """
 #Variable: mesa_button
 Mesas_False = f"""
         QPushButton {{
-            background-color: {COLOR_ERROR};
+            background-color: {COLOR_DISPO_F};
             color: white;
             border-radius: 20px;
             font-size: 18px;
             font-weight: bold;
         }}
         QPushButton:hover {{
-            background-color: {COLOR_TEXTO_HOVER_ERROR};
+            background-color: {COLOR_ERROR};
         }}
         QPushButton:pressed {{
-            background-color: #C62828;
+            background-color: {COLOR_DISPO_F};
         }}
         """
 # MARK: mostrar_historial_mesa
@@ -683,7 +686,7 @@ Comanda_Style = f"""
         box-sizing: border-box;
     }}
     h2 {{
-        color: #2E7D32;
+        color: {COLOR_TEXTO_SECUNDARIO};
         text-align: center;
         font-size: 24px;
         margin-bottom: 20px;
@@ -698,6 +701,8 @@ Comanda_Style = f"""
     .info p {{
         margin: 5px 0;
         flex: 1 1 40%;
+        font-size: 20px;
+        font-family: 'Playfair Display', serif;
     }}
     .aclaraciones {{
         background-color: #FFF3E0;
@@ -705,7 +710,10 @@ Comanda_Style = f"""
         padding: 10px;
         margin-top: 10px;
         border-radius: 5px;
-        font-style: italic;
+    }}
+    .aclaraciones p {{
+        font-size: 20px;
+        font-family: 'Playfair Display', serif;
     }}
     table {{
         border-collapse: collapse;
@@ -714,13 +722,16 @@ Comanda_Style = f"""
         font-size: 14px;
     }}
     th, td {{
-        border: 1px solid #ddd;
+        border: 1px solid {COLOR_BORDE_TABLA};
         padding: 10px;
         text-align: left;
         white-space: nowrap;
+        font-family: 'Playfair Display', serif;
+        font-size: 14px;
+        font-weight: bold;
     }}
     th {{
-        background-color: #2E7D32;
+        background-color: {COLOR_BORDE_TABLA};
         color: white;
     }}
     tr:nth-child(even) {{
@@ -749,7 +760,7 @@ Comanda_Vacia_Style = f"""
         text-align: center;
     }}
     h2 {{
-        color: #2E7D32;
+        color: {COLOR_TEXTO_SECUNDARIO};
         font-size: 24px;
         margin-bottom: 20px;
     }}
@@ -767,7 +778,7 @@ Comanda_Vacia_Style = f"""
     .estado {{
         font-size: 18px;
         font-weight: bold;
-        color: #4CAF50;
+        color: {COLOR_TEXTO_SECUNDARIO};
         margin-top: 20px;
     }}
     .aclaraciones {{
