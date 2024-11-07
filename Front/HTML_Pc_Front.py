@@ -39,3 +39,36 @@ def Comanda_Vacia_HTML (Comanda_Vacia_Style, mesa, estado):
             </div>
             """
     return Comanda_Vacia_HTML
+
+def Detail_Info_HTML(mesa, mozo, fecha, hora_apertura, hora_cierre, productos, total):
+    productos_html = ""
+    if productos:
+        producto_tmp = []
+        for producto in productos:
+            if producto not in producto_tmp:
+                cantidad = productos.count(producto)
+                productos_html += f"• {producto} (x{cantidad})<br>"
+                producto_tmp.append(producto)
+    else:
+        productos_html = "No hay productos registrados"
+
+    return f"""
+    <div class="detail-info">
+        <h2>Mesa {mesa}</h2>
+        <div class="info-basic">
+            <p>👤 Mozo: {mozo}</p>
+            <p>📅 Fecha: {fecha}</p>
+            <p>🕐 Hora de apertura: {hora_apertura}</p>
+            <p>🕒 Hora de cierre: {hora_cierre}</p>
+        </div>
+        <div class="productos">
+            <h3>📋 Productos:</h3>
+            <div class="productos-lista">
+                {productos_html}
+            </div>
+        </div>
+        <div class="total">
+            💰 Total: ${total:.2f}
+        </div>
+    </div>
+    """

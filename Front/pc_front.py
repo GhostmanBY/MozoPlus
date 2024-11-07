@@ -210,7 +210,6 @@ class RestaurantInterface(QMainWindow):
                 border: 2px solid #DEB887;
                 border-radius: 10px;
                 background-color: #FEFCF8;
-                min-height: 850px;
             }
             QScrollBar:vertical {
                 border: none;
@@ -228,16 +227,23 @@ class RestaurantInterface(QMainWindow):
             }
         """)
         
-        # Asegurar que el contenido sea scrolleable
+        # Configurar el scroll area y su contenido
         self.scroll_area.setWidgetResizable(True)
         self.scroll_content.setSizePolicy(
             QSizePolicy.Expanding,
-            QSizePolicy.Expanding
+            QSizePolicy.MinimumExpanding
         )
         
         # Ajustar márgenes y espaciado
         self.scroll_layout.setSpacing(10)
-        self.scroll_layout.setContentsMargins(10, 10, 10, 30)  # Aumentar margen inferior
+        self.scroll_layout.setContentsMargins(10, 10, 10, 50)  # Aumentar margen inferior
+        
+        # Asegurar que el layout principal dé prioridad al scroll area
+        info_layout.addWidget(self.scroll_area, stretch=1)  # Añadir stretch=1
+        info_layout.setStretchFactor(self.scroll_area, 1)
+        
+        # Ajustar el tamaño mínimo del widget de contenido
+        self.scroll_content.setMinimumWidth(self.scroll_area.width())
         
         info_layout.addWidget(self.scroll_area)
         info_layout.setStretch(0, 0)
@@ -287,6 +293,8 @@ class RestaurantInterface(QMainWindow):
             fecha_frame = QFrame()
             fecha_frame.setStyleSheet(fecha_frame_style)
             fecha_layout = QVBoxLayout(fecha_frame)
+            fecha_layout.setContentsMargins(10, 10, 10, 10)  # Reducir márgenes
+            fecha_layout.setSpacing(8)  # Reducir espaciado
 
             fecha_label = QLabel(f"📅 {fecha}")
             fecha_label.setStyleSheet(fecha_label_style)
@@ -357,8 +365,10 @@ class RestaurantInterface(QMainWindow):
 
             self.scroll_layout.addWidget(fecha_frame)
 
-        # Añadir un espaciador al final
-        self.scroll_layout.addStretch()
+        # Añadir un widget espaciador al final para empujar el contenido hacia arriba
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.scroll_layout.addWidget(spacer)
 
     def get_summary_records(self):
         fecha_hoy = datetime.now().date()
@@ -1564,33 +1574,13 @@ class RestaurantInterface(QMainWindow):
         dialog = QDialog(self)
         dialog.setWindowTitle("Detalles de la Comanda")
         dialog.setMinimumWidth(500)
-        dialog.setMaximumHeight(700)  # Limitar altura máxima
+        dialog.setMaximumHeight(700)
+        dialog.setStyleSheet(Detail_Dialog_Style)
         
-        # Crear un scroll area para contener todo el contenido
         scroll = QScrollArea(dialog)
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background-color: #FFF8DC;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #FDF5E6;
-                width: 12px;
-                margin: 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #8B4513;
-                min-height: 30px;
-                border-radius: 6px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """)
+        scroll.setStyleSheet(Detail_Scroll_Style)
 
-        # Widget contenedor principal
         main_widget = QWidget()
         layout = QVBoxLayout(main_widget)
         layout.setSpacing(15)
@@ -1601,13 +1591,7 @@ class RestaurantInterface(QMainWindow):
         header_layout = QVBoxLayout(header_frame)
         
         title = QLabel(f"Mesa {entry_data.get('mesa', 'N/A')}")
-        title.setStyleSheet("""
-            font-size: 24px;
-            font-weight: bold;
-            color: #8B4513;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #DEB887;
-        """)
+        title.setStyleSheet(Detail_Title_Style)
         header_layout.addWidget(title)
 
         # Información básica
@@ -1639,7 +1623,7 @@ class RestaurantInterface(QMainWindow):
                 if producto not in producto_tmp:
                     cantidad = productos.count(producto)
                     producto_label = QLabel(f"• {producto} (x{cantidad})")
-                    producto_label.setStyleSheet("margin-left: 20px;")
+                    producto_label.setStyleSheet(Detail_Product_Style)
                     productos_layout.addWidget(producto_label)
                     producto_tmp.append(producto)
         else:
@@ -1656,17 +1640,9 @@ class RestaurantInterface(QMainWindow):
                             total += item["price"]
 
         total_label = QLabel(f"💰 Total: ${total:.2f}")
-        total_label.setStyleSheet("""
-            font-size: 18px;
-            font-weight: bold;
-            color: #2E7D32;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #E8F5E9;
-            border-radius: 5px;
-        """)
+        total_label.setStyleSheet(Detail_Total_Style)
 
-        # Agregar todos los elementos al layout principal
+        # Agregar elementos al layout
         layout.addWidget(header_frame)
         layout.addWidget(info_frame)
         layout.addWidget(productos_frame)
@@ -1674,27 +1650,11 @@ class RestaurantInterface(QMainWindow):
 
         # Botón de cerrar
         close_button = QPushButton("Cerrar")
-        close_button.setStyleSheet("""
-            QPushButton {
-                background-color: #8B4513;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #A0522D;
-            }
-        """)
+        close_button.setStyleSheet(Detail_Close_Button_Style)
         close_button.clicked.connect(dialog.accept)
         layout.addWidget(close_button, alignment=Qt.AlignCenter)
 
-        # Establecer el widget principal en el scroll area
         scroll.setWidget(main_widget)
-
-        # Layout del diálogo
         dialog_layout = QVBoxLayout(dialog)
         dialog_layout.setContentsMargins(0, 0, 0, 0)
         dialog_layout.addWidget(scroll)

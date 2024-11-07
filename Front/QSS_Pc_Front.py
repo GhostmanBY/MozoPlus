@@ -943,3 +943,83 @@ Estilo_app = f"""
             height: 0px;
         }}
     """
+
+# MARK: show_detailed_info
+# Variable: dialog
+Detail_Dialog_Style = """
+    QDialog {
+        background-color: #FFF8DC;
+        border-radius: 15px;
+    }
+    QLabel {
+        color: #6B4423;
+        font-size: 14px;
+        margin: 5px 0;
+    }
+    QFrame {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+    }
+"""
+
+# Variable: scroll
+Detail_Scroll_Style = """
+    QScrollArea {
+        border: none;
+        background-color: #FFF8DC;
+    }
+    QScrollBar:vertical {
+        border: none;
+        background: #FDF5E6;
+        width: 12px;
+        margin: 0px;
+    }
+    QScrollBar::handle:vertical {
+        background: #8B4513;
+        min-height: 30px;
+        border-radius: 6px;
+    }
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        height: 0px;
+    }
+"""
+
+# Variable: title
+Detail_Title_Style = """
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B4513;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #DEB887;
+"""
+
+# Variable: producto_label
+Detail_Product_Style = "margin-left: 20px;"
+
+# Variable: total_label
+Detail_Total_Style = """
+    font-size: 18px;
+    font-weight: bold;
+    color: #2E7D32;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #E8F5E9;
+    border-radius: 5px;
+"""
+
+# Variable: close_button
+Detail_Close_Button_Style = """
+    QPushButton {
+        background-color: #8B4513;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #A0522D;
+    }
+"""
