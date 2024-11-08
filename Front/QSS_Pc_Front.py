@@ -183,11 +183,33 @@ Estilo_General = f"""
 
 # MARK: setup_info_tab
 # Variable: header_frame
+resumen_estilo_scroll = f"""
+            QScrollArea {{
+                border: 2px solid #DEB887;
+                border-radius: 10px;
+                background-color: #FEFCF8;
+            }}
+            QScrollBar:vertical {{
+                border: none;
+                background: #FDF5E6;
+                width: 12px;
+                margin: 0px;
+            }}
+            QScrollBar::handle:vertical {{
+                background: #8B4513;
+                min-height: 30px;
+                border-radius: 6px;
+            }}
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+                height: 0px;
+            }}
+        """
+
 Header_Frame_Style = """
     QFrame {
         background-color: #FFF8DC;
         border-radius: 10px;
-        padding: 10px;
+        padding: 5px;
     }
 """
 
@@ -1005,6 +1027,7 @@ Detail_Total_Style = """
     margin-top: 10px;
     padding: 10px;
     background-color: #E8F5E9;
+    border: 2px solid #1A561D;
     border-radius: 5px;
 """
 

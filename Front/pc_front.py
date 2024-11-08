@@ -205,27 +205,7 @@ class RestaurantInterface(QMainWindow):
         info_layout.addWidget(header_frame)
 
         # Área de scroll (sin cambios en el código existente)
-        self.scroll_area.setStyleSheet("""
-            QScrollArea {
-                border: 2px solid #DEB887;
-                border-radius: 10px;
-                background-color: #FEFCF8;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #FDF5E6;
-                width: 12px;
-                margin: 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #8B4513;
-                min-height: 30px;
-                border-radius: 6px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """)
+        self.scroll_area.setStyleSheet(resumen_estilo_scroll)
         
         # Configurar el scroll area y su contenido
         self.scroll_area.setWidgetResizable(True)
@@ -361,7 +341,25 @@ class RestaurantInterface(QMainWindow):
                         productos_layout.addWidget(productos_detalle)
                         entry_layout.addWidget(productos_frame)
 
-                    fecha_layout.addWidget(entry_frame)
+                        Precio_frame = QFrame()
+                        Precio_layout = QVBoxLayout(Precio_frame)
+                        
+                        productos = entry.get('productos', [])
+                        total = 0
+                        with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as f:
+                            menu = json.load(f)
+                            for producto in productos:
+                                for categoria in menu["menu"]:
+                                    for item in menu["menu"][categoria]:
+                                        if producto == item["name"]:
+                                            total += item["price"]
+
+                        total_label = QLabel(f"💰 Total: ${total:.2f}")
+                        total_label.setStyleSheet(Detail_Total_Style)
+                        total_label.setWordWrap(True)
+                        Precio_layout.addWidget(total_label)
+                        entry_layout.addWidget(Precio_frame)
+                        fecha_layout.addWidget(entry_frame)
 
             self.scroll_layout.addWidget(fecha_frame)
 
@@ -1596,6 +1594,7 @@ class RestaurantInterface(QMainWindow):
 
         # Información básica
         info_frame = QFrame()
+        info_frame.setStyleSheet(Summary_Entry_Frame_Style)
         info_layout = QVBoxLayout(info_frame)
         
         mozo_label = QLabel(f"👤 Mozo: {entry_data.get('mozo', 'N/A')}")
@@ -1610,6 +1609,7 @@ class RestaurantInterface(QMainWindow):
 
         # Productos
         productos_frame = QFrame()
+        productos_frame.setStyleSheet(Summary_Entry_Frame_Style)
         productos_layout = QVBoxLayout(productos_frame)
         
         productos_title = QLabel("📋 Productos:")
