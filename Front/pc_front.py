@@ -255,7 +255,22 @@ class RestaurantInterface(QMainWindow):
         if registro is None:
             registros = self.get_summary_records()
         else:
+            # Si registro es una lista vacía, mostrar mensaje
+            if not registro:
+                no_data_label = QLabel("No se encontraron registros")
+                no_data_label.setStyleSheet("font-size: 16px; color: #666; padding: 20px;")
+                no_data_label.setAlignment(Qt.AlignCenter)
+                self.scroll_layout.addWidget(no_data_label)
+                return
             registros = registro
+
+        # Si no hay registros, mostrar mensaje
+        if not registros:
+            no_data_label = QLabel("No se encontraron registros")
+            no_data_label.setStyleSheet("font-size: 16px; color: #666; padding: 20px;")
+            no_data_label.setAlignment(Qt.AlignCenter)
+            self.scroll_layout.addWidget(no_data_label)
+            return
 
         # Estilo para los frames de fecha
         fecha_frame_style = Summary_Fecha_Frame_Style
@@ -369,36 +384,48 @@ class RestaurantInterface(QMainWindow):
         self.scroll_layout.addWidget(spacer)
 
     def get_summary_records(self):
-        fecha_hoy = datetime.now().date()
-        fecha_txt = datetime.now()
-        fecha = fecha_txt.strftime("%H:%M")
-
+        """Obtiene todos los registros del historial."""
         resumen = {}
         docs_dir = os.path.join(base_dir, "../Docs/Registro")
+        
+        # Verificar si el directorio existe
+        if not os.path.exists(docs_dir):
+            return resumen
+
+        # Obtener la lista de mozos
         data = Mostrar_Mozos(self.pagina_mozos)
+        mozos = [mozo[1] for mozo in data]  # Extraer solo los nombres de los mozos
 
+        # Procesar todos los archivos de registro
         for filename in os.listdir(docs_dir):
-            for mozo in enumerate(data):
-                if filename == f"{fecha_hoy}_{mozo[1][1]}.json":
-                    if filename.endswith(".json"):
-                        mozo_name = filename.replace(f"{fecha_hoy}_", "").replace(".json", "")
-                        date_str = filename.replace(f"_{mozo_name}", "").replace(".json", "")
-                        
-                        with open(os.path.join(docs_dir, filename), "r", encoding="utf-8") as file:
-                            entries = json.load(file)
+            if filename.endswith('.json'):
+                # Extraer la fecha y el nombre del mozo del nombre del archivo
+                parts = filename.replace('.json', '').split('_')
+                if len(parts) >= 2:
+                    fecha = parts[0]
+                    mozo_name = '_'.join(parts[1:])  # Manejar nombres con guiones bajos
+                    
+                    # Verificar si el archivo corresponde a un mozo activo
+                    if mozo_name in mozos:
+                        filepath = os.path.join(docs_dir, filename)
+                        try:
+                            with open(filepath, 'r', encoding='utf-8') as f:
+                                entries = json.load(f)
+                                
+                                if fecha not in resumen:
+                                    resumen[fecha] = []
+                                    
+                                    for entry in entries:
+                                        resumen[fecha].append({
+                                            "mozo": mozo_name,
+                                            "mesa": entry.get("Mesa", ""),
+                                            "hora": entry.get("Hora", ""),
+                                            "hora_cierre": entry.get("Hora_cierre", ""),
+                                            "productos": entry.get("productos", []),
+                                        })
+                        except Exception as e:
+                            print(f"Error al cargar el archivo {filename}: {str(e)}")
 
-                        if date_str not in resumen:
-                            resumen[date_str] = []
-                        for entry in entries:
-                            resumen[date_str].append(
-                                {
-                                    "mozo": mozo_name,
-                                    "mesa": entry["Mesa"],
-                                    "hora": entry["Hora"],
-                                    "hora_cierre": entry["Hora_cierre"],
-                                    "productos": entry["productos"],
-                                }
-                            )
         return resumen
 
     def setup_menu_tab(self):
