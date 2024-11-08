@@ -29,7 +29,6 @@ def obtener_resumen_por_fecha(fecha: Optional[str] = None, mozo: Optional[str] =
             ruta_archivo = os.path.join(directorio_registro, archivo)
             with open(ruta_archivo, "r", encoding="utf-8") as file:
                 data = json.load(file)
-                mozo_name = archivo.replace(f"{fecha}_", "").replace(".json", "")
                 
                 for entry in data:
                     # Verificar que `entry` tenga todas las claves necesarias
@@ -48,15 +47,18 @@ def obtener_resumen_por_fecha(fecha: Optional[str] = None, mozo: Optional[str] =
                     hora = entry.get("Hora", "Hora desconocida")
                     hora_cierre = entry.get("Hora_cierre", "Hora de cierre desconocida")
                     productos = entry.get("productos", [])
+                    fecha = entry.get("Fecha")
+                    name_mozo = entry.get("Mozo", "Mozo desconocido")
 
                     # Añadir datos al resumen si la fecha no está en `resumen`
                     if registro_fecha not in resumen:
                         resumen[registro_fecha] = []
                     
                     resumen[registro_fecha].append({
-                        "mozo": mozo_name,
+                        "mozo": name_mozo,
                         "mesa": mesa,
                         "hora": hora,
+                        "fecha": fecha,
                         "hora_cierre": hora_cierre,
                         "productos": productos,
                     })
