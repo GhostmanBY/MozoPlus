@@ -239,7 +239,6 @@ class RestaurantInterface(QMainWindow):
         resumen = obtener_resumen_por_fecha(fecha, mozo)
 
         if resumen:
-            print(f"resumen: {resumen}")
             self.load_summary(resumen)
         else:
             QMessageBox.warning(self, "Búsqueda", "No se encontraron registros para los criterios especificados.")
