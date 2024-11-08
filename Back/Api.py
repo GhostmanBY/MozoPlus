@@ -17,7 +17,8 @@ from Back.Menu_de_mesas_Back import (
     crear_sub_mesa,
     editar_sub_mesa,
     cerrar_sub_mesa,
-    imprir
+    imprir,
+    guardar_mesa
 )
 from Back.Panel_Admin_Back import obtener_menu_en_json, obtener_cubiertos_json
 
@@ -103,7 +104,7 @@ async def ruta_editar_mesa(mesa: int, input: ValorInput):
     try:
         
         
-        result = await editar_mesa(mesa, input)
+        result = await guardar_mesa(mesa, input)
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} no encontrada.")
     
@@ -111,6 +112,7 @@ async def ruta_editar_mesa(mesa: int, input: ValorInput):
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 # Ruta POST para abrir una mesa.

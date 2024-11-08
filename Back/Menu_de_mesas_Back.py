@@ -281,6 +281,7 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
     with open(os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8") as file:
         menu = json.load(file)
     
+    # Procesar lista de platos
     pedido_tmp = []
     pedido_cantidad = []
     for producto in lista_platos:
@@ -289,46 +290,68 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
             pedido_cantidad.append({producto:cantidad})
             pedido_tmp.append(producto)
     
+    # Calcular precios
     total = 0
     pedido_precio = []
-    for producto in lista_platos:
+    for producto in pedido_tmp:
         for categoria in menu["menu"]:
             for item in menu["menu"][categoria]:
                 if producto == item["name"]:
                     pedido_precio.append({producto:item["price"]})
                     total += item["price"]
 
-    item = []
-    print(pedido_tmp)
-    print(lista_platos)
-    for i, producto in pedido_tmp:
-        print(pedido_cantidad)
-        item.append((producto, pedido_cantidad[i][producto], pedido_precio[i][producto]))
-        print(item)
+    # Crear lista final de items
+    item_final = []
+    for i, producto in enumerate(pedido_tmp):
+        item_final.append({
+            "nombre": producto, 
+            "cantidad": int(pedido_cantidad[i][producto]), 
+            "precio": int(pedido_precio[i][producto])
+        })
 
-    input("Presione enter para continuar...")
-    with open(f"Pre-view Mesa {numero_mesa}.txt", "w") as file:
-        file.write("Comanda de Pedido\n")
-        file.write("="*40 + "\n")
+    def truncate_text(text, length):
+        """Función auxiliar para truncar texto y agregar puntos suspensivos si es necesario"""
+        return text[:length-3] + '...' if len(text) > length else text.ljust(length)
+
+    # Constantes para formato
+    ANCHO_TICKET = 42
+    ANCHO_NOMBRE = 25
+    ANCHO_CANTIDAD = 5
+    ANCHO_PRECIO = 9
+    
+    with open(f"Pre-view Mesa {numero_mesa}.txt", "w", encoding='utf-8') as file:
+        # Encabezado
+        file.write('╔' + '═' * (ANCHO_TICKET-2) + '╗\n')
+        file.write(f"║{'COMANDA':^{ANCHO_TICKET-2}}║\n")
+        file.write('╠' + '═' * (ANCHO_TICKET-2) + '╣\n')
         
-        file.write(f"Fecha y Hora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        file.write(f"Mesa: {numero_mesa}\n")
-        file.write(f"Mozo: {nombre_mozo}\n")
-        file.write("="*40 + "\n")
+        # Información del pedido
+        fecha_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        file.write(f"║ Fecha: {fecha_hora:<27}║\n")
+        file.write(f"║ Mesa: {numero_mesa:<29}║\n")
+        file.write(f"║ Mozo: {truncate_text(nombre_mozo, 28):<28}║\n")
         
-        file.write("{:<20} {:>5} {:>10}\n".format("Item", "Cant", "Precio"))
-        file.write("-"*40 + "\n")
+        # Encabezado de items
+        file.write('╠' + '═' * (ANCHO_TICKET-2) + '╣\n')
+        file.write(f"║ {'Producto':<{ANCHO_NOMBRE}}{'Cant':>{ANCHO_CANTIDAD}} {'Precio':>8} ║\n")
+        file.write('╟' + '─' * (ANCHO_TICKET-2) + '╢\n')
         
+        # Detalle de items
         total = 0
-        for item in lista_platos:
-            subtotal = item["cantidad"] * item["precio"]
+        for item in item_final:
+            nombre = truncate_text(item['nombre'], ANCHO_NOMBRE)
+            cantidad = item['cantidad']
+            subtotal = item['cantidad'] * item['precio']
             total += subtotal
-            file.write("{:<20} {:>5} {:>10.2f}\n".format(item["nombre"], item["cantidad"], subtotal))
+            file.write(f"║ {nombre:<{ANCHO_NOMBRE}}{cantidad:>{ANCHO_CANTIDAD}} {subtotal:>8.2f} ║\n")
         
-        file.write("="*40 + "\n")
-        file.write("{:<20} {:>5} {:>10.2f}\n".format("Total", "", total))
-        file.write("="*40 + "\n")
-        file.write("¡Gracias por su pedido!\n")
+        # Total
+        file.write('╟' + '─' * (ANCHO_TICKET-2) + '╢\n')
+        file.write(f"║ {'Total:':<{ANCHO_NOMBRE}}{'':{ANCHO_CANTIDAD}} {total:>8.2f} ║\n")
+        file.write('╚' + '═' * (ANCHO_TICKET-2) + '╝\n')
+        
+        # Mensaje final
+        file.write(f"\n{'¡Gracias por su pedido!':^{ANCHO_TICKET}}\n")
 
 async def imprir(comanda):
     texto = await comanda_preview(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
