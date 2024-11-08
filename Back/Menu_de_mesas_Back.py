@@ -278,6 +278,35 @@ async def cerrar_mesa(mesa: int):
 
 def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
     
+    with open(os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8") as file:
+        menu = json.load(file)
+    
+    pedido_tmp = []
+    pedido_cantidad = []
+    for producto in lista_platos:
+        if producto not in pedido_tmp:
+            cantidad = lista_platos.count(producto)
+            pedido_cantidad.append({producto:cantidad})
+            pedido_tmp.append(producto)
+    
+    total = 0
+    pedido_precio = []
+    for producto in lista_platos:
+        for categoria in menu["menu"]:
+            for item in menu["menu"][categoria]:
+                if producto == item["name"]:
+                    pedido_precio.append({producto:item["price"]})
+                    total += item["price"]
+
+    item = []
+    print(pedido_tmp)
+    print(lista_platos)
+    for i, producto in pedido_tmp:
+        print(pedido_cantidad)
+        item.append((producto, pedido_cantidad[i][producto], pedido_precio[i][producto]))
+        print(item)
+
+    input("Presione enter para continuar...")
     with open(f"Pre-view Mesa {numero_mesa}.txt", "w") as file:
         file.write("Comanda de Pedido\n")
         file.write("="*40 + "\n")
@@ -300,6 +329,7 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
         file.write("{:<20} {:>5} {:>10.2f}\n".format("Total", "", total))
         file.write("="*40 + "\n")
         file.write("¡Gracias por su pedido!\n")
+
 async def imprir(comanda):
     texto = await comanda_preview(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
     with open(os.path.join(base_dir, f"../Docs/Comandas/comanda_{comanda['Mesa']}.txt"), "w", encoding="utf-8") as file:
@@ -585,20 +615,10 @@ Sub-Mesa: {sub_mesa_id}
 
 
 if __name__ == "__main__":
-
-    with open (os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
-        menu = json.load(file)
-    v = ["Agua mineral",
-        "Agua mineral gasificada",
-        "Gaseosa",
-        "Agua saborizada"
-        ]
-    data = []
-    for categoria in menu["menu"]:
-        for pedido in menu["menu"][categoria]:
-            if v == pedido["name"]:
-                data.append({"nombre":pedido["name"], "cantidad": 1, "precio": pedido["price"]})
-                print(data)
+    lista = ["Agua mineral", "Agua mineral gasificada", "Gaseosa", "Agua saborizada", "Agua mineral gasificada", "Gaseosa", "Agua saborizada"]
+    mesa = 5
+    mozo = "Nahuel Romero"
+    comanda_preview(mesa, mozo, lista)
                 
 
     
