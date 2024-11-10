@@ -5,6 +5,8 @@ import sqlite3
 import json
 import datetime
 from fastapi.responses import JSONResponse
+from escpos.printer import File
+from PIL import Image
 
 #Este if es para que cuando se compile desde el archivo no se tenga que cambiar la ruta de la importacion
 if __name__ == "__main__":    
@@ -277,17 +279,21 @@ async def cerrar_mesa(mesa: int):
         )
 
 def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
-    
-    with open(os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8") as file:
+    # Ruta del archivo JSON
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    menu_path = os.path.join(base_dir, "../Docs/Menu.json")
+
+    # Leer el menú desde el archivo JSON
+    with open(menu_path, "r", encoding="utf-8") as file:
         menu = json.load(file)
-    
+
     # Procesar lista de platos
     pedido_tmp = []
     pedido_cantidad = []
     for producto in lista_platos:
         if producto not in pedido_tmp:
             cantidad = lista_platos.count(producto)
-            pedido_cantidad.append({producto:cantidad})
+            pedido_cantidad.append({producto: cantidad})
             pedido_tmp.append(producto)
     
     # Calcular precios
@@ -297,7 +303,7 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
         for categoria in menu["menu"]:
             for item in menu["menu"][categoria]:
                 if producto == item["name"]:
-                    pedido_precio.append({producto:item["price"]})
+                    pedido_precio.append({producto: item["price"]})
                     total += item["price"]
 
     # Crear lista final de items
@@ -309,49 +315,50 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
             "precio": int(pedido_precio[i][producto])
         })
 
-    def truncate_text(text, length):
-        """Función auxiliar para truncar texto y agregar puntos suspensivos si es necesario"""
-        return text[:length-3] + '...' if len(text) > length else text.ljust(length)
+    # Ancho máximo del ticket
+    max_ancho = 40
 
-    # Constantes para formato
-    ANCHO_TICKET = 42
-    ANCHO_NOMBRE = 25
-    ANCHO_CANTIDAD = 5
-    ANCHO_PRECIO = 9
-    
-    with open(f"Pre-view Mesa {numero_mesa}.txt", "w", encoding='utf-8') as file:
-        # Encabezado
-        file.write('╔' + '═' * (ANCHO_TICKET-2) + '╗\n')
-        file.write(f"║{'COMANDA':^{ANCHO_TICKET-2}}║\n")
-        file.write('╠' + '═' * (ANCHO_TICKET-2) + '╣\n')
-        
-        # Información del pedido
-        fecha_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        file.write(f"║ Fecha: {fecha_hora:<27}║\n")
-        file.write(f"║ Mesa: {numero_mesa:<29}║\n")
-        file.write(f"║ Mozo: {truncate_text(nombre_mozo, 28):<28}║\n")
-        
-        # Encabezado de items
-        file.write('╠' + '═' * (ANCHO_TICKET-2) + '╣\n')
-        file.write(f"║ {'Producto':<{ANCHO_NOMBRE}}{'Cant':>{ANCHO_CANTIDAD}} {'Precio':>8} ║\n")
-        file.write('╟' + '─' * (ANCHO_TICKET-2) + '╢\n')
-        
-        # Detalle de items
-        total = 0
-        for item in item_final:
-            nombre = truncate_text(item['nombre'], ANCHO_NOMBRE)
-            cantidad = item['cantidad']
-            subtotal = item['cantidad'] * item['precio']
-            total += subtotal
-            file.write(f"║ {nombre:<{ANCHO_NOMBRE}}{cantidad:>{ANCHO_CANTIDAD}} {subtotal:>8.2f} ║\n")
-        
-        # Total
-        file.write('╟' + '─' * (ANCHO_TICKET-2) + '╢\n')
-        file.write(f"║ {'Total:':<{ANCHO_NOMBRE}}{'':{ANCHO_CANTIDAD}} {total:>8.2f} ║\n")
-        file.write('╚' + '═' * (ANCHO_TICKET-2) + '╝\n')
-        
-        # Mensaje final
-        file.write(f"\n{'¡Gracias por su pedido!':^{ANCHO_TICKET}}\n")
+    # Configurar impresora
+    printer = File(f"Comanda {numero_mesa}.txt")
+
+    # Función para centrar texto
+    def center_text(text, width):
+        return text.center(width)
+
+    # Encabezado
+    printer.text(center_text("COMANDA", max_ancho) + "\n")
+    printer.text("=" * max_ancho + "\n")
+
+    # Información del pedido
+    fecha_hora = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    printer.text(f"Fecha: {fecha_hora}\n")
+    printer.text(f"Mesa: {numero_mesa}\n")
+    printer.text(f"Mozo: {nombre_mozo}\n")
+    printer.text("-" * max_ancho + "\n")
+
+    # Encabezado de items
+    printer.text(f"{'Producto':<20} {'Cant':>5} {'Precio':>8}\n")
+    printer.text("-" * max_ancho + "\n")
+
+    # Detalle de items
+    total = 0
+    for item in item_final:
+        nombre = item["nombre"]
+        cantidad = item["cantidad"]
+        subtotal = cantidad * item["precio"]
+        total += subtotal
+        printer.text(f"{nombre:<20} {cantidad:>5} {subtotal:>8.2f}\n")
+
+    # Total
+    printer.text("-" * max_ancho + "\n")
+    printer.text(f"{'Total:':<20} {total:>8.2f}\n")
+    printer.text("=" * max_ancho + "\n")
+
+    # Mensaje final centrado
+    printer.text(center_text("¡Gracias por su pedido!", max_ancho) + "\n")
+
+    # Comando para cortar el papel
+    printer.cut()
 
 async def imprir(comanda):
     texto = await comanda_preview(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
