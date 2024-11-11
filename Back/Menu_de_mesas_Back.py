@@ -280,7 +280,6 @@ async def cerrar_mesa(mesa: int):
 
 def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
     # Ruta del archivo JSON
-    base_dir = os.path.dirname(os.path.abspath(__file__))
     menu_path = os.path.join(base_dir, "../Docs/Menu.json")
 
     # Leer el menú desde el archivo JSON
@@ -294,17 +293,26 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
         if producto not in pedido_tmp:
             cantidad = lista_platos.count(producto)
             pedido_cantidad.append({producto: cantidad})
+            #print(f"lista cantidad: {pedido_cantidad}")
             pedido_tmp.append(producto)
+            #print(f"lista tmp2: {pedido_tmp}")
     
     # Calcular precios
     total = 0
+    i = 0
     pedido_precio = []
+    pedido_precio_tmp = []
+    print(f"lista tmp: {pedido_precio}")
     for producto in pedido_tmp:
         for categoria in menu["menu"]:
             for item in menu["menu"][categoria]:
                 if producto == item["name"]:
-                    pedido_precio.append({producto: item["price"]})
-                    total += item["price"]
+                    if producto not in pedido_precio_tmp: 
+                        pedido_precio.append({producto: item["price"]})
+                        pedido_precio_tmp.append(producto)
+                        total += item["price"]
+                        print(f"lista tmp: {pedido_precio}")   
+            i += 1
 
     # Crear lista final de items
     item_final = []
@@ -315,11 +323,32 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
             "precio": int(pedido_precio[i][producto])
         })
 
+    # Función para dividir texto en líneas sin cortar palabras
+    def split_text_preserving_words(text, length):
+        words = text.split()
+        lines = []
+        current_line = ""
+        for word in words:
+            if len(current_line) + len(word) + 1 <= length:
+                current_line += (word + " ")
+            else:
+                if len(word) > length:
+                    while len(word) > length:
+                        lines.append(word[:length - 1] + "-")
+                        word = word[length - 1:]
+                    current_line = word + " "
+                else:
+                    lines.append(current_line.strip())
+                    current_line = word + " "
+        if current_line:
+            lines.append(current_line.strip())
+        return lines
+
     # Ancho máximo del ticket
     max_ancho = 40
 
     # Configurar impresora
-    printer = File(f"Comanda {numero_mesa}.txt")
+    printer = File(os.path.join(base_dir, f"../impresora/Comanda {numero_mesa}.bin"))
 
     # Función para centrar texto
     def center_text(text, width):
@@ -343,15 +372,21 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
     # Detalle de items
     total = 0
     for item in item_final:
-        nombre = item["nombre"]
+        nombre = split_text_preserving_words(item["nombre"], 20)
         cantidad = item["cantidad"]
         subtotal = cantidad * item["precio"]
         total += subtotal
-        printer.text(f"{nombre:<20} {cantidad:>5} {subtotal:>8.2f}\n")
+
+        # Imprimir la primera línea de nombre con cantidad y subtotal con signo de peso
+        printer.text(f"{nombre[0]:<20} {cantidad:>5} {'$':>3}{subtotal:>8.2f}\n")
+
+        # Imprimir las líneas adicionales de nombre si existen
+        for line in nombre[1:]:
+            printer.text(f"{line:<20}\n")
 
     # Total
     printer.text("-" * max_ancho + "\n")
-    printer.text(f"{'Total:':<20} {total:>8.2f}\n")
+    printer.text(f"{'Total:':<26} {'$':>1}{total:>7.2f}\n")
     printer.text("=" * max_ancho + "\n")
 
     # Mensaje final centrado
@@ -360,11 +395,16 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
     # Comando para cortar el papel
     printer.cut()
 
-async def imprir(comanda):
-    texto = await comanda_preview(comanda["Mesa"], comanda["Mozo"], comanda["productos"])
-    with open(os.path.join(base_dir, f"../Docs/Comandas/comanda_{comanda['Mesa']}.txt"), "w", encoding="utf-8") as file:
-        file.write(texto)
-    os.system(f"print ../Docs/Comandas/comanda_{comanda['Mesa']}.txt")
+
+async def imprir(Mesa_numero):
+    with open(os.path.join(base_dir, f"../tmp/Mesa {Mesa_numero}.json"), "r", encoding="utf-8") as file: 
+        data = json.load(file)
+
+    num = Mesa_numero
+    name_mozo = data['Mozo']
+    producto = data['productos']
+
+    comanda_preview(num, name_mozo, producto)
 
 def cantidad_de_mesas():
     """
@@ -476,15 +516,13 @@ def verifica_directorio(directorio):
 def dividir_cuenta(mesa, cantidad):
     total = 0
     with open(
-        os.path.join(base_dir, f"../tmp/Mesa {mesa}.json"), "r", encoding="utf-8"
-    ) as file:
+        os.path.join(base_dir, f"../tmp/Mesa {mesa}.json"), "r", encoding="utf-8") as file:
         data = json.load(file)
         productos = data["productos"]
         file.close()
 
     with open(
-        os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8"
-    ) as file:
+        os.path.join(base_dir, f"../Docs/Menu.json"), "r", encoding="utf-8") as file:
         menu = json.load(file)
         file.close()
 
@@ -645,7 +683,15 @@ Sub-Mesa: {sub_mesa_id}
 
 
 if __name__ == "__main__":
-    lista = ["Agua mineral", "Agua mineral gasificada", "Gaseosa", "Agua saborizada", "Agua mineral gasificada", "Gaseosa", "Agua saborizada"]
+    lista =[
+        "Agua mineral",
+        "Agua mineral gasificada",
+        "Norton clásico 375",
+        "Norton clásico 375",
+        "Norton clásico 750",
+        "Don valentin",
+        "Killka 750"
+    ]
     mesa = 5
     mozo = "Nahuel Romero"
     comanda_preview(mesa, mozo, lista)

@@ -289,10 +289,10 @@ async def ruta_cerrar_mesas_enlazadas(mesas: str):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@app.post("/precomanda")
-async def ruta_precomanda(comanda: dict = Body(...)):
-    imprir(comanda)
-    return {"message": "Comanda recibida exitosamente."}
+@app.put("/precomanda/{num_comanda}")
+async def ruta_precomanda(num_comanda: int):
+    await imprir(num_comanda)
+    return {"message": "Ok."}
 
 
 # Bloque principal para ejecutar la aplicación con Uvicorn.

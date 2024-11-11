@@ -1,11 +1,21 @@
 {
     "Mesa": 10,
-    "Disponible": true,
-    "productos": [],
-    "cantidad_comensales": 0,
-    "comensales_infantiles": 0,
-    "Mozo": [],
+    "Disponible": false,
+    "productos": [
+        "Agua mineral",
+        "Agua mineral gasificada",
+        "Norton clásico 375",
+        "Norton clásico 375",
+        "Norton clásico 750",
+        "Don valentin",
+        "Killka 750"
+    ],
+    "cantidad_comensales": 1,
+    "comensales_infantiles": 2,
+    "Mozo": "Nahuel Romero",
+    "Hora": "19:43",
+    "Fecha": "2024-11-10",
     "Pagado": false,
     "Metodo": "",
-    "Extra": null
+    "Extra": "ys"
 }

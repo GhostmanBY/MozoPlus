@@ -13,7 +13,7 @@ from Back.Api import app
 
 def run_api():
     """Ejecuta el servidor API FastAPI"""
-    uvicorn.run(app, host='127.0.0.1', port=5000, log_level="info")
+    uvicorn.run(app, host='0.0.0.0', port=8000, log_level="info")
 
 def run_frontend():
     """Ejecuta la interfaz gráfica PyQt"""
