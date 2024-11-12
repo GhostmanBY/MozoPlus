@@ -1,3 +1,5 @@
 pyinstaller --noconfirm --onefile --console --add-data "C:\\Users\\roca\\Desktop\\Comanda\\MozoPlus\\Back;Back" --add-data "C:\\Users\\roca\\Desktop\\Comanda\\MozoPlus\\DB;DB" --add-data "C:\\Users\\roca\\Desktop\\Comanda\\MozoPlus\\Docs;Docs" --add-data "C:\\Users\\roca\\Desktop\\Comanda\\MozoPlus\\Front;Front" --add-data "C:\\Users\\roca\\Desktop\\Comanda\\MozoPlus\\tmp;tmp" --add-data "C:\\Users\\roca\\Desktop\\Comanda\\MozoPlus\\main.ps1;." --runtime-tmpdir="%USERPROFILE%\\Documents\\mi_app_temp" main.py
 
+https://github.com/receipt-print-hq/escpos-tools.git
+se descargar este repo y tenes que poner el archivo.bin en ese directorio
 para usar el emulador de EOS/POST se usa el siguiente comando: php esc2text.php "archivo.bin"
