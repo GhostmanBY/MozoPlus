@@ -21,11 +21,14 @@ def iniciar_aplicacion():
     # Cambiar el directorio de trabajo si se está ejecutando como un ejecutable
     if hasattr(sys, '_MEIPASS'):
         ruta_base = sys._MEIPASS
+        print(f"Ejecutando desde un ejecutable, ruta base: {ruta_base}")
     else:
         documents_folder = os.path.join(os.getenv('USERPROFILE'), 'Documents')
         ruta_base = os.path.join(documents_folder, "mi_app_temp")
+        print(f"Ruta base establecida en: {ruta_base}")
 
     ruta_powershell = os.path.join(ruta_base, "main.ps1")
+    print(f"Ruta del script de PowerShell: {ruta_powershell}")
 
     # Verificar si el archivo de PowerShell existe en la ruta especificada
     if not os.path.exists(ruta_powershell):
@@ -44,6 +47,7 @@ def iniciar_aplicacion():
 
         # Esperar a que el script de PowerShell termine
         proceso_powershell.wait()
+        print("Script de PowerShell ha terminado.")
 
         # Verificar el código de salida del script de PowerShell
         if proceso_powershell.returncode == 0:
