@@ -1,7 +1,10 @@
 {
     "Mesa": 1,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": [
+        "Hamburguesa",
+        "Coca Cola"
+    ],
     "cantidad_comensales": 0,
     "comensales_infantiles": 0,
     "Mozo": [],

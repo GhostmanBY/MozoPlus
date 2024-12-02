@@ -2,12 +2,21 @@ import os
 import json
 import random
 import sqlite3
+import redis
 from typing import Optional
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
 ruta_json = os.path.join(base_dir, "../Docs/mesas.json")
+
+# Configuración de Redis
+redis_client = redis.Redis(
+    host='redis-17127.c280.us-central1-2.gce.redns.redis-cloud.com',
+    port=17127,
+    password='e6xm6izMHbIjytMSlyoZ35mvapmKr6MV',
+    decode_responses=True)
+MENU_CACHE_KEY = "menu_cache"
 
 def obtener_resumen_por_fecha(fecha: Optional[str] = None, mozo: Optional[str] = None):
     """
@@ -195,30 +204,36 @@ def Eliminar_empleados(name):
 
 # MARK: MENUS
 def Cargar_Producto(categoria, name, precio):
-    name_new = name.capitalize()
-    # Se conecta a la base de datos y crea el cursor
-    conn = sqlite3.connect(ruta_db)
-    cursor = conn.cursor()
-
-    # Se crea una variable para darle instrucciones, estas se dan con parametros especificos propios de SQL
-    instruccion = "INSERT INTO Menu (categoria, nombre, precio) VALUES (?, ?, ?)"  # Ingresa a la base de datos los valores que resive por eso es INSERT
-    cursor.execute(instruccion, (categoria, name_new, precio))  # Ejecuta la accion
-
-    conn.commit()  # Guarda los cambios hechos a la base de datos
-    conn.close()  # Cierra la coneccion con la base de datos
+    try:
+        conexion = sqlite3.connect(ruta_db)
+        cursor = conexion.cursor()
+        
+        cursor.execute("INSERT INTO Menu (categoria, nombre, precio) VALUES (?, ?, ?)", (categoria, name, precio))
+        conexion.commit()
+        conexion.close()
+        
+        invalidate_menu_cache()  # Invalidar caché después de modificar
+        return True
+    except Exception as e:
+        print(f"Error al cargar producto: {e}")
+        return False
 
 
 def Modificar_Menu(name, categoria, nuevo_valor):
-    # Se conecta a la base de datos y crea el cursor
-    conn = sqlite3.connect(ruta_db)
-    cursor = conn.cursor()
+    try:
+        conexion = sqlite3.connect(ruta_db)
+        cursor = conexion.cursor()
+        
+        cursor.execute(f"UPDATE Menu SET {categoria} = ? WHERE nombre = ?", (nuevo_valor, name))
+        conexion.commit()
+        conexion.close()
+        
+        invalidate_menu_cache()  # Invalidar caché después de modificar
+        return True
+    except Exception as e:
+        print(f"Error al modificar menú: {e}")
+        return False
 
-    instruccion = f"UPDATE Menu SET {categoria} = {nuevo_valor} WHERE Nombre = '{name}'"  # Actualiza los valores que se le indiquen en la base de datos por eso UPDATE
-    cursor.execute(instruccion)  # Ejecuta la accion
-
-    conn.commit()  # Guarda los cambios hechos a la base de datos
-    conn.close()  # Cierra la coneccion con la base de datos
-    Recargar_menu()
 
 def Mostrar_Menu(pagina):
     conn = sqlite3.connect(ruta_db)
@@ -257,16 +272,28 @@ def Mostrar_menu_json():
 
 
 def Eliminar_Producto(name):
-    # Se conecta a la base de datos y crea el cursor
-    conn = sqlite3.connect(ruta_db)
-    cursor = conn.cursor()
+    try:
+        conexion = sqlite3.connect(ruta_db)
+        cursor = conexion.cursor()
+        
+        cursor.execute("DELETE FROM Menu WHERE nombre = ?", (name,))
+        conexion.commit()
+        conexion.close()
+        
+        invalidate_menu_cache()  # Invalidar caché después de modificar
+        return True
+    except Exception as e:
+        print(f"Error al eliminar producto: {e}")
+        return False
 
-    instruccion = f"DELETE FROM Menu WHERE Nombre = '{name}'"  # Elimina la fila en la que este el nombre que se le ingresa por eso DELETE
-    cursor.execute(instruccion)  # Ejecuta la accion
 
-    conn.commit()  # Guarda los cambios hechos a la base de datos
-    conn.close()  # Cierra la coneccion con la base de datos
-    Recargar_menu()
+def invalidate_menu_cache():
+    """Invalida el caché del menú cuando se realiza algún cambio"""
+    try:
+        redis_client.delete(MENU_CACHE_KEY)
+    except:
+        pass  # Si hay error con Redis, simplemente continuamos
+
 
 def Recargar_menu():
     try:
@@ -297,10 +324,12 @@ def Recargar_menu():
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "w", encoding="utf-8") as json_file:
         json.dump(data_disc, json_file, ensure_ascii=False, indent=4)
 
+
 def obtener_menu_en_json():
     """Devuelve el contenido del menú en formato JSON, asegurando la codificación."""
     with open(os.path.join(base_dir, "../Docs/Menu.json"), "r", encoding="utf-8") as file:
         return json.load(file)
+
 
 def obtener_cubiertos_json():
     with open(os.path.join(base_dir, "../Docs/Config.json"), "r", encoding="utf-8") as file:
@@ -308,6 +337,7 @@ def obtener_cubiertos_json():
         precio_cubierto = configuracion[0]['precio_cubiertos']
         precio_cubiertos_fnal = float(precio_cubierto[1:])
         return precio_cubiertos_fnal
+
 
 if __name__ == "__main__":
     crear_tablas()

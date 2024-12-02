@@ -1,5 +1,7 @@
 import sys
 import os
+import redis
+import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import requests
@@ -34,6 +36,15 @@ app.add_middleware(
     allow_methods=["*"],  # Permite todos los métodos HTTP (GET, POST, PUT, DELETE, etc.).
     allow_headers=["*"],  # Permite todos los encabezados (headers) en las solicitudes.
 )
+import redis
+
+redis_client = redis.Redis(
+  host='redis-17127.c280.us-central1-2.gce.redns.redis-cloud.com',
+  port=17127,
+  password='e6xm6izMHbIjytMSlyoZ35mvapmKr6MV')
+# Configuración de Redis
+MENU_CACHE_KEY = "menu_cache"
+CACHE_EXPIRATION = 36000  # 10 horas en segundos
 
 # Ruta POST para verificar un código de mozo.
 # Esta ruta recibe un código y utiliza la función `verificar` para comprobar si el código pertenece a un mozo registrado.
@@ -102,8 +113,6 @@ async def ruta_cantidad_mesas():
 @app.put("/mesas/{mesa}")
 async def ruta_editar_mesa(mesa: int, input: ValorInput):
     try:
-        
-        
         result = await guardar_mesa(mesa, input)
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Mesa {mesa} no encontrada.")
@@ -154,16 +163,24 @@ async def ruta_cerrar_mesa(mesa: int):
 # Ruta GET para obtener el menú en formato JSON.
 @app.get("/menu")
 async def ruta_menu():
-    # Llama a la función 'obtener_menu_en_json' para obtener el menú.
-        menu = obtener_menu_en_json()
+    try:
+        # Intentar obtener el menú desde Redis
+        cached_menu = redis_client.get(MENU_CACHE_KEY)
+        if cached_menu:
+            return json.loads(cached_menu)
         
-        # Si no se encuentra el menú, lanza un error 404.
-        if not menu:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menú no encontrado.")
+        # Si no está en caché, obtenerlo de la base de datos
+        menu_data = obtener_menu_en_json()
         
-        print(menu)
-        # Devuelve el menú en formato JSON si todo es correcto.
-        return menu
+        # Guardar en caché
+        redis_client.setex(MENU_CACHE_KEY, CACHE_EXPIRATION, json.dumps(menu_data))
+        
+        return menu_data
+    except redis.RedisError:
+        # Si hay un error con Redis, fallback a la base de datos
+        return obtener_menu_en_json()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @app.get("/precio")
 async def ruta_cubierto():
@@ -299,4 +316,4 @@ async def ruta_precomanda(num_comanda: int):
 # Este código solo se ejecuta si el archivo se ejecuta directamente.
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="localhost", port=8000)

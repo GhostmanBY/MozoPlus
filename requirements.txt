@@ -6,4 +6,5 @@ PyQt5
 uvicorn
 reportlab
 escpos
-Pillow 
+Pillow
+redis
