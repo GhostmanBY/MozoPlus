@@ -150,16 +150,19 @@ def Alta_Mozo(name):
     conn.close()  # Cierra la coneccion con la base de datos
 
 
-def Mostrar_Mozos(pagina):
+def Mostrar_Mozos(pagina = None):
     conn = sqlite3.connect(ruta_db)
     cursor = conn.cursor()
+    
+    if pagina != None:
+        # Límite de mozos por página
+        limite = 25
+        offset = pagina * limite
 
-    # Límite de mozos por página
-    limite = 25
-    offset = pagina * limite
-
-    # Consulta SQL con límite y desplazamiento
-    cursor.execute("SELECT * FROM Usuario LIMIT ? OFFSET ?", (limite, offset))  # Ejecuta la accion
+        # Consulta SQL con límite y desplazamiento
+        cursor.execute("SELECT * FROM Usuario LIMIT ? OFFSET ?", (limite, offset))  # Ejecuta la accion
+    else:
+        cursor.execute("SELECT * FROM Usuario")
 
     datos = cursor.fetchall()
 

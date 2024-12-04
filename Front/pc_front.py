@@ -682,12 +682,6 @@ class RestaurantInterface(QMainWindow):
         self.btn_siguiente_mozos = QPushButton("Siguiente Página", self)
         self.btn_siguiente_mozos.setStyleSheet(Paginas_atras_adelante_reset)
         self.btn_siguiente_mozos.clicked.connect(self.cargar_siguiente_mozos)
-        
-        pagination_layout.addWidget(self.btn_anterior_mozos)
-        pagination_layout.addWidget(self.btn_siguiente_mozos)
-        pagination_layout.addStretch()  # Esto empujará los botones hacia la izquierda
-        
-        mozos_layout.addLayout(pagination_layout)
 
         # Modificar el botón de actualizar
         self.refresh_button = QPushButton("Actualizar Lista")
@@ -700,7 +694,7 @@ class RestaurantInterface(QMainWindow):
         pagination_layout = QHBoxLayout()
         pagination_layout.addWidget(self.btn_anterior_mozos)
         pagination_layout.addWidget(self.btn_siguiente_mozos)
-        pagination_layout.addStretch()
+        #pagination_layout.addStretch()
         
         bottom_layout.addLayout(pagination_layout)
         bottom_layout.addStretch()
