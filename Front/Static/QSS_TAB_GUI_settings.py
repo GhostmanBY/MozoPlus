@@ -96,3 +96,45 @@ Ventanta_de_configuracion = f"""
                 background-color: {COLOR_BOTON_GUARDAR_PRESSED};
             }}
         """
+
+Ventana_Agregar_Plato = f"""
+    QDialog {{
+        background-color: {COLOR_FONDO_VENTANA};
+        border: 2px solid {COLOR_BORDES};
+        padding: 20px;
+    }}
+    QLabel {{
+        font-size: 18px;
+        font-weight: bold;
+        background-color: transparent;
+        color: {COLOR_TEXTO_DARK};
+        margin-bottom: 12px;
+    }}
+    QLineEdit {{
+        font-size: 12px;
+        padding: 12px;
+        border: 2px solid {COLOR_BORDES};
+        border-radius: 10px;
+        background-color: {COLOR_TERCERO};
+        color: {COLOR_TEXTO_CLARO};
+    }}
+    QLineEdit:focus {{
+        border-color: {COLOR_BOTON_CONFIG_MENU};
+    }}
+    QPushButton {{
+        font-size: 16px;
+        font-weight: bold;
+        padding: 12px 24px;
+        background-color: {COLOR_BOTON_AGREGAR};
+        color: white;
+        border: none;
+        border-radius: 10px;
+        margin-top: 20px;
+    }}
+    QPushButton:hover {{
+        background-color: {COLOR_BOTON_CONFIG_MENU};
+    }}
+    QPushButton:pressed {{
+        background-color: {COLOR_BOTON_GUARDAR_PRESSED};
+    }}
+"""
