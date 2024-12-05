@@ -216,9 +216,6 @@ class Info_Tab(QWidget):
 
                     # Guardar los datos en el frame para acceder a ellos al hacer clic
                     entry_frame.entry_data = entry
-                    
-                    # Conectar el evento de clic
-                    entry_frame.mousePressEvent = lambda e, data=entry: self.show_detailed_info(data)
 
                     # Información del mozo
                     mozo_label = QLabel(f"👤 Mozo: {entry.get('mozo', 'Desconocido')}")

@@ -33,10 +33,10 @@ class Config(Setting):
 
         self.config_menu = QMenu(self)
     
-        self.cubiertos_action = QAction("💰 Precio de cubiertos", self)
+        self.cubiertos_action = QAction("🔧 Ajustes", self)
         self.cubiertos_input = QLineEdit()
         
-        self.mesas_action = QAction("🍽️ Cantidad de mesas", self)
+        self.mesas_action = QAction("🍽️ Agregar Pedido", self)
         self.mesas_input = QLineEdit()
 
         self.ip_action = QAction(f"IP del dispositivo: {self.device_ip}", self)
@@ -51,15 +51,11 @@ class Config(Setting):
 
         self.config_menu.setStyleSheet(Config_Desplegable_Menu)
 
-        self.cubiertos_action.triggered.connect(lambda: self.show_config_dialog("Precio de cubiertos"))
+        self.cubiertos_action.triggered.connect(self.Ventana_Ajustes)
         self.config_menu.addAction(self.cubiertos_action)
 
         self.mesas_action.triggered.connect(lambda: self.show_config_dialog("Cantidad de mesas"))
         self.config_menu.addAction(self.mesas_action)
-
-        reset_action = QAction("🔄 resetear mesas", self)
-        reset_action.triggered.connect(self.reset_mesas)
-        self.config_menu.addAction(reset_action)
 
         self.config_menu.addSeparator()  # Separador para la IP
 
@@ -67,6 +63,32 @@ class Config(Setting):
         self.config_menu.addAction(self.ip_action)
 
         self.config_button.setMenu(self.config_menu)
+
+    def Ventana_Ajustes(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("🔧 Ajustes")
+        dialog.setFixedSize(300, 250)
+        dialog.setStyleSheet(Ventanta_de_configuracion)
+
+        layout = QVBoxLayout(dialog)
+
+        boton_Mesas = QPushButton("🍴 Cantidad de mesas")
+        boton_Mesas.clicked.connect(lambda: self.show_config_dialog("Cantidad de mesas"))
+        layout.addWidget(boton_Mesas)
+
+        boton_Precio_Cubiertos = QPushButton("💰 Precio de Cubiertos")
+        boton_Precio_Cubiertos.clicked.connect(lambda: self.show_config_dialog("Precio de cubiertos"))
+        layout.addWidget(boton_Precio_Cubiertos)
+        
+        boton_Reset_mesas = QPushButton("🔁 Reiniciar mesas")
+        boton_Reset_mesas.clicked.connect(self.reset_mesas)
+        layout.addWidget(boton_Reset_mesas)
+
+        layout.addStretch()
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+        
 
     def show_config_dialog(self, config_type):
         dialog = QDialog(self)

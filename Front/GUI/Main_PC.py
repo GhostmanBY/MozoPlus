@@ -29,14 +29,13 @@ class MainApp(QMainWindow, Config):
         self.tabs.addTab(Info_Tab(), "Registro")
         
         self.setCentralWidget(self.tabs)
-        
+
         self.tabs.setCornerWidget(self.config_button, Qt.TopRightCorner)
 
     def ajustar_tamano_pantalla(self):
         screen = QDesktopWidget().screenGeometry()
         self.setGeometry(0, 0, screen.width(), screen.height())
         self.showMaximized()
-    
 
     def actualizar_mesas(self):
         # Obtener la referencia al widget Main_Tab

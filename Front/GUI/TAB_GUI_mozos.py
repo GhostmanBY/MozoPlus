@@ -82,11 +82,11 @@ class Mozos_Tab(QWidget, Utils):
 
         self.btn_anterior_mozos = QPushButton("Página Anterior", self)
         self.btn_anterior_mozos.setStyleSheet(Botones_Navegacion)
-        self.btn_anterior_mozos.clicked.connect(lambda: self.siguiente("mozos"))
+        self.btn_anterior_mozos.clicked.connect(self.cargar_anterior_mozos)
         
         self.btn_siguiente_mozos = QPushButton("Siguiente Página", self)
         self.btn_siguiente_mozos.setStyleSheet(Botones_Navegacion)
-        self.btn_siguiente_mozos.clicked.connect(lambda: self.siguiente("mozos"))
+        self.btn_siguiente_mozos.clicked.connect(self.cargar_siguiente_mozos)
 
         # Modificar el botón de actualizar
         self.refresh_button.setStyleSheet(Botones_Navegacion)
@@ -301,10 +301,11 @@ class Mozos_Tab(QWidget, Utils):
         self.mozos_table.horizontalHeader().setStretchLastSection(True)
 
     def cargar_siguiente_mozos(self):
-        self.pagina_mozo = self.siguiente(self.pagina_mozos, "mozo")
+        self.pagina_mozos = self.siguiente(self.pagina_mozos, "mozo")
         self.load_mozos()
         
     def cargar_anterior_mozos(self):
-        if self.pagina_mozo > 0:
-            self.pagina_mozo = self.anterior(self.pagina_mozos, "mozo")
+        print(self.pagina_mozos)
+        if self.pagina_mozos > 0:
+            self.pagina_mozos = self.anterior(self.pagina_mozos, "mozo")
             self.load_mozos()
