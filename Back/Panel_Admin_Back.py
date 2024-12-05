@@ -2,21 +2,12 @@ import os
 import json
 import random
 import sqlite3
-import redis
 from typing import Optional
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 ruta_db = os.path.join(base_dir, "../DB/Panel_admin.db")
 ruta_json = os.path.join(base_dir, "../Docs/mesas.json")
-
-# Configuración de Redis
-redis_client = redis.Redis(
-    host='redis-17127.c280.us-central1-2.gce.redns.redis-cloud.com',
-    port=17127,
-    password='e6xm6izMHbIjytMSlyoZ35mvapmKr6MV',
-    decode_responses=True)
-MENU_CACHE_KEY = "menu_cache"
 
 def obtener_resumen_por_fecha(fecha: Optional[str] = None, mozo: Optional[str] = None):
     """
@@ -214,8 +205,6 @@ def Cargar_Producto(categoria, name, precio):
         cursor.execute("INSERT INTO Menu (categoria, nombre, precio) VALUES (?, ?, ?)", (categoria, name, precio))
         conexion.commit()
         conexion.close()
-        
-        invalidate_menu_cache()  # Invalidar caché después de modificar
         return True
     except Exception as e:
         print(f"Error al cargar producto: {e}")
@@ -230,8 +219,6 @@ def Modificar_Menu(name, categoria, nuevo_valor):
         cursor.execute(f"UPDATE Menu SET {categoria} = ? WHERE nombre = ?", (nuevo_valor, name))
         conexion.commit()
         conexion.close()
-        
-        invalidate_menu_cache()  # Invalidar caché después de modificar
         return True
     except Exception as e:
         print(f"Error al modificar menú: {e}")
@@ -282,20 +269,10 @@ def Eliminar_Producto(name):
         cursor.execute("DELETE FROM Menu WHERE nombre = ?", (name,))
         conexion.commit()
         conexion.close()
-        
-        invalidate_menu_cache()  # Invalidar caché después de modificar
         return True
     except Exception as e:
         print(f"Error al eliminar producto: {e}")
         return False
-
-
-def invalidate_menu_cache():
-    """Invalida el caché del menú cuando se realiza algún cambio"""
-    try:
-        redis_client.delete(MENU_CACHE_KEY)
-    except:
-        pass  # Si hay error con Redis, simplemente continuamos
 
 
 def Recargar_menu():

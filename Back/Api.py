@@ -1,6 +1,5 @@
 import sys
 import os
-import redis
 import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -36,17 +35,7 @@ app.add_middleware(
     allow_methods=["*"],  # Permite todos los métodos HTTP (GET, POST, PUT, DELETE, etc.).
     allow_headers=["*"],  # Permite todos los encabezados (headers) en las solicitudes.
 )
-import redis
 
-redis_client = redis.Redis(
-  host='redis-17127.c280.us-central1-2.gce.redns.redis-cloud.com',
-  port=17127,
-  password='e6xm6izMHbIjytMSlyoZ35mvapmKr6MV')
-# Configuración de Redis
-MENU_CACHE_KEY = "menu_cache"
-CACHE_EXPIRATION = 36000  # 10 horas en segundos
-
-# Ruta POST para verificar un código de mozo.
 # Esta ruta recibe un código y utiliza la función `verificar` para comprobar si el código pertenece a un mozo registrado.
 @app.post("/verificar/{code}")
 async def ruta_verificar(code: str):
@@ -164,20 +153,6 @@ async def ruta_cerrar_mesa(mesa: int):
 @app.get("/menu")
 async def ruta_menu():
     try:
-        # Intentar obtener el menú desde Redis
-        cached_menu = redis_client.get(MENU_CACHE_KEY)
-        if cached_menu:
-            return json.loads(cached_menu)
-        
-        # Si no está en caché, obtenerlo de la base de datos
-        menu_data = obtener_menu_en_json()
-        
-        # Guardar en caché
-        redis_client.setex(MENU_CACHE_KEY, CACHE_EXPIRATION, json.dumps(menu_data))
-        
-        return menu_data
-    except redis.RedisError:
-        # Si hay un error con Redis, fallback a la base de datos
         return obtener_menu_en_json()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
