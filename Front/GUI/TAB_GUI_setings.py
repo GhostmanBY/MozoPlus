@@ -137,7 +137,7 @@ class Config(Setting):
     def Ventana_Pedido_nuevo(self):
         dialog = QDialog(self)
         dialog.setWindowTitle("Crear Pedido")
-        dialog.setFixedSize(350, 500)
+        dialog.setFixedSize(400, 600)
         dialog.setStyleSheet(Ventana_Agregar_Plato)
         self.Layout = QVBoxLayout()
 
@@ -153,6 +153,8 @@ class Config(Setting):
 
         self.mozo = QLabel("Mozo: ")
         self.mozo_input = QLineEdit()
+        self.mozo_input.setPlaceholderText("Escribe aquí...")
+        self.mozo_input.setFixedSize(150, 40)
 
         self.layout_HM.addWidget(self.texto_mesa)
         self.layout_HM.addWidget(self.Mesas)
@@ -199,6 +201,9 @@ class Config(Setting):
 
         self.Extra_Entry = QTextEdit()
         self.Layout.addWidget(self.Extra_Entry)
+
+        self.guardar_boton = QPushButton("Guardar")
+        self.Layout.addWidget(self.guardar_boton, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Agregar espacio al layout
         self.Layout.addStretch()

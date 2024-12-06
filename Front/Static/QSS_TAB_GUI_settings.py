@@ -1,20 +1,20 @@
-COLOR_TEXTO_SECUNDARIO = "#6B4423"  # Marrón medio
-COLOR_TEXTO_HOVER = "#A0522D"  # Siena
-COLOR_FONDO_VENTANA = "#FFF8DC"  # Blanco maíz
-COLOR_TEXTO_DARK = "#4A2511"  # Marrón oscuro
-COLOR_TEXTO_CLARO = "#FFF8DC"  # Blanco maíz
-COLOR_TERCERO = "#DEB887"  # Beige oscuro
-COLOR_BOTON_CONFIG_MENU = "#556B2F"  # Verde oliva oscuro
-COLOR_BOTON_AGREGAR = "#85AC41"  # Verde oliva oscuro
-COLOR_BOTON_GUARDAR = "#2E8B57"  # Verde mar oscuro
-COLOR_BOTON_GUARDAR_PRESSED = "#2F4F4F"  # Verde gris oscuro
-COLOR_BORDES = "#DEB887"  # Beige oscuro
+GRIS_TEXTO = "#2D3748"             # Gris oscuro principal
+GRIS_TEXTO_HOVER = "#4A5568"       # Gris oscuro para hover
+BLANCO_FONDO = "#F7FAFC"           # Blanco con toque gris
+GRIS_TEXTO_OSCURO = "#1A202C"      # Gris muy oscuro
+BLANCO_TEXTO = "#FFFFFF"           # Blanco puro
+GRIS_BORDES = "#CBD5E0"            # Gris medio
+VERDE_PRIMARIO = "#38A169"         # Verde para acciones principales
+VERDE_SECUNDARIO = "#48BB78"       # Verde más claro
+VERDE_EXITO = "#2F855A"            # Verde oscuro
+VERDE_PRESSED = "#276749"          # Verde muy oscuro
+GRIS_BORDES_SUAVE = "#E2E8F0"      # Gris claro para bordes
 
 # MARK: setup_config_menu
 #Variable: config_button
 Config_Style_boton = f"""
             QToolButton {{
-                color: {COLOR_TEXTO_SECUNDARIO};
+                color: {GRIS_TEXTO};
                 background-color: transparent;
                 border: none;
                 padding: 15px;  
@@ -35,8 +35,8 @@ Config_Style_boton = f"""
 #Variable: config_menu
 Config_Desplegable_Menu = f"""
         QMenu {{
-            background-color: white;
-            border: 1px solid {COLOR_BOTON_CONFIG_MENU};
+            background-color: {BLANCO_FONDO};
+            border: 1px solid {VERDE_PRIMARIO};
             padding: 8px;
             border-radius: 12px;
             font-size: 14px;
@@ -44,12 +44,12 @@ Config_Desplegable_Menu = f"""
         QMenu::item {{
             padding: 10px 20px;
             border-radius: 8px;
-            background-color: {COLOR_BOTON_AGREGAR};
+            background-color: {VERDE_SECUNDARIO};
             margin-bottom: 5px;
             color: white
         }}
         QMenu::item:selected {{
-            background-color: {COLOR_TEXTO_HOVER};
+            background-color: {GRIS_TEXTO_HOVER};
         }}
         QMenu::icon {{
             padding-right: 12px;
@@ -58,83 +58,83 @@ Config_Desplegable_Menu = f"""
 # MARK: show_config_dialog
 Ventanta_de_configuracion = f"""
             QDialog {{
-                background-color: {COLOR_FONDO_VENTANA};
+                background-color: {BLANCO_FONDO};
                 border-radius: 18px;
-                border: 1px solid COLOR_BORDES;
+                border: 1px solid {GRIS_BORDES};
             }}
             QLabel {{
                 font-size: 18px;
                 font-weight: bold;
-                color: {COLOR_TEXTO_DARK};
+                color: {GRIS_TEXTO_OSCURO};
                 margin-bottom: 12px;
             }}
             QLineEdit {{
                 font-size: 16px;
                 padding: 12px;
-                border: 2px solid {COLOR_BOTON_CONFIG_MENU};
+                border: 2px solid {VERDE_PRIMARIO};
                 border-radius: 10px;
-                background-color: {COLOR_TERCERO};
-                color: {COLOR_TEXTO_CLARO};
+                background-color: {VERDE_EXITO};
+                color: {BLANCO_TEXTO};
             }}
             QLineEdit:focus {{
-                border-color: {COLOR_BOTON_CONFIG_MENU};
+                border-color: {VERDE_PRIMARIO};
             }}
             QPushButton {{
                 font-size: 16px;
                 font-weight: bold;
                 padding: 12px 24px;
-                background-color: {COLOR_BOTON_GUARDAR};
+                background-color: {VERDE_PRESSED};
                 color: white;
                 border: none;
                 border-radius: 10px;
                 margin-top: 20px;
             }}
             QPushButton:hover {{
-                background-color: {COLOR_TEXTO_HOVER};
+                background-color: {GRIS_TEXTO_HOVER};
             }}
             QPushButton:pressed {{
-                background-color: {COLOR_BOTON_GUARDAR_PRESSED};
+                background-color: {VERDE_PRESSED};
             }}
         """
 
 Ventana_Agregar_Plato = f"""
     QDialog {{
-        background-color: {COLOR_FONDO_VENTANA};
-        border: 2px solid {COLOR_BORDES};
+        background-color: {BLANCO_FONDO};
+        border: 2px solid {GRIS_BORDES};
         padding: 20px;
     }}
     QLabel {{
         font-size: 18px;
         font-weight: bold;
         background-color: transparent;
-        color: {COLOR_TEXTO_DARK};
+        color: {GRIS_TEXTO_OSCURO};
         margin-bottom: 12px;
     }}
     QLineEdit {{
-        font-size: 12px;
-        padding: 12px;
-        border: 2px solid {COLOR_BORDES};
+        font-size: 16px;
+        padding: 5px;
+        border: 2px solid {VERDE_PRIMARIO};
         border-radius: 10px;
-        background-color: {COLOR_TERCERO};
-        color: {COLOR_TEXTO_CLARO};
+        background-color: {VERDE_EXITO};
+        color: {BLANCO_TEXTO};
     }}
     QLineEdit:focus {{
-        border-color: {COLOR_BOTON_CONFIG_MENU};
+        border-color: {VERDE_PRIMARIO};
     }}
     QPushButton {{
         font-size: 16px;
         font-weight: bold;
         padding: 12px 24px;
-        background-color: {COLOR_BOTON_AGREGAR};
+        background-color: {VERDE_SECUNDARIO};
         color: white;
         border: none;
         border-radius: 10px;
         margin-top: 20px;
     }}
     QPushButton:hover {{
-        background-color: {COLOR_BOTON_CONFIG_MENU};
+        background-color: {VERDE_PRIMARIO};
     }}
     QPushButton:pressed {{
-        background-color: {COLOR_BOTON_GUARDAR_PRESSED};
+        background-color: {VERDE_PRESSED};
     }}
 """

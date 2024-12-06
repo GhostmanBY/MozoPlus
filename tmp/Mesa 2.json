@@ -1,7 +1,7 @@
 {
     "Mesa": 2,
-    "Disponible": true,
-    "productos": [],
+    "Disponible": false,
+    "productos": ["Agua mineral", "Agua mineral gasificada", "Gaseosa", "Agua saborizada"],
     "cantidad_comensales": 0,
     "comensales_infantiles": 0,
     "Mozo": [],
