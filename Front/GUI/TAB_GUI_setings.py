@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -15,7 +16,8 @@ from PyQt5.QtWidgets import (
     QAction,
     QListWidget,
     QSpinBox,
-    QTextEdit
+    QTextEdit,
+    QComboBox
 )
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt
@@ -47,9 +49,11 @@ class Config(Setting):
 
         self.ip_action = QAction(f"IP del dispositivo: {self.device_ip}", self)
 
-        self.lista = ["Manzana", "Banana", "Cereza", "Durazno", "Frutilla", "Kiwi", "Limón", "Mango", "Naranja", "Pera", "Sandía", "Uva"]
+        self.lista_platos = []
+        self.categorias = ["Ninguna"]
         self.productos_elegidos = []
 
+        self.Menu_PC()
         self.setup_config_menu()
 
     def setup_config_menu(self):
@@ -148,11 +152,11 @@ class Config(Setting):
         # Mesa y Mozo
         self.layout_HM = QHBoxLayout()
         self.texto_mesa = QLabel("Mesa N° ")
-        self.Mesas = QSpinBox()
+        self.Mesas = QSpinBox() #Numero de las mesas que haya
         self.Mesas.setFixedSize(50, 25)
 
         self.mozo = QLabel("Mozo: ")
-        self.mozo_input = QLineEdit()
+        self.mozo_input = QLineEdit() #Nombre del mozo que antiende la mesa
         self.mozo_input.setPlaceholderText("Escribe aquí...")
         self.mozo_input.setFixedSize(150, 40)
 
@@ -168,12 +172,12 @@ class Config(Setting):
         self.Layout.addWidget(self.Texto_Comensales)
         self.layout_HM = QHBoxLayout()
         self.adult_text = QLabel("Adultos:")
-        self.adult_spin = QSpinBox()
+        self.adult_spin = QSpinBox() #Cantidad de comensales
         self.layout_HM.addWidget(self.adult_text)
         self.layout_HM.addWidget(self.adult_spin)
 
         self.niños_text = QLabel("Infantes:")
-        self.niños_spin = QSpinBox()
+        self.niños_spin = QSpinBox() #Cantidad de comensales
         self.layout_HM.addWidget(self.niños_text)
         self.layout_HM.addWidget(self.niños_spin)
         self.Layout.addLayout(self.layout_HM)
@@ -183,41 +187,65 @@ class Config(Setting):
         self.Layout.addWidget(self.texto_productos)
 
         self.layout_HM = QHBoxLayout()
-        self.Producto_input = QLineEdit()
+        self.Producto_input = QLineEdit() #Es un buscador no mas
         self.Producto_input.setPlaceholderText("Escribe aquí...")
-        self.Layout.addWidget(self.Producto_input)
+
+        self.categoria = QComboBox()
+        self.categoria.addItems(self.categorias)
+        self.categoria.currentTextChanged.connect(self.Menu_PC)
+
+        self.layout_HM.addWidget(self.Producto_input)
+        self.layout_HM.addWidget(self.categoria)
+
+        self.Layout.addLayout(self.layout_HM)
 
         # Lista de productos
-        self.Lista_producto = QListWidget()
-        self.Lista_producto.addItems(self.lista)
+        self.Lista_producto = QListWidget() #Aca se seleccionan los platos
+        self.Lista_producto.addItems(self.lista_platos)
         self.Layout.addWidget(self.Lista_producto)
         self.Layout.addLayout(self.layout_HM)
 
-        self.Producto_input.textChanged.connect(self.filtro_de_la_lista)
-        self.Lista_producto.itemClicked.connect(self.Opcion_elejida)
+        self.Producto_input.textChanged.connect(self.filtro_de_la_lista) #Funcion para usar el filtro 
+        self.Lista_producto.itemClicked.connect(self.Opcion_elejida) #Aca es donde se van guardando los pedidos seleccionados (en la vairable self.productos_elejido)
 
         self.Extras_text = QLabel("Extra")
         self.Layout.addWidget(self.Extras_text)
 
-        self.Extra_Entry = QTextEdit()
+        self.Extra_Entry = QTextEdit() #Aca es donde se añade la peticion del comensal
         self.Layout.addWidget(self.Extra_Entry)
 
-        self.guardar_boton = QPushButton("Guardar")
+        self.guardar_boton = QPushButton("Guardar") #Falta crear la funcion del boton que haga que se mandan todos los parametros en la mesa correspondiente 
         self.Layout.addWidget(self.guardar_boton, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Agregar espacio al layout
         self.Layout.addStretch()
-
         dialog.setLayout(self.Layout)
         dialog.exec_()
+
+    def Menu_PC(self, text=None):
+        with open(os.path.join(base_dir, "../../Docs/Menu.json"), "r", encoding="utf-8") as file:
+            data = json.load(file)
+        print(text)
+
+        if text == None:    
+            for categoria in data["menu"]:
+                self.categorias.append(categoria)
+                for producto in data["menu"][categoria]:
+                    self.lista_platos.append(producto["name"])
+        else:
+            self.lista_platos = []
+            for producto in data["menu"][text]:
+                self.lista_platos.append(producto["name"])
+            self.Lista_producto.clear()
+            self.Lista_producto.addItems(self.lista_platos)
 
     def filtro_de_la_lista(self, text):
         # Filtrar elementos según el texto
         if text == "":  # Si el campo de texto está vacío, mostrar toda la lista
             self.Lista_producto.clear()
-            self.Lista_producto.addItems(self.lista)
+            self.Lista_producto.addItems(self.lista_platos)
         else:
-            filtered_items = [item for item in self.lista if text.lower() in item.lower()]
+            filtered_items = [item for item in self.lista_platos if text.lower() in item.lower()]
             self.Lista_producto.clear()
             self.Lista_producto.addItems(filtered_items)
         # Actualizar el color de fondo de los elementos seleccionados
@@ -227,15 +255,10 @@ class Config(Setting):
         # Alternar la selección de un ítem: agregarlo o quitarlo de la lista de productos elegidos
         if item.text() not in self.productos_elegidos:
             self.productos_elegidos.append(item.text())  # Agregar a la lista si no está
-            """self.Lista_producto.clear()
-            self.Lista_producto.addItems(self.lista)"""
         else:
             self.productos_elegidos.remove(item.text())  # Quitar de la lista si ya está
-            """self.Lista_producto.clear()
-            self.Lista_producto.addItems(self.lista)"""
 
         # Actualizar el color de fondo de los elementos seleccionados
-        print(self.productos_elegidos)
         self.Marcar()
 
     def Marcar(self):
