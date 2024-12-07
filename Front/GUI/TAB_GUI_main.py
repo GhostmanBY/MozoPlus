@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit,
     QPushButton, QGridLayout, QSplitter, QScrollArea, QSizePolicy
 )
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QKeyEvent
+from PyQt5.QtCore import Qt, pyqtSignal
 
 from Static.QSS_TAB_GUI_main import (
     Frame_Scroll_mesas, right_widget_style, pedidos_label_Style, Placeholder_text_pedido,
@@ -17,9 +17,18 @@ from Static.QSS_TAB_GUI_main import (
 
 from Static.HTML_Pc_Front import (Coamnda_HTML, Comanda_Vacia_HTML)
 
+from Back import cerrar_mesa
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Main_Tab(QWidget):
+    """
+    Pestaña principal que muestra las mesas y los detalles de los pedidos.
+    Permite la visualización y gestión de las mesas del restaurante.
+    """
+    # Señal para comunicar la mesa seleccionada
+    mesa_seleccionada = pyqtSignal(int)
+    
     def __init__(self):
         super().__init__()
         self.main_widget = QWidget()
@@ -39,6 +48,8 @@ class Main_Tab(QWidget):
         self.pedidos_label = QLabel("Datos del pedido:")
     
         self.json_input = QTextEdit()
+
+        self.mesa_actual = None  # Agregar variable para tracking
 
         #Llamar la funcion
         self.setup_main_tab()
@@ -135,6 +146,8 @@ class Main_Tab(QWidget):
 
     def cargar_json(self, mesa_num):
         """Carga y muestra la comanda actual de una mesa específica"""
+        self.mesa_actual = mesa_num  # Guardar mesa seleccionada
+        self.mesa_seleccionada.emit(mesa_num)  # Emitir señal
         ruta_archivo = os.path.join(base_dir, f"../../tmp/Mesa {mesa_num}.json")
         try:
             with open(ruta_archivo, "r", encoding="utf-8") as f:
@@ -142,6 +155,10 @@ class Main_Tab(QWidget):
                 self.procesar_pedido_con_json(pedido_json)
         except Exception as e:
             print(f"Error al cargar JSON para Mesa {mesa_num}: {str(e)}")
+
+    def Cerrar_mesa(self, event: QKeyEvent):
+        if event == Qt.Key_x:
+            cerrar_mesa(self.mesa_actual)
 
     def procesar_pedido_con_json(self, pedido_json):
         """Procesa y muestra la comanda en la interfaz"""

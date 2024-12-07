@@ -30,8 +30,14 @@ from Front.Static.Utils import Setting
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Config(Setting):
-    def __init__(self):
+    def __init__(self, main_tab):
         super().__init__()
+        self.main_tab = main_tab
+        self.mesa_num = None
+        
+        # Conectar la señal
+        self.main_tab.mesa_seleccionada.connect(self.actualizar_mesa)
+        
         self.device_ip = self.get_device_ip()
 
         self.config_button = QToolButton(self)
@@ -44,6 +50,8 @@ class Config(Setting):
         self.Pedido_nuevo = QAction("🍽️ Agregar Pedido", self)
         self.Pedido_nuevo_input = QLineEdit()
         
+        self.editar_mesa = QAction("🗒️ Editar Mesa", self)
+
         self.cubiertos_input = QLineEdit()
         self.mesas_input = QLineEdit()
 
@@ -67,8 +75,11 @@ class Config(Setting):
         self.Ajustes.triggered.connect(self.Ventana_Ajustes)
         self.config_menu.addAction(self.Ajustes)
         
-        self.Pedido_nuevo.triggered.connect(self.Ventana_Pedido_nuevo)
+        self.Pedido_nuevo.triggered.connect(lambda: self.Ventana_Pedido_nuevo("nuevo"))
         self.config_menu.addAction(self.Pedido_nuevo)
+
+        self.editar_mesa.triggered.connect(self.Editar)
+        self.config_menu.addAction(self.editar_mesa)
 
         self.config_menu.addSeparator()  # Separador para la IP
 
@@ -138,88 +149,120 @@ class Config(Setting):
         dialog.setLayout(layout)
         dialog.exec_()
 
-    def Ventana_Pedido_nuevo(self):
+    def Ventana_Pedido_nuevo(self, modo="nuevo"):
+        """
+        Crea una ventana de pedido
+        modo: "nuevo" para un nuevo pedido, "editar" para editar uno existente
+        """
         dialog = QDialog(self)
-        dialog.setWindowTitle("Crear Pedido")
+        dialog.setWindowTitle("Crear Pedido" if modo == "nuevo" else "Editar Pedido")
         dialog.setFixedSize(400, 600)
         dialog.setStyleSheet(Ventana_Agregar_Plato)
         self.Layout = QVBoxLayout()
 
         # Titulo
-        self.Texto_bienvenida = QLabel("Pedido Nuevo")
+        self.Texto_bienvenida = QLabel("Pedido Nuevo" if modo == "nuevo" else "Editar Pedido")
         self.Layout.addWidget(self.Texto_bienvenida)
         
         # Mesa y Mozo
-        self.layout_HM = QHBoxLayout()
+        self.layout_mesa_mozo = QHBoxLayout()
         self.texto_mesa = QLabel("Mesa N° ")
         self.Mesas = QSpinBox() #Numero de las mesas que haya
         self.Mesas.setFixedSize(50, 25)
+        
+        # Si estamos en modo editar, deshabilitar el cambio de mesa
+        if modo == "editar":
+            self.Mesas.setEnabled(False)
 
         self.mozo = QLabel("Mozo: ")
         self.mozo_input = QLineEdit() #Nombre del mozo que antiende la mesa
         self.mozo_input.setPlaceholderText("Escribe aquí...")
         self.mozo_input.setFixedSize(150, 40)
 
-        self.layout_HM.addWidget(self.texto_mesa)
-        self.layout_HM.addWidget(self.Mesas)
-        self.layout_HM.addWidget(self.mozo)
-        self.layout_HM.addWidget(self.mozo_input)
-        self.layout_HM.addStretch()
-        self.Layout.addLayout(self.layout_HM)
+        self.layout_mesa_mozo.addWidget(self.texto_mesa)
+        self.layout_mesa_mozo.addWidget(self.Mesas)
+        self.layout_mesa_mozo.addWidget(self.mozo)
+        self.layout_mesa_mozo.addWidget(self.mozo_input)
+        self.layout_mesa_mozo.addStretch()
+        self.Layout.addLayout(self.layout_mesa_mozo)
 
         # Comensales
         self.Texto_Comensales = QLabel("Comensales")
         self.Layout.addWidget(self.Texto_Comensales)
-        self.layout_HM = QHBoxLayout()
+        self.layout_comensales = QHBoxLayout()
         self.adult_text = QLabel("Adultos:")
         self.adult_spin = QSpinBox() #Cantidad de comensales
-        self.layout_HM.addWidget(self.adult_text)
-        self.layout_HM.addWidget(self.adult_spin)
+        self.layout_comensales.addWidget(self.adult_text)
+        self.layout_comensales.addWidget(self.adult_spin)
 
         self.niños_text = QLabel("Infantes:")
         self.niños_spin = QSpinBox() #Cantidad de comensales
-        self.layout_HM.addWidget(self.niños_text)
-        self.layout_HM.addWidget(self.niños_spin)
-        self.Layout.addLayout(self.layout_HM)
+        self.layout_comensales.addWidget(self.niños_text)
+        self.layout_comensales.addWidget(self.niños_spin)
+        self.Layout.addLayout(self.layout_comensales)
 
         # Productos
         self.texto_productos = QLabel("Platos")
         self.Layout.addWidget(self.texto_productos)
 
-        self.layout_HM = QHBoxLayout()
-        self.Producto_input = QLineEdit() #Es un buscador no mas
+        self.layout_busqueda = QHBoxLayout()
+        self.Producto_input = QLineEdit()
         self.Producto_input.setPlaceholderText("Escribe aquí...")
 
         self.categoria = QComboBox()
         self.categoria.addItems(self.categorias)
         self.categoria.currentTextChanged.connect(self.Menu_PC)
 
-        self.layout_HM.addWidget(self.Producto_input)
-        self.layout_HM.addWidget(self.categoria)
+        self.layout_busqueda.addWidget(self.Producto_input)
+        self.layout_busqueda.addWidget(self.categoria)
 
-        self.Layout.addLayout(self.layout_HM)
+        self.Layout.addLayout(self.layout_busqueda)
 
         # Lista de productos
-        self.Lista_producto = QListWidget() #Aca se seleccionan los platos
+        self.Lista_producto = QListWidget()
         self.Lista_producto.addItems(self.lista_platos)
         self.Layout.addWidget(self.Lista_producto)
-        self.Layout.addLayout(self.layout_HM)
-
+        
         self.Producto_input.textChanged.connect(self.filtro_de_la_lista) #Funcion para usar el filtro 
         self.Lista_producto.itemClicked.connect(self.Opcion_elejida) #Aca es donde se van guardando los pedidos seleccionados (en la vairable self.productos_elejido)
 
-        self.Extras_text = QLabel("Extra")
-        self.Layout.addWidget(self.Extras_text)
+        self.Extra_text = QLabel("Extra")
+        self.Layout.addWidget(self.Extra_text)
 
         self.Extra_Entry = QTextEdit() #Aca es donde se añade la peticion del comensal
         self.Layout.addWidget(self.Extra_Entry)
 
-        self.guardar_boton = QPushButton("Guardar") #Falta crear la funcion del boton que haga que se mandan todos los parametros en la mesa correspondiente 
+        self.guardar_boton = QPushButton("Actualizar" if modo == "editar" else "Guardar")
         self.Layout.addWidget(self.guardar_boton, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Agregar espacio al layout
         self.Layout.addStretch()
         dialog.setLayout(self.Layout)
+
+        # Si es modo editar, cargar los datos existentes
+        if modo == "editar":
+            with open(os.path.join(base_dir, f"../../tmp/Mesa {self.mesa_num}.json"), "r", encoding="utf-8") as file:
+                data = json.load(file)
+            
+            self.Mesas.setValue(self.mesa_num)
+            self.mozo_input.setText(data["Mozo"])
+            self.adult_spin.setValue(data["cantidad_comensales"])
+            self.niños_spin.setValue(data["comensales_infantiles"])
+            self.productos_elegidos = data["productos"]
+            self.Extra_Entry.setText(data["Extra"])
+            self.Marcar()
+
+        if modo == "nuevo":
+            dialog.exec_()
+        else:
+            return dialog
+
+    def Editar(self):
+        if self.mesa_num is None:
+            return  # No hacer nada si no hay mesa seleccionada
+        
+        # Llamar a Ventana_Pedido_nuevo en modo editar
+        dialog = self.Ventana_Pedido_nuevo(modo="editar")
         dialog.exec_()
 
     def Menu_PC(self, text=None):
@@ -227,7 +270,7 @@ class Config(Setting):
             data = json.load(file)
         print(text)
 
-        if text == None:    
+        if text == None or text == "Ninguna":    
             for categoria in data["menu"]:
                 self.categorias.append(categoria)
                 for producto in data["menu"][categoria]:
@@ -238,6 +281,7 @@ class Config(Setting):
                 self.lista_platos.append(producto["name"])
             self.Lista_producto.clear()
             self.Lista_producto.addItems(self.lista_platos)
+            self.Marcar()
 
     def filtro_de_la_lista(self, text):
         # Filtrar elementos según el texto
@@ -269,3 +313,7 @@ class Config(Setting):
                 item.setBackground(QColor(144, 238, 144))  # Resaltado en verde
             else:
                 item.setBackground(QColor(255, 255, 255))  # Fondo blanco para los no seleccionados
+
+    def actualizar_mesa(self, numero_mesa):
+        """Recibe el número de mesa seleccionada"""
+        self.mesa_num = numero_mesa

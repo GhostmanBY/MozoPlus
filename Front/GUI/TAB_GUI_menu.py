@@ -39,6 +39,9 @@ from Front.Static.Utils import Utils
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Menu_Tab(QWidget, Utils):
+    """
+    Pestaña para gestionar el menú del restaurante
+    """
     def __init__(self):
         super().__init__()
         self.pagina_menu = 0

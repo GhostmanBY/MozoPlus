@@ -35,6 +35,9 @@ from Front.Static.Utils import Utils
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Mozos_Tab(QWidget, Utils):
+    """
+    Pestaña para gestionar el personal de mozos
+    """
     def __init__(self):
         super().__init__()
         self.pagina_mozos = 0
