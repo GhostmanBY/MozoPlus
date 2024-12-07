@@ -3,3 +3,5 @@ pyinstaller --noconfirm --onefile --console --add-data "C:\\Users\\roca\\Desktop
 https://github.com/receipt-print-hq/escpos-tools.git
 se descargar este repo y tenes que poner el archivo.bin en ese directorio
 para usar el emulador de EOS/POST se usa el siguiente comando: php esc2text.php "archivo.bin"
+
+Para cerrar una mesa se tiene que seleccionar la mesa y tocar la x

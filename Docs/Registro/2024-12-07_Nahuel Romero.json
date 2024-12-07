@@ -1,0 +1,19 @@
+[
+    {
+        "Mesa": 2,
+        "Disponible": false,
+        "productos": [
+            "Agua mineral",
+            "Agua mineral gasificada",
+            "Gaseosa",
+            "Agua saborizada"
+        ],
+        "cantidad_comensales": 2,
+        "comensales_infantiles": 1,
+        "Mozo": "Nahuel Romero",
+        "Pagado": false,
+        "Metodo": "",
+        "Extra": "Sin queso",
+        "Hora_cierre": "13:31"
+    }
+]

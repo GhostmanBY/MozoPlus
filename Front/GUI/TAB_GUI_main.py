@@ -1,15 +1,17 @@
 import sys
 import json
 import os
+import asyncio
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ruta_raiz = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(ruta_raiz)
 
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit,
-    QPushButton, QGridLayout, QSplitter, QScrollArea, QSizePolicy
+    QPushButton, QGridLayout, QSplitter, QScrollArea, QSizePolicy, QMessageBox
 )
 from PyQt5.QtGui import QFont, QKeyEvent
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
 from Static.QSS_TAB_GUI_main import (
     Frame_Scroll_mesas, right_widget_style, pedidos_label_Style, Placeholder_text_pedido,
@@ -156,9 +158,33 @@ class Main_Tab(QWidget):
         except Exception as e:
             print(f"Error al cargar JSON para Mesa {mesa_num}: {str(e)}")
 
-    def Cerrar_mesa(self, event: QKeyEvent):
-        if event == Qt.Key_x:
-            cerrar_mesa(self.mesa_actual)
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_X:  # Detectar la tecla "X"
+            self.confirmar_cierre_mesa()
+
+    def confirmar_cierre_mesa(self):
+        """Muestra un cuadro de diálogo para confirmar el cierre de la mesa."""
+        reply = QMessageBox.question(
+            self,
+            "Confirmar Cierre",
+            "¿Está seguro de que desea cerrar la mesa?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+
+        if reply == QMessageBox.Yes:
+            if self.mesa_actual is not None:  # Asegúrate de que hay una mesa seleccionada
+                # Usar un QTimer para ejecutar la función asíncrona
+                QTimer.singleShot(0, lambda: self.cerrar_mesa_async(self.mesa_actual))
+            else:
+                QMessageBox.warning(self, "Error", "No hay mesa seleccionada para cerrar.")
+
+    def cerrar_mesa_async(self, mesa_num):
+        """Función asíncrona para cerrar la mesa."""
+        # Usar un bucle de eventos para ejecutar la coroutine
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(cerrar_mesa(mesa_num))  # Llama a la función para cerrar la mesa
+        QMessageBox.information(self, "Cierre de Mesa", "La mesa ha sido cerrada.")
 
     def procesar_pedido_con_json(self, pedido_json):
         """Procesa y muestra la comanda en la interfaz"""
