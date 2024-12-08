@@ -17,7 +17,8 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QSpinBox,
     QTextEdit,
-    QComboBox
+    QComboBox,
+    QMessageBox
 )
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt
@@ -25,19 +26,19 @@ from PyQt5.QtCore import Qt
 from Front.Static.QSS_TAB_GUI_settings import (
     Config_Style_boton, Config_Desplegable_Menu, Ventanta_de_configuracion, Ventana_Agregar_Plato
 )
-from Front.Static.Utils import Setting
+from Front.Static.Settings import Setting
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Config(Setting):
     def __init__(self, main_tab):
-        super().__init__()
+        super().__init__(main_tab)
         self.main_tab = main_tab
         self.mesa_num = None
         
         # Conectar la señal
         self.main_tab.mesa_seleccionada.connect(self.actualizar_mesa)
-        
+
         self.device_ip = self.get_device_ip()
 
         self.config_button = QToolButton(self)
@@ -52,6 +53,9 @@ class Config(Setting):
         
         self.editar_mesa = QAction("🗒️ Editar Mesa", self)
 
+        self.mozo_add = QAction("👨‍🍳 Agregar Mozo", self)
+        self.mozo_add_input = QLineEdit()
+
         self.cubiertos_input = QLineEdit()
         self.mesas_input = QLineEdit()
 
@@ -61,8 +65,11 @@ class Config(Setting):
         self.categorias = ["Ninguna"]
         self.productos_elegidos = []
 
+        self.Vista = 0  # Inicializar la variable Vista
+
         self.Menu_PC()
         self.setup_config_menu()
+
 
     def setup_config_menu(self):
         self.config_button.setText("⚙️")
@@ -72,14 +79,20 @@ class Config(Setting):
 
         self.config_menu.setStyleSheet(Config_Desplegable_Menu)
 
-        self.Ajustes.triggered.connect(self.Ventana_Ajustes)
-        self.config_menu.addAction(self.Ajustes)
-        
-        self.Pedido_nuevo.triggered.connect(lambda: self.Ventana_Pedido_nuevo("nuevo"))
-        self.config_menu.addAction(self.Pedido_nuevo)
+        self.config_menu.clear()
+        # Ajustes
+        if self.Vista == 0:
+            self.Ajustes.triggered.connect(self.Ventana_Ajustes)
+            self.config_menu.addAction(self.Ajustes)
+            
+            self.Pedido_nuevo.triggered.connect(lambda: self.Ventana_Pedido_nuevo("nuevo"))
+            self.config_menu.addAction(self.Pedido_nuevo)
 
-        self.editar_mesa.triggered.connect(self.Editar)
-        self.config_menu.addAction(self.editar_mesa)
+            self.editar_mesa.triggered.connect(self.Editar)
+            self.config_menu.addAction(self.editar_mesa)
+        if self.Vista == 1:
+            self.mozo_add.triggered.connect(lambda: self.show_config_dialog("Mozo"))
+            self.config_menu.addAction(self.mozo_add)
 
         self.config_menu.addSeparator()  # Separador para la IP
 
@@ -95,7 +108,7 @@ class Config(Setting):
         dialog.setStyleSheet(Ventanta_de_configuracion)
 
         layout = QVBoxLayout(dialog)
-
+        
         boton_Mesas = QPushButton("🍴 Cantidad de mesas")
         boton_Mesas.clicked.connect(lambda: self.show_config_dialog("Cantidad de mesas"))
         layout.addWidget(boton_Mesas)
@@ -129,6 +142,9 @@ class Config(Setting):
         elif config_type == "Cantidad de mesas":  # Cantidad de mesas
             icon_label.setText("🍽️")
             self.input_widget = self.mesas_input
+        elif config_type == "Mozo":
+            icon_label.setText("👨‍🍳")
+            self.input_widget = self.mozo_add_input
 
         icon_label.setStyleSheet("font-size: 48px; margin-right: 15px;")
 
@@ -171,8 +187,7 @@ class Config(Setting):
         self.Mesas.setFixedSize(50, 25)
         
         # Si estamos en modo editar, deshabilitar el cambio de mesa
-        if modo == "editar":
-            self.Mesas.setEnabled(False)
+        self.Mesas.setEnabled(False)
 
         self.mozo = QLabel("Mozo: ")
         self.mozo_input = QLineEdit() #Nombre del mozo que antiende la mesa
@@ -241,21 +256,31 @@ class Config(Setting):
 
         # Si es modo editar, cargar los datos existentes
         if modo == "editar":
-            with open(os.path.join(base_dir, f"../../tmp/Mesa {self.mesa_num}.json"), "r", encoding="utf-8") as file:
-                data = json.load(file)
-            
-            self.Mesas.setValue(self.mesa_num)
-            self.mozo_input.setText(data["Mozo"])
-            self.adult_spin.setValue(data["cantidad_comensales"])
-            self.niños_spin.setValue(data["comensales_infantiles"])
-            self.productos_elegidos = data["productos"]
-            self.Extra_Entry.setText(data["Extra"])
-            self.Marcar()
+            Json_mesa = os.path.join(base_dir, f"../../tmp/Mesa {self.mesa_num}.json")
 
-        if modo == "nuevo":
-            dialog.exec_()
-        else:
-            return dialog
+            with open(Json_mesa, "r", encoding="utf-8") as file:
+                data = json.load(file)
+                
+            if data["Disponible"] == False:
+                self.Mesas.setValue(self.mesa_num)
+                self.mozo_input.setText(data["Mozo"])
+                self.adult_spin.setValue(data["cantidad_comensales"])
+                self.niños_spin.setValue(data["comensales_infantiles"])
+                self.productos_elegidos = data["productos"]
+                self.Extra_Entry.setText(data["Extra"])
+                self.Marcar()
+
+                if modo == "nuevo":
+                    dialog.exec_()
+                else:
+                    return dialog
+                
+            else:
+                QMessageBox.warning(
+                    self,
+                    "Error Editar",
+                    "La mesa que quieres editar no contiene un pedido"
+                )
 
     def Editar(self):
         if self.mesa_num is None:
@@ -317,3 +342,7 @@ class Config(Setting):
     def actualizar_mesa(self, numero_mesa):
         """Recibe el número de mesa seleccionada"""
         self.mesa_num = numero_mesa
+    def actualizar_tab(self, tabIndex):
+        """Actualiza la pestaña activa"""
+        self.Vista = tabIndex  # Almacena el índice de la pestaña activa
+        self.setup_config_menu()

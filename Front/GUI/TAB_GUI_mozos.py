@@ -45,11 +45,6 @@ class Mozos_Tab(QWidget, Utils):
         self.mozos_widget = QWidget()
         self.mozos_layout = QVBoxLayout(self.mozos_widget)
         self.mozos_layout.setContentsMargins(10, 10, 10, 10)
-
-        self.add_mozo_layout = QHBoxLayout()
-        self.mozo_name_input = QLineEdit()
-        
-        self.add_mozo_button = QPushButton("Agregar Mozo")
     
         self.mozos_table = QTableWidget(0, 7)
     
@@ -65,16 +60,6 @@ class Mozos_Tab(QWidget, Utils):
         self.setup_mozos_tab()
     
     def setup_mozos_tab(self):
-        # Sección para agregar mozo
-        self.mozo_name_input.setPlaceholderText("Nombre del Mozo")
-        self.mozo_name_input.setStyleSheet(Entry_input)
-        
-        self.add_mozo_button.setStyleSheet(Boton_Agregar)
-        self.add_mozo_button.clicked.connect(self.add_mozo)
-        self.add_mozo_layout.addWidget(self.mozo_name_input, 3)
-        self.add_mozo_layout.addWidget(self.add_mozo_button, 1)
-        self.mozos_layout.addLayout(self.add_mozo_layout)
-
         # Tabla de Mozos
         self.mozos_table.setHorizontalHeaderLabels(["Nombre", "Código", "Hora de entrada", "Hora de salida", "Fecha", "Mesas Totales", "Acciones",])
         self.mozos_table.setStyleSheet(Estilo_Tabla)
@@ -192,26 +177,6 @@ class Mozos_Tab(QWidget, Utils):
             self.mozos_table.setColumnWidth(3, 125)
         else:
             self.pagina_mozos -= 1
-    
-    def add_mozo(self):
-        name = self.mozo_name_input.text()
-        if re.search(r'[^a-zA-Z ]', name):
-            QMessageBox.warning(
-                self, "Error", "Por favor, no Ingrese caracteres especiales."
-            )
-
-        if name:
-            response =Alta_Mozo(name)
-            if response:
-                QMessageBox.warning(
-                    self, "Mozo no agregado", "Nombre de Mozo duplicado, por favor intente otro nombre"
-                )
-            self.mozo_name_input.clear()
-            self.load_mozos()
-        else:
-            QMessageBox.warning(
-                self, "Error", "Por favor, ingrese un nombre para el mozo."
-            )
     
     def edit_mozo(self, row):
         name = self.mozos_table.item(row, 0).text()

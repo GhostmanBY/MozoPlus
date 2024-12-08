@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QDesktopWidget
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 
 # Importar las pestañas de la aplicación
 from TAB_GUI_main import Main_Tab
@@ -11,6 +11,7 @@ from TAB_GUI_mozos import Mozos_Tab
 from TAB_GUI_menu import Menu_Tab
 from TAB_GUI_info import Info_Tab
 from TAB_GUI_setings import Config
+
 
 # Importar estilos
 from Front.Static.QSS_Main_PC import Estilo_General, Estilo_app
@@ -20,6 +21,8 @@ class MainApp(QMainWindow):
     Ventana principal de la aplicación MozoPlus.
     Maneja la interfaz principal y las diferentes pestañas.
     """
+    tab_Activo = pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("MozoPlus")
@@ -40,6 +43,8 @@ class MainApp(QMainWindow):
         # Configurar el widget de pestañas
         self.setup_tabs()
 
+        self.tab_Activo.connect(self.actualizar_tab_seleccionada)  # Conectar la señal
+
     def setup_tabs(self):
         """Configura las pestañas de la aplicación"""
         self.tabs = QTabWidget()
@@ -51,6 +56,8 @@ class MainApp(QMainWindow):
         self.setCentralWidget(self.tabs)
         self.tabs.setCornerWidget(self.config.config_button, Qt.TopRightCorner)
 
+        self.tabs.currentChanged.connect(self.tab_Activo.emit)  # Emitir la señal cuando cambie la pestaña
+
     def ajustar_tamano_pantalla(self):
         """Ajusta el tamaño de la ventana al tamaño de la pantalla"""
         screen = QDesktopWidget().screenGeometry()
@@ -61,6 +68,10 @@ class MainApp(QMainWindow):
         """Actualiza el estado de las mesas periódicamente"""
         if isinstance(self.main_tab, Main_Tab):
             self.main_tab.cargar_mesas()
+
+    def actualizar_tab_seleccionada(self, tabIndex):
+        """Actualiza la pestaña seleccionada en la configuración"""
+        self.config.actualizar_tab(tabIndex)  # Llama al método en Config
 
 if __name__ == "__main__":
     def exception_hook(exctype, value, tb):

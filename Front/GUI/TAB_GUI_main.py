@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit,
     QPushButton, QGridLayout, QSplitter, QScrollArea, QSizePolicy, QMessageBox
 )
-from PyQt5.QtGui import QFont, QKeyEvent
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
 from Static.QSS_TAB_GUI_main import (
@@ -50,8 +50,6 @@ class Main_Tab(QWidget):
         self.pedidos_label = QLabel("Datos del pedido:")
     
         self.json_input = QTextEdit()
-
-        self.mesa_actual = None  # Agregar variable para tracking
 
         #Llamar la funcion
         self.setup_main_tab()
@@ -148,8 +146,8 @@ class Main_Tab(QWidget):
 
     def cargar_json(self, mesa_num):
         """Carga y muestra la comanda actual de una mesa específica"""
-        self.mesa_actual = mesa_num  # Guardar mesa seleccionada
         self.mesa_seleccionada.emit(mesa_num)  # Emitir señal
+
         ruta_archivo = os.path.join(base_dir, f"../../tmp/Mesa {mesa_num}.json")
         try:
             with open(ruta_archivo, "r", encoding="utf-8") as f:
