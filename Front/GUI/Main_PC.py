@@ -1,6 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+ruta_raiz = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(ruta_raiz)
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QDesktopWidget
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
@@ -12,9 +14,11 @@ from TAB_GUI_menu import Menu_Tab
 from TAB_GUI_info import Info_Tab
 from TAB_GUI_setings import Config
 
-
 # Importar estilos
 from Front.Static.QSS_Main_PC import Estilo_General, Estilo_app
+
+from Back import crear_config
+
 
 class MainApp(QMainWindow):
     """
@@ -28,6 +32,7 @@ class MainApp(QMainWindow):
         self.setWindowTitle("MozoPlus")
         self.ajustar_tamano_pantalla()
         self.setStyleSheet(Estilo_General)
+        crear_config()
 
         # Configurar temporizador para actualización automática de mesas
         self.timer = QTimer(self)
@@ -72,7 +77,6 @@ class MainApp(QMainWindow):
     def actualizar_tab_seleccionada(self, tabIndex):
         """Actualiza la pestaña seleccionada en la configuración"""
         self.config.actualizar_tab(tabIndex)  # Llama al método en Config
-
 if __name__ == "__main__":
     def exception_hook(exctype, value, tb):
         """Manejador de excepciones no capturadas"""

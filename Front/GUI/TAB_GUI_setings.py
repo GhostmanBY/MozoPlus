@@ -1,9 +1,12 @@
 import sys
 import os
 import json
+import asyncio
+from Back.models import ValorInput
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from Back.Menu_de_mesas_Back import guardar_mesa
 from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
@@ -24,7 +27,7 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt
 
 from Front.Static.QSS_TAB_GUI_settings import (
-    Config_Style_boton, Config_Desplegable_Menu, Ventanta_de_configuracion, Ventana_Agregar_Plato
+    Config_Style_boton, Config_Desplegable_Menu, Ventanta_de_configuracion, Ventana_Agregar_Plato, Ventana_productos
 )
 from Front.Static.Settings import Setting
 
@@ -56,8 +59,12 @@ class Config(Setting):
         self.mozo_add = QAction("👨‍🍳 Agregar Mozo", self)
         self.mozo_add_input = QLineEdit()
 
+        self.producto_add = QAction("🍽️ Agregar Producto", self)
+
         self.cubiertos_input = QLineEdit()
+        self.cubiertos_input.setPlaceholderText(f"Precio de cubiertos: {self.load_cubiertos_price()}")
         self.mesas_input = QLineEdit()
+        self.mesas_input.setPlaceholderText(f"Cantidad de mesas: {self.load_mesas_count()}")
 
         self.ip_action = QAction(f"IP del dispositivo: {self.device_ip}", self)
 
@@ -88,11 +95,15 @@ class Config(Setting):
             self.Pedido_nuevo.triggered.connect(lambda: self.Ventana_Pedido_nuevo("nuevo"))
             self.config_menu.addAction(self.Pedido_nuevo)
 
-            self.editar_mesa.triggered.connect(self.Editar)
+            self.editar_mesa.triggered.connect(lambda: self.Ventana_Pedido_nuevo("editar"))
             self.config_menu.addAction(self.editar_mesa)
-        if self.Vista == 1:
+        elif self.Vista == 1:
             self.mozo_add.triggered.connect(lambda: self.show_config_dialog("Mozo"))
             self.config_menu.addAction(self.mozo_add)
+        elif self.Vista == 2:
+            self.producto_add.triggered.connect(self.Nuevo_Menu)
+            self.config_menu.addAction(self.producto_add)
+        
 
         self.config_menu.addSeparator()  # Separador para la IP
 
@@ -125,7 +136,6 @@ class Config(Setting):
 
         dialog.setLayout(layout)
         dialog.exec_()
-        
 
     def show_config_dialog(self, config_type):
         dialog = QDialog(self)
@@ -165,11 +175,44 @@ class Config(Setting):
         dialog.setLayout(layout)
         dialog.exec_()
 
+    def Nuevo_Menu(self):
+        dialog = QDialog(self)
+        dialog.setStyleSheet(Ventana_productos)
+        dialog.setFixedSize(300, 450)
+        dialog.setWindowTitle("Nuevo Producto")
+        dialog_layout = QVBoxLayout(dialog)
+
+        category_input = QLineEdit()
+        name_input = QLineEdit()
+        price_input = QLineEdit()
+
+        dialog_layout.addWidget(QLabel("Categoría:"))
+        dialog_layout.addWidget(category_input)
+        dialog_layout.addWidget(QLabel("Nombre:"))
+        dialog_layout.addWidget(name_input)
+        dialog_layout.addWidget(QLabel("Precio:"))
+        dialog_layout.addWidget(price_input)
+
+        save_button = QPushButton("Guardar")
+        save_button.setStyleSheet(Ventana_productos)
+        save_button.clicked.connect( lambda: self.add_product(category_input.text(), name_input.text(), price_input.text()))
+        dialog_layout.addWidget(save_button)
+
+        dialog.setLayout(dialog_layout)
+        dialog.exec_()
+
     def Ventana_Pedido_nuevo(self, modo="nuevo"):
         """
         Crea una ventana de pedido
         modo: "nuevo" para un nuevo pedido, "editar" para editar uno existente
         """
+        def guardar(mesa, categorias: list, values: list):
+            i = 0
+            while i < len(values):
+                for categoria in categorias:
+                    valor_input = ValorInput(categoria=categoria, valor=values[i])
+                    asyncio.run(guardar_mesa(mesa, input=valor_input))
+                    i += 1
         dialog = QDialog(self)
         dialog.setWindowTitle("Crear Pedido" if modo == "nuevo" else "Editar Pedido")
         dialog.setFixedSize(400, 600)
@@ -248,6 +291,7 @@ class Config(Setting):
         self.Layout.addWidget(self.Extra_Entry)
 
         self.guardar_boton = QPushButton("Actualizar" if modo == "editar" else "Guardar")
+        self.guardar_boton.clicked.connect(lambda: guardar(self.Mesas.value(), categorias=["Mesa","productos", "cantidad_comensales", "comensales_infantiles", "Mozo","Extra"], values=[str(self.Mesas.value()), self.productos_elegidos, str(self.adult_spin.value()), str(self.niños_spin.value()), self.mozo_input.text(), self.Extra_Entry.toPlainText()]))
         self.Layout.addWidget(self.guardar_boton, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Agregar espacio al layout
@@ -262,32 +306,19 @@ class Config(Setting):
                 data = json.load(file)
                 
             if data["Disponible"] == False:
-                self.Mesas.setValue(self.mesa_num)
+                self.Mesas.setValue(int(self.mesa_num))
                 self.mozo_input.setText(data["Mozo"])
-                self.adult_spin.setValue(data["cantidad_comensales"])
-                self.niños_spin.setValue(data["comensales_infantiles"])
+                self.adult_spin.setValue(int(data["cantidad_comensales"]))
+                self.niños_spin.setValue(int(data["comensales_infantiles"])) # Convert to integer
                 self.productos_elegidos = data["productos"]
                 self.Extra_Entry.setText(data["Extra"])
-                self.Marcar()
-
-                if modo == "nuevo":
-                    dialog.exec_()
-                else:
-                    return dialog
-                
-            else:
+                self.Marcar()     
+            else: 
                 QMessageBox.warning(
                     self,
                     "Error Editar",
                     "La mesa que quieres editar no contiene un pedido"
                 )
-
-    def Editar(self):
-        if self.mesa_num is None:
-            return  # No hacer nada si no hay mesa seleccionada
-        
-        # Llamar a Ventana_Pedido_nuevo en modo editar
-        dialog = self.Ventana_Pedido_nuevo(modo="editar")
         dialog.exec_()
 
     def Menu_PC(self, text=None):

@@ -107,7 +107,7 @@ def creas_mesas(cantidad):
 # endpoint para editar una mesa a la ruta /mesas/{mesa} se remplaza {mesa} por el numero de la mesa
 
 
-async def guardar_mesa(mesa: int, input: ValorInput):
+async def guardar_mesa(mesa: int | str, input: ValorInput):
     """
     Edita una mesa reemplazando los valores de la categoria {categoria} con {valor}.
     """
@@ -117,10 +117,16 @@ async def guardar_mesa(mesa: int, input: ValorInput):
             contenido = json.load(file)
         
         if contenido["Disponible"] == True:
-            return JSONResponse(content=f"Mesa {mesa} no está ocupada", status_code=400)
+            print(f"Mesa {mesa} no está ocupada.")
+            result = JSONResponse(content=f"Mesa {mesa} no está ocupada", status_code=400)
+            print("Resultado del guardado:", result.body.decode())
+            return result
         
         if input.categoria not in contenido:
-            return JSONResponse(content=f"Categoría {input.categoria} no existe en la mesa {mesa}", status_code=400)
+            print(f"Categoría {input.categoria} no existe en la mesa {mesa}.")
+            result = JSONResponse(content=f"Categoría {input.categoria} no existe en la mesa {mesa}", status_code=400)
+            print("Resultado del guardado:", result.body.decode())
+            return result
 
         if isinstance(input.valor, list):
             if isinstance(contenido[input.categoria], list):
@@ -133,9 +139,12 @@ async def guardar_mesa(mesa: int, input: ValorInput):
         with open(archivo, "w", encoding="utf-8") as file:
             json.dump(contenido, file, ensure_ascii=False, indent=4)
 
-        return JSONResponse(content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}", media_type="application/json")
+        result = JSONResponse(content=f"Mesa número {mesa} {input.categoria} actualizada a {input.valor}", media_type="application/json")
+        return result
     except Exception as e:
-        return JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
+        result = JSONResponse(content=f"Algo ha salido mal: {str(e)}", status_code=500)
+        print("Resultado del guardado:", result.body.decode())
+        return result
 
 async def editar_mesa(mesa: int):
 
@@ -306,6 +315,7 @@ def comanda_preview(numero_mesa, nombre_mozo, lista_platos):
     for producto in pedido_tmp:
         for categoria in menu["menu"]:
             for item in menu["menu"][categoria]:
+
                 if producto == item["name"]:
                     if producto not in pedido_precio_tmp: 
                         pedido_precio.append({producto: item["price"]})
@@ -681,6 +691,11 @@ Sub-Mesa: {sub_mesa_id}
     ) as archivo:
         archivo.write(contenido)
 
+def crear_config():
+    with open(os.path.join(base_dir, "../Docs/Config.json"), "w", encoding="utf-8") as file:
+        json.dump([{"precio_cubiertos": "$100"}, {"cantidad_mesas": 10}], file, ensure_ascii=False, indent=4)
+        file.close()
+
 
 if __name__ == "__main__":
     lista =[
@@ -698,5 +713,3 @@ if __name__ == "__main__":
                 
 
     
-
-
